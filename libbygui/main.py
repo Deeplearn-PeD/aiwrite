@@ -3,7 +3,7 @@ from libbydbot.brain import LibbyDBot
 
 def build_appbar():
     appbar = ft.AppBar(
-        leading=ft.Icon(ft.icons.LIGHT),
+        leading=ft.Icon(ft.icons.TEXT_SNIPPET_ROUNDED),
         leading_width=40,
         title=ft.Text("Libby"),
         center_title=False,
@@ -28,6 +28,30 @@ def build_appbar():
     )
     return appbar
 
+def build_response_card():
+    card = ft.Card(
+        content=ft.Container(
+            content=ft.Column(
+                [
+                    ft.ListTile(
+                        leading=ft.Icon(ft.icons.DOCUMENT_SCANNER),
+                        title=ft.Text("Abstract"),
+                        subtitle=ft.Text(
+                            "First Draft."
+                        ),
+                    ),
+                    ft.Row(
+                        [ft.TextButton("Enhance"), ft.TextButton("Criticize")],
+                        alignment=ft.MainAxisAlignment.END,
+                    ),
+                ]
+            ),
+            # width=400,
+            padding=10,
+        )
+    )
+    return card
+
 def main(page: ft.Page):
     page.title = "Libby D. Bot"
     page.scroll = "adaptive"
@@ -42,12 +66,12 @@ def main(page: ft.Page):
             LDB.set_context("You are Libby D. Bot, a research Assistant, you should answer questions "
                            "based on the context provided.")
             response = LDB.ask(question.value)
-            page.add(ft.Text("Libby says: I am still learning, but I think you should ask a librarian."))
             page.add(ft.Text(f"Libby says: {response}"))
 
-
+    context = ft.TextField(label="Context", multiline=True, min_lines=5)
     question = ft.TextField(label="Question")
-    page.add(question, ft.ElevatedButton("Ask Libby", on_click=ask_libby))
+    response_card = build_response_card()
+    page.add(context, question, ft.ElevatedButton("Ask Libby", on_click=ask_libby), response_card)
 
 def run():
     ft.app(main)
