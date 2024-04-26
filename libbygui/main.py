@@ -1,7 +1,8 @@
 import flet as ft
 from libbydbot.brain import LibbyDBot
+from libbygui.workflow import Workflow
 
-def build_appbar():
+def build_appbar(page):
     appbar = ft.AppBar(
         leading=ft.Icon(ft.icons.TEXT_SNIPPET_ROUNDED),
         leading_width=40,
@@ -11,34 +12,37 @@ def build_appbar():
         actions=[
             ft.IconButton(ft.icons.WB_SUNNY_OUTLINED),
             ft.Dropdown(
+                value='Llama',
                 width=150,
                 label="Model",
                 options=[
                     ft.dropdown.Option("ChatGPT"),
                     ft.dropdown.Option("Gemma"),
-                    ft.dropdown.Option("Lamma"),
-                ]),
-            ft.PopupMenuButton(
-                items=[
-                    ft.PopupMenuItem(text="Item 1"),
-                    ft.PopupMenuItem(),  # divider
-                ]
+                    ft.dropdown.Option("Llama"),
+                ],
+                on_change=lambda e: page.client_storage.set("model", e.control.value)
             ),
+
         ],
     )
     return appbar
 
+def build_navigation_bar(page):
+    page.navigation_bar = ft.NavigationBar(
+        destinations=[
+            ft.NavigationDestination(icon=ft.icons.DOCUMENT_SCANNER_OUTLINED, label="My Manuscripts"),
+            ft.NavigationDestination(icon=ft.icons.EDIT_DOCUMENT, label="Edit"),
+        ]
+    )
 def build_response_card():
     card = ft.Card(
         content=ft.Container(
             content=ft.Column(
                 [
-                    ft.ListTile(
-                        leading=ft.Icon(ft.icons.DOCUMENT_SCANNER),
-                        title=ft.Text("Abstract"),
-                        subtitle=ft.Text(
-                            "First Draft."
-                        ),
+                    ft.Markdown(
+                        value="",
+                        selectable=True,
+                        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
                     ),
                     ft.Row(
                         [ft.TextButton("Enhance"), ft.TextButton("Criticize")],
@@ -55,23 +59,26 @@ def build_response_card():
 def main(page: ft.Page):
     page.title = "Libby D. Bot"
     page.scroll = "adaptive"
+    page.client_storage.set("model", "llama")
 
-    page.appbar = build_appbar()
-    def ask_libby(e):
-        if not question.value:
-            question.error_text = "Please enter a question"
+    page.appbar = build_appbar(page)
+    build_navigation_bar(page)
+    def write_man(e):
+        if not context.value:
+            context.error_text = "Please enter the initial concept of your manuscript."
             page.update()
         else:
-            LDB = LibbyDBot(model='llama3')
-            LDB.set_context("You are Libby D. Bot, a research Assistant, you should answer questions "
-                           "based on the context provided.")
-            response = LDB.ask(question.value)
-            page.add(ft.Text(f"Libby says: {response}"))
+            page.client_storage.set("context", context.value)
+            WKF = Workflow(model=page.client_storage.get("model"))
+            man = WKF.setup_manuscript(context.value)
+            response_card.content.content.controls[0].value = man.title + "\n\n" + man.abstract
+            response_card.update()
 
-    context = ft.TextField(label="Context", multiline=True, min_lines=5)
-    question = ft.TextField(label="Question")
+
+    context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
+
     response_card = build_response_card()
-    page.add(context, question, ft.ElevatedButton("Ask Libby", on_click=ask_libby), response_card)
+    page.add(context, ft.ElevatedButton("Write", on_click=write_man), response_card)
 
 def run():
     ft.app(main)
