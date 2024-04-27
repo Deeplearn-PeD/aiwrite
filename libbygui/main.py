@@ -68,11 +68,15 @@ def main(page: ft.Page):
             context.error_text = "Please enter the initial concept of your manuscript."
             page.update()
         else:
+            # prog = ft.ProgressRing(), ft.Text("This may take a while...")
+            page.add(ft.ProgressRing(), ft.Text("This may take a while..."))
+            # page.update()
             page.client_storage.set("context", context.value)
             WKF = Workflow(model=page.client_storage.get("model"))
             man = WKF.setup_manuscript(context.value)
             response_card.content.content.controls[0].value = man.title + "\n\n" + man.abstract
             response_card.update()
+            # page.remove(prog)
 
 
     context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
