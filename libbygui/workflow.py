@@ -62,23 +62,26 @@ class Workflow:
         with Session(self.engine) as session:
             statement = select(Manuscript).where(Manuscript.id == manuscript_id)
             manuscript = session.exec(statement).first()
+            self.manuscript = manuscript
         return manuscript
 
-    def add_section(self, manuscript: Manuscript, section_name: str):
+    def add_section(self, manuscript_id: int, section_name: str):
+        manuscript = self.get_manuscript(manuscript_id)
+        self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{self.get_manuscript_text(manuscript_id)}")
         section = self.libby.ask(f"Please write the {section_name} section of the manuscript, based on the context provided. Only return the section text, without additional text.")
         setattr(manuscript, section_name, section)
         self._save_manuscript(manuscript)
         return manuscript
 
-    def enhance_section(self, manuscript: Manuscript, section_name: str):
-        section = getattr(manuscript, section_name)
+    def enhance_section(self, manuscript_id: int, section_name: str):
+        manuscript = self.get_manuscript(manuscript_id)
         enhanced_section = self.libby.ask(f"Please enhance the {section_name} section of the manuscript, based on the context provided. Only return the enhanced section text, without additional text.")
         setattr(manuscript, section_name, enhanced_section)
         self._save_manuscript(manuscript)
         return manuscript
 
-    def criticize_section(self, manuscript: Manuscript, section_name: str):
-        section = getattr(manuscript, section_name)
+    def criticize_section(self, manuscript_id: int, section_name: str):
+        manuscript = self.get_manuscript(manuscript_id)
         criticized_section = self.libby.ask(f"Please criticize the {section_name} section of the manuscript, based on the context provided. Only return the criticized section text, without additional text.")
         setattr(manuscript, section_name, criticized_section)
         self._save_manuscript(manuscript)

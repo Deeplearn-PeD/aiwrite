@@ -6,6 +6,12 @@ import copy
 
 
 def build_appbar(page):
+    def save_file(e):
+        txt = page.text_field.value
+        page.file_picker.save_file(dialog_title="Save manscript as", file_name="manuscript.md",
+                                   file_type=ft.FilePickerFileType.ANY)
+
+
     appbar = ft.AppBar(
         leading=ft.Icon(ft.icons.TEXT_SNIPPET_ROUNDED),
         leading_width=40,
@@ -13,12 +19,14 @@ def build_appbar(page):
         center_title=False,
         bgcolor=ft.colors.SURFACE_VARIANT,
         actions=[
+            ft.IconButton(ft.icons.SAVE, tooltip="Export Manuscript", on_click=save_file),
             ft.IconButton(ft.icons.EXIT_TO_APP, tooltip="Exit My First Draft",
                           on_click=lambda e: page.window_destroy()),
             ft.Dropdown(
                 value='Llama',
                 width=150,
                 label="Model",
+                tooltip="Select the AI model to use for writing",
                 options=[
                     ft.dropdown.Option("GPT"),
                     ft.dropdown.Option("Gemma"),
@@ -37,6 +45,7 @@ def build_navigation_bar(page):
         destinations=[
             ft.NavigationDestination(icon=ft.icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
             ft.NavigationDestination(icon=ft.icons.EDIT_DOCUMENT, label="Edit"),
+            ft.NavigationDestination(icon=ft.icons.BOOK, label="Knowledge", tooltip="Knowledge Base", disabled=True),
         ],
         on_change=lambda e: page.go(
             '/' + e.control.destinations[e.control.selected_index].label.lower().replace(" ", "_"))
@@ -45,20 +54,45 @@ def build_navigation_bar(page):
 
 
 def build_manuscript_card(page):
+    def add_section(e):
+        man = WKF.add_section(page.client_storage.get("manid"), page.client_storage.get("section"))
+        page.text_field.value = WKF.get_manuscript_text(page.client_storage.get("manid"))
+    def enhance_text(e):
+        man = WKF.enhance_section(page.client_storage.get("manid"), page.client_storage.get("section"))
+        page.text_field.value = WKF.get_manuscript_text(page.client_storage.get("manid"))
     card = ft.Card(
         content=ft.Container(
             content=ft.Column(
                 [
                     build_markdown_editor(page),
                     ft.Row(
-                        [ft.TextButton("Enhance"), ft.TextButton("Criticize")],
+                        [
+                            ft.Dropdown(
+                                value='Introduction',
+                                width=150,
+                                label="Section",
+                                options=[
+                                    ft.dropdown.Option("Abstract"),
+                                    ft.dropdown.Option("Introduction"),
+                                    ft.dropdown.Option("Methods"),
+                                    ft.dropdown.Option("Discussion"),
+                                    ft.dropdown.Option("Conclusion"),
+                                ],
+                                on_change=lambda e: page.client_storage.set("section", e.control.value.lower())
+                            ),
+                            ft.TextButton("Generate", on_click=add_section),
+                            ft.TextButton("Enhance", on_click=enhance_text),
+                            ft.TextButton("Criticize")
+                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
-                ]
+                ],
+                scroll=ft.ScrollMode.AUTO,
             ),
             # width=400,
             padding=10,
-        )
+        ),
+        height=page.window_height,
     )
     return card
 
@@ -72,7 +106,6 @@ def build_manuscript_list(page):
         )
     )
     for man in WKF.get_man_list(100):
-        x = copy.deepcopy(man.id)
         mlist.content.content.controls.append(
             ft.ListTile(
                 leading=ft.Icon(ft.icons.FILE_OPEN),
@@ -93,6 +126,7 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         selectable=True,
         expand=True,
         extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+
     )
 
     def md_update(e):
@@ -100,9 +134,9 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         page.md.value = page.text_field.value
         try:
             page.update()
-            print('markdown updated')
+            # print('markdown updated')
         except AssertionError:
-            print('could not update markdown')
+            # print('could not update markdown')
             pass
 
     page.text_field = ft.TextField(
@@ -113,7 +147,8 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         height=page.window_height,
         keyboard_type=ft.KeyboardType.TEXT,
         bgcolor=ft.colors.WHITE,
-        border_color=ft.colors.GREY
+        border_color=ft.colors.GREY,
+        text_vertical_align=-1
     )
 
     editor = ft.Row(
@@ -129,6 +164,7 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
                 bgcolor=ft.colors.SURFACE_VARIANT,
             )
         ],
+        vertical_alignment=ft.CrossAxisAlignment.START,
     )
 
     return editor
@@ -148,10 +184,18 @@ def main(page: ft.Page):
     page.title = "My First Draft"
     page.scroll = "adaptive"
     page.client_storage.set("model", "llama")
+    page.client_storage.set("section", "introduction")
     page.appbar = build_appbar(page)
     nav_bar = build_navigation_bar(page)
     page.update()
 
+    def file_save(e: ft.FilePickerResultEvent):
+        if e.file:
+            with open(e.file, 'w') as f:
+                f.write(page.text_field.value)
+
+    page.file_picker = ft.FilePicker(on_result=file_save)
+    page.overlay.append(page.file_picker)
     def route_change(route):
         # print(route)
         page.views.clear()
@@ -165,6 +209,7 @@ def main(page: ft.Page):
                     manuscript_card,
                     nav_bar
                 ],
+                scroll=ft.ScrollMode.AUTO
             )
         )
         if page.client_storage.contains_key("manid"):
@@ -185,7 +230,8 @@ def main(page: ft.Page):
                         page.appbar,
                         build_manuscript_list(page),
                         nav_bar
-                    ]
+                    ],
+                    scroll=ft.ScrollMode.AUTO
                 )
             )
         page.text_field.value = WKF.get_manuscript_text(manid)
@@ -211,11 +257,13 @@ def main(page: ft.Page):
     write_button = ft.ElevatedButton("Write", on_click=write_man)
     manuscript_card = build_manuscript_card(page)
     editor = manuscript_card.content.content.controls[0].controls[0]
+
     # print(editor)
     def view_pop(view):
         page.views.pop()
         top_view = page.views[-1]
         page.go(top_view.route)
+
     # page.add(context, write_button, response_card)
     page.on_route_change = route_change
     page.on_view_pop = view_pop
