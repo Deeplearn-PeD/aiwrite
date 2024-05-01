@@ -1,27 +1,30 @@
 import flet as ft
 from libbydbot.brain import LibbyDBot
 from libbygui.workflow import Workflow
+import sys
+import copy
 
 
 def build_appbar(page):
     appbar = ft.AppBar(
         leading=ft.Icon(ft.icons.TEXT_SNIPPET_ROUNDED),
         leading_width=40,
-        title=ft.Text("Libby"),
+        title=ft.Text("Writing Desk"),
         center_title=False,
         bgcolor=ft.colors.SURFACE_VARIANT,
         actions=[
-            ft.IconButton(ft.icons.WB_SUNNY_OUTLINED),
+            ft.IconButton(ft.icons.EXIT_TO_APP, tooltip="Exit My First Draft",
+                          on_click=lambda e: page.window_destroy()),
             ft.Dropdown(
                 value='Llama',
                 width=150,
                 label="Model",
                 options=[
-                    ft.dropdown.Option("ChatGPT"),
+                    ft.dropdown.Option("GPT"),
                     ft.dropdown.Option("Gemma"),
                     ft.dropdown.Option("Llama"),
                 ],
-                on_change=lambda e: page.client_storage.set("model", e.control.value)
+                on_change=lambda e: page.client_storage.set("model", e.control.value.lower())
             ),
 
         ],
@@ -63,32 +66,47 @@ def build_manuscript_card(page):
 def build_manuscript_list(page):
     mlist = ft.Card(
         content=ft.Container(
-            content=ft.Column(
-                [
-
-                ]
-            ),
+            content=ft.Column([]),
             # width=400,
             padding=ft.padding.symmetric(vertical=10),
         )
     )
-    for man in WKF.get_man_list(10):
+    for man in WKF.get_man_list(100):
+        x = copy.deepcopy(man.id)
         mlist.content.content.controls.append(
             ft.ListTile(
                 leading=ft.Icon(ft.icons.FILE_OPEN),
                 title=ft.Text(f'{man.id}. {man.title}'),
-                on_click=lambda e: load_manuscript(page, man.id)
+                on_click=lambda e: load_manuscript(page, e)
             )
         )
     return mlist
 
 
-def build_markdown_editor(page):
-    def md_update(e):
-        md.value = e.control.value
-        md.update()
-    text_field = ft.TextField(
+def build_markdown_editor(page: ft.Page) -> ft.Row:
+    """
+    Builds a markdown editor with a live preview.
+    :param page:
+    """
+    page.md = ft.Markdown(
         value="",
+        selectable=True,
+        expand=True,
+        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+    )
+
+    def md_update(e):
+        print('text changed')
+        page.md.value = page.text_field.value
+        try:
+            page.update()
+            print('markdown updated')
+        except AssertionError:
+            print('could not update markdown')
+            pass
+
+    page.text_field = ft.TextField(
+        value="# Title\n\n",
         multiline=True,
         on_change=md_update,
         expand=True,
@@ -97,22 +115,14 @@ def build_markdown_editor(page):
         bgcolor=ft.colors.WHITE,
         border_color=ft.colors.GREY
     )
-    md = ft.Markdown(
-        value="",
-        selectable=True,
-        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-    )
+
     editor = ft.Row(
         [
-            text_field,
+            page.text_field,
             ft.VerticalDivider(width=10, thickness=5, color=ft.colors.RED_ACCENT_700, visible=True),
+            # page.md,
             ft.Container(
-                ft.Column(
-                    [
-                        md
-                    ],
-                    scroll=ft.ScrollMode.HIDDEN
-                ),
+                page.md,
                 expand=True,
                 alignment=ft.alignment.top_left,
                 padding=ft.padding.Padding(0, 12, 0, 0),
@@ -124,13 +134,18 @@ def build_markdown_editor(page):
     return editor
 
 
-def load_manuscript(page, manid):
+def load_manuscript(page, e):
+    manid = int(e.control.title.value.split('.')[0])
     page.client_storage.set("manid", manid)
+    txt = WKF.get_manuscript_text(manid)
+    page.text_field.value = txt
+    page.text_field.on_change(None)
+    print(f'Title: {page.text_field.value[:20]}')
     page.go('/edit')
 
 
 def main(page: ft.Page):
-    page.title = "Libby D. Bot"
+    page.title = "My First Draft"
     page.scroll = "adaptive"
     page.client_storage.set("model", "llama")
     page.appbar = build_appbar(page)
@@ -154,7 +169,14 @@ def main(page: ft.Page):
         )
         if page.client_storage.contains_key("manid"):
             manid = page.client_storage.get("manid")
-            manuscript_card.content.content.controls[0].value = WKF.get_manuscript_text(manid)
+            page.text_field.value = WKF.get_manuscript_text(manid)
+            page.text_field.on_change(None)
+            # try:
+            #     page.md.update()
+            #     manuscript_card.update()
+            # except AssertionError as e:
+            #     print(e)
+            #     pass
         if page.route == "/manuscripts":
             page.views.append(
                 ft.View(
@@ -166,8 +188,8 @@ def main(page: ft.Page):
                     ]
                 )
             )
+        page.text_field.value = WKF.get_manuscript_text(manid)
         page.update()
-
 
     def write_man(e):
         if not context.value:
@@ -181,17 +203,22 @@ def main(page: ft.Page):
             WKF.set_model(page.client_storage.get("model"))
 
             man = WKF.setup_manuscript(context.value)
-            manuscript_card.content.content.controls[0].value = man.title + "\n\n" + man.abstract
-            manuscript_card.update()
-            # page.remove(prog)
+            editor.value = man.title + "\n\n" + man.abstract
+            page.text_field.on_change(None)
+            page.update()
 
     context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
     write_button = ft.ElevatedButton("Write", on_click=write_man)
     manuscript_card = build_manuscript_card(page)
     editor = manuscript_card.content.content.controls[0].controls[0]
-    print(editor)
+    # print(editor)
+    def view_pop(view):
+        page.views.pop()
+        top_view = page.views[-1]
+        page.go(top_view.route)
     # page.add(context, write_button, response_card)
     page.on_route_change = route_change
+    page.on_view_pop = view_pop
     page.route = "/edit"
     page.go(page.route)
 
@@ -200,4 +227,5 @@ WKF = Workflow()
 
 
 def run():
-    ft.app(main)
+    ft.app(target=main)
+    # ft.app(target=main, view=ft.AppView.WEB_BROWSER)

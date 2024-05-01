@@ -27,7 +27,7 @@ class Workflow:
 
     def set_model(self, model: str):
         self.libby = LibbyDBot(model=model)
-    def get_man_list(self, n: object = 10) -> List[Manuscript]:
+    def get_man_list(self, n: int = 100) -> List[Manuscript]:
         with Session(self.engine) as session:
             statement = select(Manuscript).limit(n)
             manuscripts = session.exec(statement).all()
@@ -36,17 +36,17 @@ class Workflow:
     def get_manuscript_text(self, manuscript_id: int) -> Dict[str, Any]:
         manuscript = self.get_manuscript(manuscript_id)
         return f"""
-        # {manuscript.title}
-        ## Abstract
-        {manuscript.abstract}
-        ## Introduction
-        {manuscript.introduction}
-        ## Methods
-        {manuscript.methods}
-        ## Discussion
-        {manuscript.discussion}
-        ## Conclusion
-        {manuscript.conclusion}
+{'' if manuscript.title.startswith('#') else '# '}{manuscript.title}
+## Abstract
+{manuscript.abstract}
+## Introduction
+{manuscript.introduction}
+## Methods
+{manuscript.methods}
+## Discussion
+{manuscript.discussion}
+## Conclusion
+{manuscript.conclusion}
         """
 
     def setup_manuscript(self, concept: str):
