@@ -18,6 +18,8 @@ def build_appbar(page):
         title=ft.Text("Writing Desk"),
         center_title=False,
         bgcolor=ft.colors.SURFACE_VARIANT,
+        adaptive=True,
+        toolbar_height=80,
         actions=[
             ft.IconButton(ft.icons.SAVE, tooltip="Export Manuscript", on_click=save_file),
             ft.IconButton(ft.icons.EXIT_TO_APP, tooltip="Exit My First Draft",
@@ -46,6 +48,7 @@ def build_navigation_bar(page):
             ft.NavigationDestination(icon=ft.icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
             ft.NavigationDestination(icon=ft.icons.EDIT_DOCUMENT, label="Edit"),
             ft.NavigationDestination(icon=ft.icons.BOOK, label="Knowledge", tooltip="Knowledge Base", disabled=True),
+            ft.NavigationDestination(icon=ft.icons.COFFEE, label="Review", tooltip="Review your text", disabled=True),
         ],
         on_change=lambda e: page.go(
             '/' + e.control.destinations[e.control.selected_index].label.lower().replace(" ", "_"))
@@ -92,7 +95,8 @@ def build_manuscript_card(page):
             # width=400,
             padding=10,
         ),
-        height=page.window_height,
+        # height=page.window_height,
+        # expand=True
     )
     return card
 
@@ -144,7 +148,7 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         multiline=True,
         on_change=md_update,
         expand=True,
-        height=page.window_height,
+        # height=page.window_height,
         keyboard_type=ft.KeyboardType.TEXT,
         bgcolor=ft.colors.WHITE,
         border_color=ft.colors.GREY,
@@ -181,12 +185,14 @@ def load_manuscript(page, e):
 
 
 def main(page: ft.Page):
+    page.adaptive = True
     page.title = "My First Draft"
     page.scroll = "adaptive"
     page.client_storage.set("model", "llama")
     page.client_storage.set("section", "introduction")
     page.appbar = build_appbar(page)
     nav_bar = build_navigation_bar(page)
+    page.theme = ft.Theme(color_scheme_seed="green")
     page.update()
 
     def file_save(e: ft.FilePickerResultEvent):
