@@ -134,7 +134,7 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
     )
 
     def md_update(e):
-        print('text changed')
+        # print('text changed')
         page.md.value = page.text_field.value
         try:
             page.update()
@@ -164,7 +164,7 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
                 page.md,
                 expand=True,
                 alignment=ft.alignment.top_left,
-                padding=ft.padding.Padding(0, 12, 0, 0),
+                padding=ft.padding.Padding(12, 12, 12, 0),
                 bgcolor=ft.colors.SURFACE_VARIANT,
             )
         ],
@@ -180,7 +180,7 @@ def load_manuscript(page, e):
     txt = WKF.get_manuscript_text(manid)
     page.text_field.value = txt
     page.text_field.on_change(None)
-    print(f'Title: {page.text_field.value[:20]}')
+    # print(f'Title: {page.text_field.value[:20]}')
     page.go('/edit')
 
 
@@ -190,6 +190,7 @@ def main(page: ft.Page):
     page.scroll = "adaptive"
     page.client_storage.set("model", "llama")
     page.client_storage.set("section", "introduction")
+    page.client_storage.set("manid", 1)
     page.appbar = build_appbar(page)
     nav_bar = build_navigation_bar(page)
     page.theme = ft.Theme(color_scheme_seed="green")
@@ -281,5 +282,5 @@ WKF = Workflow()
 
 
 def run():
-    ft.app(target=main)
-    # ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+    # ft.app(target=main)
+    ft.app(target=main, view=ft.AppView.WEB_BROWSER)
