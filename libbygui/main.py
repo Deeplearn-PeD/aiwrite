@@ -148,6 +148,8 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
     def md_update(e):
         # print('text changed')
         page.md.value = page.text_field.value
+        if page.text_field.value:
+            WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
         page.update()
 
 
@@ -198,7 +200,7 @@ def main(page: ft.Page):
     page.scroll = "adaptive"
     page.client_storage.set("model", "llama")
     page.client_storage.set("section", "introduction")
-    page.client_storage.set("manid", 1)
+    page.client_storage.set("manid", WKF.get_most_recent_id())
     page.appbar = build_appbar(page)
     nav_bar = build_navigation_bar(page)
     page.theme = ft.Theme(color_scheme_seed="green")
@@ -229,8 +231,9 @@ def main(page: ft.Page):
         )
         if page.client_storage.contains_key("manid"):
             manid = page.client_storage.get("manid")
-            page.text_field.value = WKF.get_manuscript_text(manid)
-            page.text_field.on_change(None)
+            if manid == -1:
+                page.text_field.value = WKF.get_manuscript_text(manid)
+                page.text_field.on_change(None)
 
         if page.route == "/manuscripts":
             page.views.append(
@@ -285,5 +288,5 @@ WKF = Workflow()
 
 
 def run():
-    # ft.app(target=main)
-    ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+    ft.app(target=main)
+    # ft.app(target=main, view=ft.AppView.WEB_BROWSER)

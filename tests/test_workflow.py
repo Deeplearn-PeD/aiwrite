@@ -1,5 +1,5 @@
 import unittest
-from libbygui.workflow import Workflow, Manuscript
+from libbygui.workflow import Workflow, Manuscript, parse_manuscript_text
 
 class TestWorkflow(unittest.TestCase):
     def setUp(self):
@@ -47,6 +47,13 @@ class TestWorkflow(unittest.TestCase):
         manuscript = Manuscript(title='test', abstract='test')  # assuming this is a valid manuscript
         saved_manuscript = self.workflow._save_manuscript(manuscript)
         self.assertEqual(saved_manuscript.id, manuscript.id)
+
+    def test_parse_manuscript(self):
+        with open('tests/fixtures/test_manuscript.md', 'r') as f:
+            text = f.read()
+        manuscript = parse_manuscript_text(text)
+        self.assertEqual(manuscript['title'], '"Thermogenic Fever: The Warming World\'s Role in Dengue\'s Global Rise"')
+        self.assertEqual(manuscript['abstract'].strip()[:20], '\n\nThermogenic fever')
 
 if __name__ == '__main__':
     unittest.main()
