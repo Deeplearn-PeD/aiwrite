@@ -57,12 +57,23 @@ def build_navigation_bar(page):
 
 
 def build_manuscript_card(page):
+    pr = ft.ProgressRing(value=0)
     def add_section(e):
         man = WKF.add_section(page.client_storage.get("manid"), page.client_storage.get("section"))
+        pr.value = 50; page.update()
         page.text_field.value = WKF.get_manuscript_text(page.client_storage.get("manid"))
+        page.md.value = page.text_field.value
+        pr.value = 100; page.update()
+        pr.value = 0
+        page.update()
+
     def enhance_text(e):
         man = WKF.enhance_section(page.client_storage.get("manid"), page.client_storage.get("section"))
         page.text_field.value = WKF.get_manuscript_text(page.client_storage.get("manid"))
+        page.md.value = page.text_field.value
+        page.update()
+
+
     card = ft.Card(
         content=ft.Container(
             content=ft.Column(
@@ -70,6 +81,7 @@ def build_manuscript_card(page):
                     build_markdown_editor(page),
                     ft.Row(
                         [
+                            pr,
                             ft.Dropdown(
                                 value='Introduction',
                                 width=150,
@@ -136,12 +148,8 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
     def md_update(e):
         # print('text changed')
         page.md.value = page.text_field.value
-        try:
-            page.update()
-            # print('markdown updated')
-        except AssertionError:
-            # print('could not update markdown')
-            pass
+        page.update()
+
 
     page.text_field = ft.TextField(
         value="# Title\n\n",
@@ -223,12 +231,7 @@ def main(page: ft.Page):
             manid = page.client_storage.get("manid")
             page.text_field.value = WKF.get_manuscript_text(manid)
             page.text_field.on_change(None)
-            # try:
-            #     page.md.update()
-            #     manuscript_card.update()
-            # except AssertionError as e:
-            #     print(e)
-            #     pass
+
         if page.route == "/manuscripts":
             page.views.append(
                 ft.View(
@@ -250,7 +253,7 @@ def main(page: ft.Page):
             page.update()
         else:
             # prog = ft.ProgressRing(), ft.Text("This may take a while...")
-            page.add(ft.ProgressRing(), ft.Text("This may take a while..."))
+            page.add(ft.ProgressRing(), ft.Text("Generating the text..."))
             # page.update()
             page.client_storage.set("context", context.value)
             WKF.set_model(page.client_storage.get("model"))

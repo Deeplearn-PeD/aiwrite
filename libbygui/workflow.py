@@ -37,17 +37,17 @@ class Workflow:
         manuscript = self.get_manuscript(manuscript_id)
         return f"""
 {'' if manuscript.title.startswith('#') else '# '}{manuscript.title}
-## Abstract
+{'' if '## Abstract' in manuscript.abstract else '## Abstract:'}
 {manuscript.abstract}
-## Introduction
+{'' if '## Introduction' in manuscript.introduction else '## Introduction:'}
 {manuscript.introduction}
-## Methods
+{'' if '## Methods' in manuscript.methods else '## Methods:'}
 {manuscript.methods}
-## Discussion
+{'' if '## Discussion' in manuscript.discussion else '## Discussion:'}
 {manuscript.discussion}
-## Conclusion
+{'' if '## Conclusion' in manuscript.conclusion else '## Conclusion:'}
 {manuscript.conclusion}
-        """
+        """.strip()
 
     def setup_manuscript(self, concept: str):
         title = self.libby.ask(f"Please provide a title for the manuscript, based on this concept: {concept}.\n\n Only return the title, without additional text.")
