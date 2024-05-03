@@ -112,6 +112,33 @@ def build_manuscript_card(page):
     )
     return card
 
+def build_manuscript_review_card(page):
+    card = ft.Card(
+        content=ft.Container(
+            content=ft.Column(
+                [
+                    ft.Markdown(
+                        value=WKF.get_manuscript_text(page.client_storage.get("manid")),
+                        expand=True,
+                    ),
+                    ft.Row(
+                        [
+                            ft.TextButton("Accept"),
+                            ft.TextButton("Reject"),
+                            ft.TextButton("Revise"),
+                        ],
+                        alignment=ft.MainAxisAlignment.END,
+                    ),
+                ],
+                scroll=ft.ScrollMode.AUTO,
+            ),
+            # width=400,
+            padding=10,
+        ),
+        # height=page.window_height,
+        # expand=True
+    )
+    return card
 
 def build_manuscript_list(page):
     mlist = ft.Card(
@@ -247,6 +274,19 @@ def main(page: ft.Page):
                     scroll=ft.ScrollMode.AUTO
                 )
             )
+        elif page.route == "/review":
+            page.views.append(
+                ft.View(
+                    "/review",
+                    [
+                        page.appbar,
+                        build_manuscript_review_card(page),
+                        nav_bar
+                    ],
+                    scroll=ft.ScrollMode.AUTO
+                )
+            )
+        page.appbar.title.value = f"Writing Desk - {page.route.strip('/').capitalize()}"
         page.text_field.value = WKF.get_manuscript_text(manid)
         page.update()
 
