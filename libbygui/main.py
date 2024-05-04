@@ -95,8 +95,8 @@ def build_manuscript_card(page):
                                 ],
                                 on_change=lambda e: page.client_storage.set("section", e.control.value.lower())
                             ),
-                            ft.TextButton("Generate", on_click=add_section),
-                            ft.TextButton("Enhance", on_click=enhance_text),
+                            ft.TextButton("Generate", on_click=add_section, tooltip=f"Generate the {page.client_storage.get('section')} section"),
+                            ft.TextButton("Enhance", on_click=enhance_text, tooltip=f"Enhance the {page.client_storage.get('section')} section"),
                          ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
@@ -140,7 +140,7 @@ def build_manuscript_review_card(page):
                     ft.Row(
                         [
                             pr,
-                            ft.TextButton("Criticize", on_click=on_criticize),
+                            ft.TextButton("Criticize", on_click=on_criticize, tooltip=f"Criticize the {page.client_storage.get("section")} section"),
                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
@@ -204,7 +204,8 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         keyboard_type=ft.KeyboardType.TEXT,
         bgcolor=ft.colors.WHITE,
         border_color=ft.colors.GREY,
-        text_vertical_align=-1
+        text_vertical_align=-1,
+        tooltip="Edit your manuscript here."
     )
 
     editor = ft.Row(
@@ -322,7 +323,7 @@ def main(page: ft.Page):
             page.update()
 
     context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
-    write_button = ft.ElevatedButton("Write", on_click=write_man)
+    write_button = ft.ElevatedButton("Write", on_click=write_man, tooltip="Generate a new manuscript")
     manuscript_card = build_manuscript_card(page)
     editor = manuscript_card.content.content.controls[0].controls[0]
 
