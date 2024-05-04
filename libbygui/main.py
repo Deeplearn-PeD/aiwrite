@@ -97,7 +97,6 @@ def build_manuscript_card(page):
                             ),
                             ft.TextButton("Generate", on_click=add_section),
                             ft.TextButton("Enhance", on_click=enhance_text),
-                            ft.TextButton("Criticize")
                          ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
@@ -113,19 +112,35 @@ def build_manuscript_card(page):
     return card
 
 def build_manuscript_review_card(page):
+    pr = ft.ProgressRing(value=0)
+    review = ft.Text("Crítica ", color="red", expand=True)
+    def on_criticize(e):
+        critic = WKF.criticize_section(page.client_storage.get("manid"), page.client_storage.get("section"))
+        pr.value = 100
+        review.value = critic
+        page.update()
+
     card = ft.Card(
         content=ft.Container(
             content=ft.Column(
                 [
-                    ft.Markdown(
-                        value=WKF.get_manuscript_text(page.client_storage.get("manid")),
-                        expand=True,
-                    ),
                     ft.Row(
                         [
-                            ft.TextButton("Accept"),
-                            ft.TextButton("Reject"),
-                            ft.TextButton("Revise"),
+                            review,
+                            ft.Markdown(
+                                value=WKF.get_manuscript_text(page.client_storage.get("manid")),
+                                expand=True,
+                                extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.START,
+                    ),
+
+
+                    ft.Row(
+                        [
+                            pr,
+                            ft.TextButton("Criticize", on_click=on_criticize),
                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
