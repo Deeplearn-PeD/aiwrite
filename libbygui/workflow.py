@@ -19,7 +19,7 @@ class Manuscript(SQLModel, table=True):
 
 
 class Workflow:
-    def __init__(self, db_url: str = "sqlite:///manuscripts.db", model: str = "llama",
+    def __init__(self, db_url: str = "sqlite:///manuscripts.db", model: str = "llama3",
                  knowledge_base: str = "embeddings"):
         self.engine = create_engine(db_url)
         SQLModel.metadata.create_all(self.engine)
