@@ -140,7 +140,7 @@ def build_manuscript_review_card(page):
                     ft.Row(
                         [
                             pr,
-                            ft.TextButton("Criticize", on_click=on_criticize, tooltip=f"Criticize the {page.client_storage.get("section")} section"),
+                            ft.TextButton("Criticize", on_click=on_criticize, tooltip=f"Criticize the {page.client_storage.get('section','introduction')} section"),
                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
@@ -344,5 +344,5 @@ WKF = Workflow()
 
 
 def run():
-    ft.app(target=main)
-    # ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+    # ft.app(target=main)
+    ft.app(target=main, view=ft.AppView.WEB_BROWSER)
