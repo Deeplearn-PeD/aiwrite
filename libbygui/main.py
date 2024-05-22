@@ -140,7 +140,7 @@ def build_manuscript_review_card(page):
                     ft.Row(
                         [
                             pr,
-                            ft.TextButton("Criticize", on_click=on_criticize, tooltip=f"Criticize the {page.client_storage.get('section','introduction')} section"),
+                            ft.TextButton("Criticize", on_click=on_criticize, tooltip=f"Criticize the {page.client_storage.get('section')} section"),
                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
@@ -241,7 +241,7 @@ def main(page: ft.Page):
     page.adaptive = True
     page.title = "My First Draft"
     page.scroll = "adaptive"
-    page.client_storage.set("model", "llama")
+    page.client_storage.set("model", "llama3")
     page.client_storage.set("section", "introduction")
     page.client_storage.set("manid", WKF.get_most_recent_id())
     page.appbar = build_appbar(page)
@@ -344,5 +344,5 @@ WKF = Workflow()
 
 
 def run():
-    # ft.app(target=main)
-    ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+    ft.app(target=main, export_asgi_app=True)
+    # ft.app(target=main, view=ft.AppView.WEB_BROWSER)
