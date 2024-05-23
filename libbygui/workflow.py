@@ -7,7 +7,7 @@ from libbydbot.brain.embed import DocEmbedder
 
 class Manuscript(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    last_updated: datetime.datetime = Field(default_factory=datetime.datetime.utcnow, nullable=False)
+    last_updated: datetime.datetime = Field(default_factory=datetime.datetime.now, nullable=False)
     title: str
     abstract: str
     introduction: Optional[str] = ""
@@ -16,19 +16,19 @@ class Manuscript(SQLModel, table=True):
     conclusion: Optional[str] = ""
 
 
-
-
 class Workflow:
-    def __init__(self, db_url: str = "sqlite:///manuscripts.db", model: str = "llama3",
+    def __init__(self, db_url: str = "sqlite:///manuscripts.db", model: str = "gpt",
                  knowledge_base: str = "embeddings"):
         self.engine = create_engine(db_url)
         SQLModel.metadata.create_all(self.engine)
-        self.base_prompt = "You are a scientific writer. You should write sections of scientific articles in markdown format on request."
+        self.base_prompt = ("You are a scientific writer. You should write sections of scientific articles in markdown "
+                            "format on request.")
         self.libby = LibbyDBot(model=model)
         self.KB = DocEmbedder(name=knowledge_base)
 
     def set_model(self, model: str):
         self.libby = LibbyDBot(model=model)
+
     def get_man_list(self, n: int = 100) -> List[Manuscript]:
         with Session(self.engine) as session:
             statement = select(Manuscript).limit(n)
@@ -54,10 +54,12 @@ class Workflow:
         """.strip()
 
     def setup_manuscript(self, concept: str):
-        title = self.libby.ask(f"Please provide a title for the manuscript, based on this concept: {concept}.\n\n Only return the title, without additional text.")
+        title = self.libby.ask(
+            f"Please provide a title for the manuscript, based on this concept: {concept}.\n\n Only return the title, without additional text.")
         knowledge = self.KB.retrieve_docs(concept, num_docs=15)
         self.libby.set_context(self.base_prompt + f"\n\n{concept}" + f"\n\n{knowledge}")
-        abstract = self.libby.ask("Please write an abstract for a manuscript, based on the context provided. Only return the abstract text, without additional text.")
+        abstract = self.libby.ask(
+            "Please write an abstract for a manuscript, based on the context provided. Only return the abstract text, without additional text.")
         manuscript = Manuscript(title='# ' + title if title is not None else "# title", abstract=abstract)
         self._save_manuscript(manuscript)
         return manuscript
@@ -68,7 +70,7 @@ class Workflow:
             manuscript = session.exec(statement).first()
         return -1 if manuscript is None else manuscript.id
 
-    def get_manuscript(self,manuscript_id: int) -> Manuscript:
+    def get_manuscript(self, manuscript_id: int) -> Manuscript:
         with Session(self.engine) as session:
             statement = select(Manuscript).where(Manuscript.id == manuscript_id)
             manuscript = session.exec(statement).first()
@@ -78,7 +80,8 @@ class Workflow:
     def add_section(self, manuscript_id: int, section_name: str):
         manuscript = self.get_manuscript(manuscript_id)
         self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{self.get_manuscript_text(manuscript_id)}")
-        section = self.libby.ask(f"Please write the {section_name} section of the manuscript, based on the context provided. Only return the section text, without additional text.")
+        section = self.libby.ask(
+            f"Please write the {section_name} section of the manuscript, based on the context provided. Only return the section text, without additional text.")
         setattr(manuscript, section_name, section)
         self._save_manuscript(manuscript)
         return manuscript
@@ -86,7 +89,8 @@ class Workflow:
     def enhance_section(self, manuscript_id: int, section_name: str):
         manuscript = self.get_manuscript(manuscript_id)
         self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{self.get_manuscript_text(manuscript_id)}")
-        enhanced_section = self.libby.ask(f"Please enhance the {section_name} section of the manuscript, based on the context provided. Only return the enhanced section text, without additional text.")
+        enhanced_section = self.libby.ask(
+            f"Please enhance the {section_name} section of the manuscript, based on the context provided. Only return the enhanced section text, without additional text.")
         setattr(manuscript, section_name, enhanced_section)
         self._save_manuscript(manuscript)
         return manuscript
@@ -102,8 +106,9 @@ class Workflow:
 
     def criticize_section(self, manuscript_id: int, section_name: str):
         self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{self.get_manuscript_text(manuscript_id)}")
-        criticized_section = self.libby.ask(f"Please criticize the {section_name} section of the manuscript, based on the context provided. "
-                                            f"Only return your critical opinion of the section, indicating changes that could be applied to improve it.")
+        criticized_section = self.libby.ask(
+            f"Please criticize the {section_name} section of the manuscript, based on the context provided. "
+            f"Only return your critical opinion of the section, indicating changes that could be applied to improve it.")
         return criticized_section
 
     def _save_manuscript(self, manuscript: Manuscript):
@@ -112,6 +117,7 @@ class Workflow:
             session.commit()
             session.refresh(manuscript)
         return manuscript
+
 
 def parse_manuscript_text(text: str) -> Dict[str, str]:
     """

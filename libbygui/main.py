@@ -3,6 +3,9 @@ from libbydbot.brain import LibbyDBot
 from libbygui.workflow import Workflow
 import sys
 import copy
+import dotenv
+
+dotenv.load_dotenv()
 
 
 def build_appbar(page):
@@ -10,7 +13,6 @@ def build_appbar(page):
         txt = page.text_field.value
         page.file_picker.save_file(dialog_title="Save manscript as", file_name="manuscript.md",
                                    file_type=ft.FilePickerFileType.ANY)
-
 
     appbar = ft.AppBar(
         leading=ft.Icon(ft.icons.TEXT_SNIPPET_ROUNDED),
@@ -58,12 +60,15 @@ def build_navigation_bar(page):
 
 def build_manuscript_card(page):
     pr = ft.ProgressRing(value=0)
+
     def add_section(e):
         man = WKF.add_section(page.client_storage.get("manid"), page.client_storage.get("section"))
-        pr.value = 50; page.update()
+        pr.value = 50;
+        page.update()
         page.text_field.value = WKF.get_manuscript_text(page.client_storage.get("manid"))
         page.md.value = page.text_field.value
-        pr.value = 100; page.update()
+        pr.value = 100;
+        page.update()
         pr.value = 0
         page.update()
 
@@ -72,7 +77,6 @@ def build_manuscript_card(page):
         page.text_field.value = WKF.get_manuscript_text(page.client_storage.get("manid"))
         page.md.value = page.text_field.value
         page.update()
-
 
     card = ft.Card(
         content=ft.Container(
@@ -95,9 +99,11 @@ def build_manuscript_card(page):
                                 ],
                                 on_change=lambda e: page.client_storage.set("section", e.control.value.lower())
                             ),
-                            ft.TextButton("Generate", on_click=add_section, tooltip=f"Generate the {page.client_storage.get('section')} section"),
-                            ft.TextButton("Enhance", on_click=enhance_text, tooltip=f"Enhance the {page.client_storage.get('section')} section"),
-                         ],
+                            ft.TextButton("Generate", on_click=add_section,
+                                          tooltip=f"Generate the {page.client_storage.get('section')} section"),
+                            ft.TextButton("Enhance", on_click=enhance_text,
+                                          tooltip=f"Enhance the {page.client_storage.get('section')} section"),
+                        ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
                 ],
@@ -111,9 +117,11 @@ def build_manuscript_card(page):
     )
     return card
 
+
 def build_manuscript_review_card(page):
     pr = ft.ProgressRing(value=0)
     review = ft.Text("Crítica ", color="red", expand=True)
+
     def on_criticize(e):
         critic = WKF.criticize_section(page.client_storage.get("manid"), page.client_storage.get("section"))
         pr.value = 100
@@ -136,11 +144,11 @@ def build_manuscript_review_card(page):
                         alignment=ft.MainAxisAlignment.START,
                     ),
 
-
                     ft.Row(
                         [
                             pr,
-                            ft.TextButton("Criticize", on_click=on_criticize, tooltip=f"Criticize the {page.client_storage.get('section')} section"),
+                            ft.TextButton("Criticize", on_click=on_criticize,
+                                          tooltip=f"Criticize the {page.client_storage.get('section')} section"),
                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
@@ -154,6 +162,7 @@ def build_manuscript_review_card(page):
         # expand=True
     )
     return card
+
 
 def build_manuscript_list(page):
     mlist = ft.Card(
@@ -193,7 +202,6 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         if page.text_field.value:
             WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
         page.update()
-
 
     page.text_field = ft.TextField(
         value="# Title\n\n",
@@ -256,6 +264,7 @@ def main(page: ft.Page):
 
     page.file_picker = ft.FilePicker(on_result=file_save)
     page.overlay.append(page.file_picker)
+
     def route_change(route):
         # print(route)
         page.views.clear()
@@ -344,5 +353,5 @@ WKF = Workflow()
 
 
 def run():
-    ft.app(target=main, export_asgi_app=True)
-    # ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+    # ft.app(target=main, export_asgi_app=True)
+    ft.app(target=main, view=ft.AppView.WEB_BROWSER)
