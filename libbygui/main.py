@@ -352,6 +352,6 @@ def main(page: ft.Page):
 WKF = Workflow()
 
 
-def run():
-    # ft.app(target=main, export_asgi_app=True)
-    ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+# def run():
+app = ft.app(target=main, export_asgi_app=True)
+    # ft.app(target=main, view=ft.AppView.WEB_BROWSER)

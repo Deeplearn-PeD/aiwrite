@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 source .venv/bin/activate
-uvicorn libbygui.main:run --host 0.0.0.0 --port 8060
+hypercorn libbygui.main:app --reload --bind 0.0.0.0:8060

@@ -15,7 +15,7 @@ libbygui = "libbygui.main:run"
 python = "^3.11"
 flet = "^0.22.0"
 libby = {git = "https://github.com/Deeplearn-PeD/libby"}
-sqlmodel = "^0.0.16"
+sqlmodel = "^0.0.18"
 python-dotenv = "^1.0.1"
 
 
