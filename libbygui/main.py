@@ -49,7 +49,7 @@ def build_navigation_bar(page):
         destinations=[
             ft.NavigationBarDestination(icon=ft.Icons.EDIT_DOCUMENT, label="Edit"),
             ft.NavigationBarDestination(icon=ft.Icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
-            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge", tooltip="Knowledge Base", disabled=False),
+            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge"),# tooltip="Knowledge Base"),
             ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", tooltip="Review your text", disabled=True),
         ],
         on_change=lambda e: page.go(
