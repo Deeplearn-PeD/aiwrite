@@ -277,11 +277,7 @@ def build_knowledge_page(page):
                 break
 
     # Create file picker
-    pick_files_dialog = ft.FilePicker(
-        on_result=handle_upload_result,
-        allow_multiple=True,
-        allowed_extensions=["pdf"]
-    )
+    pick_files_dialog = ft.FilePicker(on_result=handle_upload_result)
 
     # Add file picker to overlay
     page.overlay.append(pick_files_dialog)
@@ -289,8 +285,11 @@ def build_knowledge_page(page):
     # Create upload button
     upload_button = ft.ElevatedButton(
         "Upload PDF Files",
-        icon=ft.icons.UPLOAD_FILE,
-        on_click=lambda _: pick_files_dialog.pick_files()
+        icon=ft.Icons.UPLOAD_FILE,
+        on_click=lambda _: pick_files_dialog.pick_files(
+            allow_multiple=True,
+            allowed_extensions=["pdf"]
+        )
     )
 
     # Create the main container for the knowledge page
@@ -378,7 +377,7 @@ def main(page: ft.Page):
                     "/knowledge",
                     [
                         page.appbar,
-                        ft.Text("Knowledge Base"),
+                        build_knowledge_page(page),
                         nav_bar
                     ],
                     scroll=ft.ScrollMode.AUTO
