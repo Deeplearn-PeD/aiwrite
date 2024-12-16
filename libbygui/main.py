@@ -13,6 +13,13 @@ def build_appbar(page):
         txt = page.text_field.value
         page.file_picker.save_file(dialog_title="Save manscript as", file_name="manuscript.md",
                                    file_type=ft.FilePickerFileType.ANY)
+    
+    def new_manuscript(e):
+        page.client_storage.set("manid", -1)
+        page.text_field.value = ""
+        context.value = ""
+        write_button.disabled = False
+        page.go("/edit")
 
     appbar = ft.AppBar(
         leading=ft.Icon(ft.Icons.TEXT_SNIPPET_ROUNDED),
@@ -23,6 +30,7 @@ def build_appbar(page):
         adaptive=True,
         toolbar_height=80,
         actions=[
+            ft.IconButton(ft.Icons.NOTE_ADD, tooltip="New Manuscript", on_click=new_manuscript),
             ft.IconButton(ft.Icons.SAVE, tooltip="Export Manuscript", on_click=save_file),
             ft.IconButton(ft.Icons.EXIT_TO_APP, tooltip="Exit Ai Write",
                           on_click=lambda e: page.window_destroy()),
@@ -403,6 +411,7 @@ def main(page: ft.Page):
         if not context.value:
             context.error_text = "Please enter the initial concept of your manuscript."
             page.update()
+            return
         else:
             # prog = ft.ProgressRing(), ft.Text("This may take a while...")
             page.add(ft.ProgressRing(), ft.Text("Generating the text..."))
