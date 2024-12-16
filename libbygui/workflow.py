@@ -56,7 +56,7 @@ class Workflow:
     def setup_manuscript(self, concept: str):
         title = self.libby.ask(
             f"Please provide a title for the manuscript, based on this concept: {concept}.\n\n Only return the title, without additional text.")
-        knowledge = self.KB.retrieve_docs(concept, num_docs=15)
+        knowledge = self.KB.retrieve_docs(concept, num_docs=15).strip('"')
         self.libby.set_context(self.base_prompt + f"\n\n{concept}" + f"\n\n{knowledge}")
         abstract = self.libby.ask(
             "Please write an abstract for a manuscript, based on the context provided. Only return the abstract text, without additional text.")

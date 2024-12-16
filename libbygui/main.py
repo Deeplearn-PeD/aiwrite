@@ -17,8 +17,9 @@ def build_appbar(page):
     def new_manuscript(e):
         page.client_storage.set("manid", -1)
         page.text_field.value = ""
-        context.value = ""
-        write_button.disabled = False
+        page.context.value = ""
+        WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
+        page.write_button.disabled = False
         page.go("/edit")
 
     appbar = ft.AppBar(
@@ -223,6 +224,7 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         value="# Title\n\n",
         multiline=True,
         on_change=md_update,
+        on_click=md_update,
         expand=True,
         # height=page.window_height,
         keyboard_type=ft.KeyboardType.TEXT,
@@ -262,6 +264,8 @@ def load_manuscript(page, e):
     txt = WKF.get_manuscript_text(manid)
     page.text_field.value = txt
     page.text_field.on_change(None)
+    WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
+    page.write_button.disabled = True
     page.go('/edit')
 
 def build_knowledge_page(page):
@@ -353,8 +357,8 @@ def main(page: ft.Page):
                 "/edit",
                 [
                     page.appbar,
-                    context,
-                    write_button,
+                    page.context,
+                    page.write_button,
                     manuscript_card,
                     nav_bar
                 ],
@@ -408,25 +412,25 @@ def main(page: ft.Page):
         page.update()
 
     def write_man(e):
-        if not context.value:
-            context.error_text = "Please enter the initial concept of your manuscript."
+        if not page.context.value:
+            page.context.error_text = "Please enter the initial concept of your manuscript."
             page.update()
             return
         else:
             # prog = ft.ProgressRing(), ft.Text("This may take a while...")
             page.add(ft.ProgressRing(), ft.Text("Generating the text..."))
             # page.update()
-            page.client_storage.set("context", context.value)
+            page.client_storage.set("context", page.context.value)
             WKF.set_model(page.client_storage.get("model"))
 
-            man = WKF.setup_manuscript(context.value)
+            man = WKF.setup_manuscript(page.context.value)
             editor.value = man.title + "\n\n" + man.abstract
             page.text_field.on_change(None)
-            write_button.disabled = True
+            page.write_button.disabled = True
             page.update()
 
-    context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
-    write_button = ft.ElevatedButton("Write", on_click=write_man, tooltip="Generate a new manuscript")
+    page.context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
+    page.write_button = ft.ElevatedButton("Write", on_click=write_man, tooltip="Generate a new manuscript")
     manuscript_card = build_manuscript_card(page)
     editor = manuscript_card.content.content.controls[0].controls[0]
 
