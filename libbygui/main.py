@@ -177,7 +177,14 @@ def build_manuscript_list(page):
             ft.ListTile(
                 leading=ft.Icon(ft.Icons.FILE_OPEN),
                 title=ft.Text(f'{man.id}. {man.title}'),
-                on_click=lambda e: load_manuscript(page, e)
+                on_click=lambda e: load_manuscript(page, e),
+                trailing=ft.IconButton(
+                    ft.icons.DELETE_OUTLINE,
+                    icon_color="red",
+                    data=man.id,
+                    tooltip="Delete manuscript",
+                    on_click=lambda e: delete_manuscript(e, e.control.data)
+                )
             )
         )
     return mlist
@@ -235,13 +242,28 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
     return editor
 
 
+def delete_manuscript(e, manid):
+    WKF.delete_manuscript(manid)
+    page.views.pop()
+    page.views.append(
+        ft.View(
+            "/manuscripts",
+            [
+                page.appbar,
+                build_manuscript_list(page),
+                nav_bar
+            ],
+            scroll=ft.ScrollMode.AUTO
+        )
+    )
+    page.update()
+
 def load_manuscript(page, e):
     manid = int(e.control.title.value.split('.')[0])
     page.client_storage.set("manid", manid)
     txt = WKF.get_manuscript_text(manid)
     page.text_field.value = txt
     page.text_field.on_change(None)
-    # print(f'Title: {page.text_field.value[:20]}')
     page.go('/edit')
 
 def build_knowledge_page(page):

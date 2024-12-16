@@ -111,6 +111,14 @@ class Workflow:
             f"Only return your critical opinion of the section, indicating changes that could be applied to improve it.")
         return criticized_section
 
+    def delete_manuscript(self, manuscript_id: int):
+        """Delete a manuscript from the database"""
+        with Session(self.engine) as session:
+            manuscript = session.get(Manuscript, manuscript_id)
+            if manuscript:
+                session.delete(manuscript)
+                session.commit()
+
     def _save_manuscript(self, manuscript: Manuscript):
         with Session(self.engine) as session:
             session.add(manuscript)
