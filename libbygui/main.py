@@ -180,7 +180,7 @@ def build_manuscript_list(page):
                 subtitle=ft.Text(f'Last updated: {man.last_updated.strftime("%Y-%m-%d %H:%M")}'),
                 on_click=lambda e: load_manuscript(page, e),
                 trailing=ft.IconButton(
-                    ft.icons.DELETE_OUTLINE,
+                    ft.Icons.DELETE_OUTLINE,
                     icon_color="red",
                     data=man.id,
                     tooltip="Delete manuscript",
@@ -413,6 +413,7 @@ def main(page: ft.Page):
             man = WKF.setup_manuscript(context.value)
             editor.value = man.title + "\n\n" + man.abstract
             page.text_field.on_change(None)
+            write_button.disabled = True
             page.update()
 
     context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
