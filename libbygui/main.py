@@ -177,6 +177,7 @@ def build_manuscript_list(page):
             ft.ListTile(
                 leading=ft.Icon(ft.Icons.FILE_OPEN),
                 title=ft.Text(f'{man.id}. {man.title}'),
+                subtitle=ft.Text(f'Last updated: {man.last_updated.strftime("%Y-%m-%d %H:%M")}'),
                 on_click=lambda e: load_manuscript(page, e),
                 trailing=ft.IconButton(
                     ft.icons.DELETE_OUTLINE,
