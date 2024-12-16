@@ -231,6 +231,7 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         bgcolor=ft.Colors.WHITE,
         border_color=ft.Colors.GREY,
         text_vertical_align=-1,
+        label="Editor",
         tooltip="Edit your manuscript here."
     )
 

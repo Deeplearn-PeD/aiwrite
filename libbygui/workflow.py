@@ -40,7 +40,7 @@ class Workflow:
         if manuscript is None:
             return ""
         return f"""
-{'' if manuscript.title.startswith('#') else '# '}{manuscript.title}
+{'' if manuscript.title.startswith('#') else '# '}{manuscript.title.strip('"')}
 {'' if '## Abstract' in manuscript.abstract else '## Abstract'}
 {manuscript.abstract}
 {'' if '## Introduction' in manuscript.introduction else '## Introduction'}
