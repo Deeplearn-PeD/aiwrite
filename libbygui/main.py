@@ -49,7 +49,7 @@ def build_navigation_bar(page):
         destinations=[
             ft.NavigationBarDestination(icon=ft.Icons.EDIT_DOCUMENT, label="Edit"),
             ft.NavigationBarDestination(icon=ft.Icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
-            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge", tooltip="Knowledge Base", disabled=True),
+            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge", tooltip="Knowledge Base", disabled=False),
             ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", tooltip="Review your text", disabled=True),
         ],
         on_change=lambda e: page.go(
@@ -244,6 +244,9 @@ def load_manuscript(page, e):
     # print(f'Title: {page.text_field.value[:20]}')
     page.go('/edit')
 
+def build_knowledge_page(page):
+
+
 
 def main(page: ft.Page):
     page.adaptive = True
@@ -306,6 +309,18 @@ def main(page: ft.Page):
                     [
                         page.appbar,
                         build_manuscript_review_card(page),
+                        nav_bar
+                    ],
+                    scroll=ft.ScrollMode.AUTO
+                )
+            )
+        elif page.route == "/knowledge":
+            page.views.append(
+                ft.View(
+                    "/knowledge",
+                    [
+                        page.appbar,
+                        ft.Text("Knowledge Base"),
                         nav_bar
                     ],
                     scroll=ft.ScrollMode.AUTO
