@@ -15,16 +15,16 @@ def build_appbar(page):
                                    file_type=ft.FilePickerFileType.ANY)
 
     appbar = ft.AppBar(
-        leading=ft.Icon(ft.icons.TEXT_SNIPPET_ROUNDED),
+        leading=ft.Icon(ft.Icons.TEXT_SNIPPET_ROUNDED),
         leading_width=40,
         title=ft.Text("Writing Desk"),
         center_title=False,
-        bgcolor=ft.colors.SURFACE_VARIANT,
+        bgcolor=ft.Colors.AMBER_300,
         adaptive=True,
         toolbar_height=80,
         actions=[
-            ft.IconButton(ft.icons.SAVE, tooltip="Export Manuscript", on_click=save_file),
-            ft.IconButton(ft.icons.EXIT_TO_APP, tooltip="Exit My First Draft",
+            ft.IconButton(ft.Icons.SAVE, tooltip="Export Manuscript", on_click=save_file),
+            ft.IconButton(ft.Icons.EXIT_TO_APP, tooltip="Exit Ai Write",
                           on_click=lambda e: page.window_destroy()),
             ft.Dropdown(
                 value='Llama',
@@ -47,10 +47,10 @@ def build_appbar(page):
 def build_navigation_bar(page):
     navigation_bar = ft.NavigationBar(
         destinations=[
-            ft.NavigationDestination(icon=ft.icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
-            ft.NavigationDestination(icon=ft.icons.EDIT_DOCUMENT, label="Edit"),
-            ft.NavigationDestination(icon=ft.icons.BOOK, label="Knowledge", tooltip="Knowledge Base", disabled=True),
-            ft.NavigationDestination(icon=ft.icons.COFFEE, label="Review", tooltip="Review your text", disabled=True),
+            ft.NavigationBarDestination(icon=ft.Icons.EDIT_DOCUMENT, label="Edit"),
+            ft.NavigationBarDestination(icon=ft.Icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
+            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge", tooltip="Knowledge Base", disabled=True),
+            ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", tooltip="Review your text", disabled=True),
         ],
         on_change=lambda e: page.go(
             '/' + e.control.destinations[e.control.selected_index].label.lower().replace(" ", "_"))
@@ -175,7 +175,7 @@ def build_manuscript_list(page):
     for man in WKF.get_man_list(100):
         mlist.content.content.controls.append(
             ft.ListTile(
-                leading=ft.Icon(ft.icons.FILE_OPEN),
+                leading=ft.Icon(ft.Icons.FILE_OPEN),
                 title=ft.Text(f'{man.id}. {man.title}'),
                 on_click=lambda e: load_manuscript(page, e)
             )
@@ -210,8 +210,8 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         expand=True,
         # height=page.window_height,
         keyboard_type=ft.KeyboardType.TEXT,
-        bgcolor=ft.colors.WHITE,
-        border_color=ft.colors.GREY,
+        bgcolor=ft.Colors.WHITE,
+        border_color=ft.Colors.GREY,
         text_vertical_align=-1,
         tooltip="Edit your manuscript here."
     )
@@ -219,14 +219,14 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
     editor = ft.Row(
         [
             page.text_field,
-            ft.VerticalDivider(width=10, thickness=5, color=ft.colors.RED_ACCENT_700, visible=True),
+            ft.VerticalDivider(width=10, thickness=5, color=ft.Colors.RED_ACCENT_700, visible=True),
             # page.md,
             ft.Container(
                 page.md,
                 expand=True,
                 alignment=ft.alignment.top_left,
                 padding=ft.padding.Padding(12, 12, 12, 0),
-                bgcolor=ft.colors.SURFACE_VARIANT,
+                bgcolor=ft.Colors.AMBER_300,
             )
         ],
         vertical_alignment=ft.CrossAxisAlignment.START,
@@ -247,7 +247,7 @@ def load_manuscript(page, e):
 
 def main(page: ft.Page):
     page.adaptive = True
-    page.title = "My First Draft"
+    page.title = "AI Write"
     page.scroll = "adaptive"
     page.client_storage.set("model", "llama3")
     page.client_storage.set("section", "introduction")

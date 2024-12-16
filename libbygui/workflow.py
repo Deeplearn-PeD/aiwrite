@@ -24,7 +24,7 @@ class Workflow:
         self.base_prompt = ("You are a scientific writer. You should write sections of scientific articles in markdown "
                             "format on request.")
         self.libby = LibbyDBot(model=model)
-        self.KB = DocEmbedder(name=knowledge_base)
+        self.KB = DocEmbedder(col_name=knowledge_base)
 
     def set_model(self, model: str):
         self.libby = LibbyDBot(model=model)
