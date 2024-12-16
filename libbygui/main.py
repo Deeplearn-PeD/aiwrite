@@ -245,7 +245,65 @@ def load_manuscript(page, e):
     page.go('/edit')
 
 def build_knowledge_page(page):
+    # List to store uploaded files
+    uploaded_files = []
+    files_column = ft.Column(scroll=ft.ScrollMode.AUTO)
 
+    def handle_upload_result(e: ft.FilePickerResultEvent):
+        if e.files:
+            for f in e.files:
+                # Create a list tile for each uploaded file
+                file_tile = ft.ListTile(
+                    leading=ft.Icon(ft.Icons.PICTURE_AS_PDF),
+                    title=ft.Text(f.name),
+                    trailing=ft.IconButton(
+                        ft.icons.DELETE_OUTLINE,
+                        icon_color="red",
+                        data=f.name,
+                        on_click=lambda e: remove_file(e, e.control.data)
+                    ),
+                )
+                files_column.controls.append(file_tile)
+                uploaded_files.append(f.name)
+                page.update()
+
+    def remove_file(e, filename):
+        # Find and remove the list tile for this file
+        for control in files_column.controls[:]:
+            if control.title.value == filename:
+                files_column.controls.remove(control)
+                uploaded_files.remove(filename)
+                page.update()
+                break
+
+    # Create file picker
+    pick_files_dialog = ft.FilePicker(
+        on_result=handle_upload_result,
+        allow_multiple=True,
+        allowed_extensions=["pdf"]
+    )
+
+    # Add file picker to overlay
+    page.overlay.append(pick_files_dialog)
+
+    # Create upload button
+    upload_button = ft.ElevatedButton(
+        "Upload PDF Files",
+        icon=ft.icons.UPLOAD_FILE,
+        on_click=lambda _: pick_files_dialog.pick_files()
+    )
+
+    # Create the main container for the knowledge page
+    return ft.Container(
+        content=ft.Column([
+            ft.Text("Knowledge Base", size=20, weight=ft.FontWeight.BOLD),
+            upload_button,
+            ft.Divider(),
+            ft.Text("Uploaded Files:", size=16),
+            files_column,
+        ]),
+        padding=20
+    )
 
 
 def main(page: ft.Page):
