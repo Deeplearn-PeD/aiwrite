@@ -184,7 +184,7 @@ def build_manuscript_list(page):
                     icon_color="red",
                     data=man.id,
                     tooltip="Delete manuscript",
-                    on_click=lambda e: delete_manuscript(e, e.control.data, page, nav_bar)
+                    on_click=lambda e: delete_manuscript(e, e.control.data, page)
                 )
             )
         )
@@ -243,20 +243,9 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
     return editor
 
 
-def delete_manuscript(e, manid, page, nav_bar):
+def delete_manuscript(e, manid, page):
     WKF.delete_manuscript(manid)
-    page.views.pop()
-    page.views.append(
-        ft.View(
-            "/manuscripts",
-            [
-                page.appbar,
-                build_manuscript_list(page),
-                nav_bar
-            ],
-            scroll=ft.ScrollMode.AUTO
-        )
-    )
+    page.go('/manuscripts')
     page.update()
 
 def load_manuscript(page, e):
