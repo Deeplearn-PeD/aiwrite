@@ -18,13 +18,13 @@ def build_appbar(page):
         page.client_storage.set("manid", -1)
         page.text_field.value = ""
         page.context.value = ""
-        WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
+        page.WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
         page.write_button.disabled = False
         page.go("/edit")
 
     def change_model(e):
         page.client_storage.set("model", e.control.value.lower())
-        WKF.set_model(e.control.value.lower())
+        page.WKF.set_model(e.control.value.lower())
 
     appbar = ft.AppBar(
         leading=ft.Icon(ft.Icons.TEXT_SNIPPET_ROUNDED),
@@ -75,10 +75,10 @@ def build_manuscript_card(page):
     pr = ft.ProgressRing(value=0)
 
     def add_section(e):
-        man = WKF.add_section(page.client_storage.get("manid"), page.client_storage.get("section"))
+        man = page.WKF.add_section(page.client_storage.get("manid"), page.client_storage.get("section"))
         pr.value = 50;
         page.update()
-        page.text_field.value = WKF.get_manuscript_text(page.client_storage.get("manid"))
+        page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
         page.md.value = page.text_field.value
         pr.value = 100;
         page.update()
@@ -86,8 +86,8 @@ def build_manuscript_card(page):
         page.update()
 
     def enhance_text(e):
-        man = WKF.enhance_section(page.client_storage.get("manid"), page.client_storage.get("section"))
-        page.text_field.value = WKF.get_manuscript_text(page.client_storage.get("manid"))
+        man = page.WKF.enhance_section(page.client_storage.get("manid"), page.client_storage.get("section"))
+        page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
         page.md.value = page.text_field.value
         page.update()
 
@@ -137,7 +137,7 @@ def build_manuscript_review_card(page):
     review = ft.Text("Crítica ", color="red", expand=True)
 
     def on_criticize(e):
-        critic = WKF.criticize_section(page.client_storage.get("manid"), page.client_storage.get("section"))
+        critic = page.WKF.criticize_section(page.client_storage.get("manid"), page.client_storage.get("section"))
         pr.value = 100
         review.value = critic
         page.update()
@@ -158,7 +158,7 @@ def build_manuscript_review_card(page):
                         [
                             review,
                             ft.Markdown(
-                                value=WKF.get_manuscript_text(page.client_storage.get("manid")),
+                                value=page.WKF.get_manuscript_text(page.client_storage.get("manid")),
                                 expand=True,
                                 extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
                             ),
@@ -185,7 +185,7 @@ def build_manuscript_list(page):
             padding=ft.padding.symmetric(vertical=10),
         )
     )
-    for man in WKF.get_man_list(100):
+    for man in page.WKF.get_man_list(100):
         mlist.content.content.controls.append(
             ft.ListTile(
                 leading=ft.Icon(ft.Icons.FILE_OPEN),
@@ -221,7 +221,7 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
         # print('text changed')
         page.md.value = page.text_field.value
         if page.text_field.value:
-            WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
+            page.WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
         page.update()
 
     page.text_field = ft.TextField(
@@ -259,17 +259,17 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
 
 
 def delete_manuscript(e, manid, page):
-    WKF.delete_manuscript(manid)
+    page.WKF.delete_manuscript(manid)
     page.go('/manuscripts')
     page.update()
 
 def load_manuscript(page, e):
     manid = int(e.control.title.value.split('.')[0])
     page.client_storage.set("manid", manid)
-    txt = WKF.get_manuscript_text(manid)
+    txt = page.WKF.get_manuscript_text(manid)
     page.text_field.value = txt
     page.text_field.on_change(None)
-    WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
+    page.WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
     page.write_button.disabled = True
     page.go('/edit')
 
@@ -286,13 +286,14 @@ def build_knowledge_page(page):
                     leading=ft.Icon(ft.Icons.PICTURE_AS_PDF),
                     title=ft.Text(f.name),
                     trailing=ft.IconButton(
-                        ft.icons.DELETE_OUTLINE,
+                        ft.Icons.DELETE_OUTLINE,
                         icon_color="red",
                         data=f.name,
                         on_click=lambda e: remove_file(e, e.control.data)
                     ),
                 )
                 files_column.controls.append(file_tile)
+                page.WKF.embed_document(f.path)
                 uploaded_files.append(f.name)
                 page.update()
 
@@ -340,7 +341,9 @@ def main(page: ft.Page):
     page.scroll = "adaptive"
     page.client_storage.set("model", "llama3")
     page.client_storage.set("section", "introduction")
-    page.client_storage.set("manid", WKF.get_most_recent_id())
+    page.WKF = Workflow()
+    page.client_storage.set("manid", page.WKF.get_most_recent_id())
+    page.WKF.set_knowledge_base(collection_name=f"man_{page.client_storage.get('manid')}")
     page.appbar = build_appbar(page)
     nav_bar = build_navigation_bar(page)
     page.theme = ft.Theme(color_scheme_seed="green")
@@ -373,7 +376,7 @@ def main(page: ft.Page):
         if page.client_storage.contains_key("manid"):
             manid = page.client_storage.get("manid")
             if manid == -1:
-                page.text_field.value = WKF.get_manuscript_text(manid)
+                page.text_field.value = page.WKF.get_manuscript_text(manid)
                 page.text_field.on_change(None)
 
         if page.route == "/manuscripts":
@@ -413,7 +416,7 @@ def main(page: ft.Page):
                 )
             )
         page.appbar.title.value = f"Writing Desk - {page.route.strip('/').capitalize()}"
-        page.text_field.value = WKF.get_manuscript_text(manid)
+        page.text_field.value = page.WKF.get_manuscript_text(manid)
         page.update()
 
     def write_man(e):
@@ -426,9 +429,9 @@ def main(page: ft.Page):
             page.add(ft.ProgressRing(), ft.Text("Generating the text..."))
             # page.update()
             page.client_storage.set("context", page.context.value)
-            WKF.set_model(page.client_storage.get("model"))
+            page.WKF.set_model(page.client_storage.get("model"))
 
-            man = WKF.setup_manuscript(page.context.value)
+            man = page.WKF.setup_manuscript(page.context.value)
             editor.value = man.title + "\n\n" + man.abstract
             page.text_field.on_change(None)
             page.write_button.disabled = True
@@ -452,7 +455,7 @@ def main(page: ft.Page):
     page.go(page.route)
 
 
-WKF = Workflow()
+
 
 
 def run():

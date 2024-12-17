@@ -3,6 +3,8 @@ import datetime
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from libbydbot.brain import LibbyDBot
 from libbydbot.brain.embed import DocEmbedder
+import fitz
+from fitz import EmptyFileError
 
 
 class Manuscript(SQLModel, table=True):
@@ -26,8 +28,24 @@ class Workflow:
         self.libby = LibbyDBot(model=model)
         self.KB = DocEmbedder(col_name=knowledge_base)
 
+    def set_knowledge_base(self, collection_name: str):
+        self.KB = DocEmbedder(col_name=collection_name)
+
     def set_model(self, model: str):
         self.libby = LibbyDBot(model=model)
+
+    def embed_document(self, file_name: str):
+        try:
+            doc = fitz.open(file_name)
+        except EmptyFileError:
+            pass
+        n = doc.name
+        for page_number, page in enumerate(doc):
+            text = page.get_text()
+            if not text:
+                continue
+            self.KB.embed_text(text, n, page_number)
+
 
     def get_man_list(self, n: int = 100) -> List[Manuscript]:
         with Session(self.engine) as session:
