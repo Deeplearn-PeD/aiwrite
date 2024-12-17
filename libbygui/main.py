@@ -22,6 +22,10 @@ def build_appbar(page):
         page.write_button.disabled = False
         page.go("/edit")
 
+    def change_model(e):
+        page.client_storage.set("model", e.control.value.lower())
+        WKF.set_model(e.control.value.lower())
+
     appbar = ft.AppBar(
         leading=ft.Icon(ft.Icons.TEXT_SNIPPET_ROUNDED),
         leading_width=40,
@@ -34,18 +38,18 @@ def build_appbar(page):
             ft.IconButton(ft.Icons.NOTE_ADD, tooltip="New Manuscript", on_click=new_manuscript),
             ft.IconButton(ft.Icons.SAVE, tooltip="Export Manuscript", on_click=save_file),
             ft.IconButton(ft.Icons.EXIT_TO_APP, tooltip="Exit Ai Write",
-                          on_click=lambda e: page.window_destroy()),
+                          on_click=lambda e: page.window.destroy()),
             ft.Dropdown(
                 value='Llama',
                 width=150,
                 label="Model",
                 tooltip="Select the AI model to use for writing",
                 options=[
-                    ft.dropdown.Option("GPT"),
-                    ft.dropdown.Option("Gemma"),
-                    ft.dropdown.Option("Llama"),
+                    ft.dropdown.Option(text="OpenAI",key='gpt'),
+                    ft.dropdown.Option(text="Google", key='gemma2'),
+                    ft.dropdown.Option(text="Llama", key='llama3.2'),
                 ],
-                on_change=lambda e: page.client_storage.set("model", e.control.value.lower())
+                on_change=change_model
             ),
 
         ],
