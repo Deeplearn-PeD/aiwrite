@@ -91,7 +91,6 @@ def build_manuscript_card(page):
         content=ft.Container(
             content=ft.Column(
                 [
-                    build_markdown_editor(page),
                     ft.Row(
                         [
                             pr,
@@ -108,13 +107,15 @@ def build_manuscript_card(page):
                                 ],
                                 on_change=lambda e: page.client_storage.set("section", e.control.value.lower())
                             ),
-                            ft.TextButton("Generate", on_click=add_section,
+                            ft.ElevatedButton("Generate", on_click=add_section,
                                           tooltip=f"Generate the {page.client_storage.get('section')} section"),
-                            ft.TextButton("Enhance", on_click=enhance_text,
+                            ft.ElevatedButton("Enhance", on_click=enhance_text,
                                           tooltip=f"Enhance the {page.client_storage.get('section')} section"),
                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
+                    build_markdown_editor(page),
+
                 ],
                 scroll=ft.ScrollMode.AUTO,
             ),
@@ -143,6 +144,14 @@ def build_manuscript_review_card(page):
                 [
                     ft.Row(
                         [
+                            pr,
+                            ft.ElevatedButton("Criticize", on_click=on_criticize,
+                                              tooltip=f"Criticize the {page.client_storage.get('section')} section"),
+                        ],
+                        alignment=ft.MainAxisAlignment.END,
+                    ),
+                    ft.Row(
+                        [
                             review,
                             ft.Markdown(
                                 value=WKF.get_manuscript_text(page.client_storage.get("manid")),
@@ -151,15 +160,6 @@ def build_manuscript_review_card(page):
                             ),
                         ],
                         alignment=ft.MainAxisAlignment.START,
-                    ),
-
-                    ft.Row(
-                        [
-                            pr,
-                            ft.TextButton("Criticize", on_click=on_criticize,
-                                          tooltip=f"Criticize the {page.client_storage.get('section')} section"),
-                        ],
-                        alignment=ft.MainAxisAlignment.END,
                     ),
                 ],
                 scroll=ft.ScrollMode.AUTO,
@@ -431,7 +431,7 @@ def main(page: ft.Page):
             page.update()
 
     page.context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
-    page.write_button = ft.ElevatedButton("Write", on_click=write_man, tooltip="Generate a new manuscript")
+    page.write_button = ft.ElevatedButton("Initialize", on_click=write_man, tooltip="Generate a new manuscript")
     manuscript_card = build_manuscript_card(page)
     editor = manuscript_card.content.content.controls[0].controls[0]
 
