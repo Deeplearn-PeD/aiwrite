@@ -73,23 +73,64 @@ def build_navigation_bar(page):
 
 def build_manuscript_card(page):
     pr = ft.ProgressRing(value=0)
+    
+    def get_sections_from_manuscript():
+        """Extract section names from the current manuscript's markdown content"""
+        text = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
+        if not text:
+            return []
+            
+        sections = []
+        # Split on markdown headers (##)
+        parts = text.split('## ')
+        for part in parts[1:]:  # Skip first part as it's before first section
+            section_name = part.split('\n', 1)[0].strip()
+            if section_name:
+                sections.append(section_name)
+        return sections
+
+    def update_section_dropdown():
+        """Update the dropdown options based on current manuscript sections"""
+        sections = get_sections_from_manuscript()
+        section_dropdown.options = [
+            ft.dropdown.Option(section) for section in sections
+        ]
+        if sections:
+            section_dropdown.value = sections[0]
+            page.client_storage.set("section", sections[0].lower())
+        else:
+            section_dropdown.value = None
+        section_dropdown.update()
 
     def add_section(e):
         man = page.WKF.add_section(page.client_storage.get("manid"), page.client_storage.get("section"))
-        pr.value = 50;
+        pr.value = 50
         page.update()
         page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
         page.md.value = page.text_field.value
-        pr.value = 100;
+        pr.value = 100
         page.update()
         pr.value = 0
+        update_section_dropdown()
         page.update()
 
     def enhance_text(e):
         man = page.WKF.enhance_section(page.client_storage.get("manid"), page.client_storage.get("section"))
         page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
         page.md.value = page.text_field.value
+        update_section_dropdown()
         page.update()
+
+    # Create dropdown that we'll update dynamically
+    section_dropdown = ft.Dropdown(
+        width=150,
+        label="Section",
+        options=[],
+        on_change=lambda e: page.client_storage.set("section", e.control.value.lower())
+    )
+    
+    # Initialize dropdown with current manuscript sections
+    update_section_dropdown()
 
     card = ft.Card(
         content=ft.Container(
@@ -98,19 +139,7 @@ def build_manuscript_card(page):
                     ft.Row(
                         [
                             pr,
-                            ft.Dropdown(
-                                value='Introduction',
-                                width=150,
-                                label="Section",
-                                options=[
-                                    ft.dropdown.Option("Abstract"),
-                                    ft.dropdown.Option("Introduction"),
-                                    ft.dropdown.Option("Methods"),
-                                    ft.dropdown.Option("Discussion"),
-                                    ft.dropdown.Option("Conclusion"),
-                                ],
-                                on_change=lambda e: page.client_storage.set("section", e.control.value.lower())
-                            ),
+                            section_dropdown,
                             ft.ElevatedButton("Generate", on_click=add_section,
                                           tooltip=f"Generate the {page.client_storage.get('section')} section"),
                             ft.ElevatedButton("Enhance", on_click=enhance_text,
@@ -119,15 +148,11 @@ def build_manuscript_card(page):
                         alignment=ft.MainAxisAlignment.END,
                     ),
                     build_markdown_editor(page),
-
                 ],
                 scroll=ft.ScrollMode.AUTO,
             ),
-            # width=400,
             padding=10,
-        ),
-        # height=page.window_height,
-        # expand=True
+        )
     )
     return card
 
