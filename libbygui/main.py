@@ -76,15 +76,33 @@ def build_manuscript_card(page):
     pr = ft.ProgressRing(value=0)
 
     def add_section(e):
-        man = page.WKF.add_section(page.client_storage.get("manid"), page.client_storage.get("section"))
-        pr.value = 50
-        page.update()
-        page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
-        page.md.value = page.text_field.value
-        pr.value = 100
-        page.update()
-        pr.value = 0
-        update_section_dropdown(page)
+        def handle_dialog(e):
+            if not section_name.value:
+                return
+            page.client_storage.set("section", section_name.value.lower())
+            page.dialog.open = False
+            man = page.WKF.add_section(page.client_storage.get("manid"), section_name.value.lower())
+            pr.value = 50
+            page.update()
+            page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
+            page.md.value = page.text_field.value
+            pr.value = 100
+            page.update()
+            pr.value = 0
+            update_section_dropdown(page)
+            page.update()
+
+        section_name = ft.TextField(label="Section Name", autofocus=True)
+        page.dialog = ft.AlertDialog(
+            title=ft.Text("Add New Section"),
+            content=section_name,
+            actions=[
+                ft.TextButton("Add", on_click=handle_dialog),
+                ft.TextButton("Cancel", on_click=lambda e: setattr(page.dialog, "open", False))
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        page.dialog.open = True
         page.update()
 
     def enhance_text(e):
