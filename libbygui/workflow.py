@@ -9,7 +9,16 @@ from fitz import EmptyFileError
 
 class Manuscript(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    last_updated: datetime.datetime = Field(default_factory=datetime.datetime.now, nullable=False)
+    created: datetime.datetime = Field(
+        default_factory=datetime.datetime.now,
+        nullable=False,
+        index=True
+    )
+    last_updated: datetime.datetime = Field(
+        default_factory=datetime.datetime.now,
+        nullable=False,
+        index=True
+    )
     source: str  # Stores the complete markdown text of the manuscript
 
 
@@ -148,6 +157,8 @@ class Workflow:
 
     def _save_manuscript(self, manuscript: Manuscript):
         with Session(self.engine) as session:
+            # Update last_updated timestamp
+            manuscript.last_updated = datetime.datetime.now()
             session.add(manuscript)
             session.commit()
             session.refresh(manuscript)
