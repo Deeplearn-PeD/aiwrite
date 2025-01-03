@@ -119,13 +119,17 @@ class Workflow:
         return manuscript
 
     def update_from_text(self, manuscript_id: int, text: str):
+        """Update the manuscript content from a markdown text"""
         manuscript = self.get_manuscript(manuscript_id)
         parsed = parse_manuscript_text(text)
         if not parsed:
             return
-        for section in parsed:
-            setattr(manuscript, section, parsed[section])
+        manuscript.source = text
         self._save_manuscript(manuscript)
+
+    def get_manuscript_sections(self, manuscript_id: int) -> Dict[str, str]:
+        manuscript = self.get_manuscript(manuscript_id)
+        return parse_manuscript_text(manuscript.source)
 
     def criticize_section(self, manuscript_id: int, section_name: str):
         self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{self.get_manuscript_text(manuscript_id)}")
