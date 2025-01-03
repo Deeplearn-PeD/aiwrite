@@ -98,6 +98,8 @@ class Workflow:
             f"Please write the {section_name} section of the manuscript, based on the context provided. Only return the section text, without additional text.")
         
         # Add the new section to the markdown content
+        if section.startswith(f"## {section_name.capitalize()}"):
+            section = section.split("\n", 1)[1].strip()
         new_content = f"{manuscript.source}\n\n## {section_name.capitalize()}\n{section}"
         manuscript.source = new_content
         self._save_manuscript(manuscript)
