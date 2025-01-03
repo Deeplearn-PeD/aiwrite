@@ -1,6 +1,7 @@
 import flet as ft
+from flet.core.dropdown import Dropdown
 from libbydbot.brain import LibbyDBot
-from libbygui.workflow import Workflow
+from libbygui.workflow import Workflow, parse_manuscript_text
 import sys
 import copy
 import dotenv
@@ -73,25 +74,6 @@ def build_navigation_bar(page):
 
 def build_manuscript_card(page):
     pr = ft.ProgressRing(value=0)
-    
-    def get_sections_from_manuscript():
-        """Get section names using parse_manuscript_text"""
-        text = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
-        parsed = page.WKF.parse_manuscript_text(text)
-        return list(parsed.keys())
-
-    def update_section_dropdown():
-        """Update the dropdown options based on current manuscript sections"""
-        sections = get_sections_from_manuscript()
-        section_dropdown.options = [
-            ft.dropdown.Option(section) for section in sections
-        ]
-        if sections:
-            section_dropdown.value = sections[0]
-            page.client_storage.set("section", sections[0].lower())
-        else:
-            section_dropdown.value = None
-        section_dropdown.update()
 
     def add_section(e):
         man = page.WKF.add_section(page.client_storage.get("manid"), page.client_storage.get("section"))
@@ -102,18 +84,18 @@ def build_manuscript_card(page):
         pr.value = 100
         page.update()
         pr.value = 0
-        update_section_dropdown()
+        update_section_dropdown(page)
         page.update()
 
     def enhance_text(e):
         man = page.WKF.enhance_section(page.client_storage.get("manid"), page.client_storage.get("section"))
         page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
         page.md.value = page.text_field.value
-        update_section_dropdown()
+        update_section_dropdown(page)
         page.update()
 
     # Create dropdown that we'll update dynamically
-    section_dropdown = ft.Dropdown(
+    page.section_dropdown = ft.Dropdown(
         width=150,
         label="Section",
         options=[],
@@ -127,7 +109,7 @@ def build_manuscript_card(page):
                     ft.Row(
                         [
                             pr,
-                            section_dropdown,
+                            page.section_dropdown,
                             ft.ElevatedButton("Generate", on_click=add_section,
                                           tooltip=f"Generate the {page.client_storage.get('section')} section"),
                             ft.ElevatedButton("Enhance", on_click=enhance_text,
@@ -143,11 +125,29 @@ def build_manuscript_card(page):
         )
     )
     
-    # Initialize dropdown with current manuscript sections after card is created
-    update_section_dropdown()
-    
     return card
 
+def get_sections_from_manuscript(page):
+    """Get section names using parse_manuscript_text"""
+    text = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
+    parsed = parse_manuscript_text(text)
+    return list(parsed.keys())
+
+def update_section_dropdown(page):
+    """Update the dropdown options based on current manuscript sections"""
+    sections = get_sections_from_manuscript(page)
+    page.section_dropdown.options = [
+        ft.dropdown.Option(section) for section in sections
+    ]
+    if sections:
+        page.section_dropdown.value = sections[0]
+        page.client_storage.set("section", sections[0].lower())
+    else:
+        page.section_dropdown.value = None
+    try:
+        page.section_dropdown.update()
+    except AssertionError:  #  Dropdown not in view
+        pass
 
 def build_manuscript_review_card(page):
     pr = ft.ProgressRing(value=0)
@@ -206,7 +206,7 @@ def build_manuscript_list(page):
         mlist.content.content.controls.append(
             ft.ListTile(
                 leading=ft.Icon(ft.Icons.FILE_OPEN),
-                title=ft.Text(f'{man.id}. {man.title}'),
+                title=ft.Text(f'{man.source[:100]}...'),
                 subtitle=ft.Text(f'Last updated: {man.last_updated.strftime("%Y-%m-%d %H:%M")}'),
                 on_click=lambda e: load_manuscript(page, e),
                 trailing=ft.IconButton(
@@ -449,7 +449,7 @@ def main(page: ft.Page):
             page.WKF.set_model(page.client_storage.get("model"))
 
             man = page.WKF.setup_manuscript(page.context.value)
-            editor.value = man.title + "\n\n" + man.abstract
+            editor.value = man.source
             page.text_field.on_change(None)
             page.write_button.disabled = True
             page.update()
@@ -457,6 +457,8 @@ def main(page: ft.Page):
     page.context = ft.TextField(label="Manuscript concept", multiline=True, min_lines=4)
     page.write_button = ft.ElevatedButton("Initialize", on_click=write_man, tooltip="Generate a new manuscript")
     manuscript_card = build_manuscript_card(page)
+    # Initialize dropdown with current manuscript sections after card is created
+    update_section_dropdown(page)
     editor = manuscript_card.content.content.controls[0].controls[0]
 
     # print(editor)
