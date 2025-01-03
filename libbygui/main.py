@@ -120,9 +120,6 @@ def build_manuscript_card(page):
         on_change=lambda e: page.client_storage.set("section", e.control.value.lower())
     )
     
-    # Initialize dropdown with current manuscript sections
-    update_section_dropdown()
-
     card = ft.Card(
         content=ft.Container(
             content=ft.Column(
@@ -145,6 +142,10 @@ def build_manuscript_card(page):
             padding=10,
         )
     )
+    
+    # Initialize dropdown with current manuscript sections after card is created
+    update_section_dropdown()
+    
     return card
 
 
