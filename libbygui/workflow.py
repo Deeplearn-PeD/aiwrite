@@ -27,6 +27,7 @@ class Workflow:
                             "format on request.")
         self.libby = LibbyDBot(model=model)
         self.KB = DocEmbedder(col_name=knowledge_base)
+        self.manuscript= None
 
     def set_knowledge_base(self, collection_name: str):
         self.KB = DocEmbedder(col_name=collection_name)
