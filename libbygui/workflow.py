@@ -10,12 +10,7 @@ from fitz import EmptyFileError
 class Manuscript(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     last_updated: datetime.datetime = Field(default_factory=datetime.datetime.now, nullable=False)
-    title: str
-    abstract: str
-    introduction: Optional[str] = ""
-    methods: Optional[str] = ""
-    discussion: Optional[str] = ""
-    conclusion: Optional[str] = ""
+    source: str  # Stores the complete markdown text of the manuscript
 
 
 class Workflow:
@@ -54,23 +49,9 @@ class Workflow:
             manuscripts = session.exec(statement).all()
         return manuscripts
 
-    def get_manuscript_text(self, manuscript_id: int) -> Dict[str, Any]:
+    def get_manuscript_text(self, manuscript_id: int) -> str:
         manuscript = self.get_manuscript(manuscript_id)
-        if manuscript is None:
-            return ""
-        return f"""
-{'' if manuscript.title.startswith('#') else '# '}{manuscript.title.strip('"')}
-{'' if '## Abstract' in manuscript.abstract else '## Abstract'}
-{manuscript.abstract}
-{'' if '## Introduction' in manuscript.introduction else '## Introduction'}
-{manuscript.introduction}
-{'' if '## Methods' in manuscript.methods else '## Methods'}
-{manuscript.methods}
-{'' if '## Discussion' in manuscript.discussion else '## Discussion'}
-{manuscript.discussion}
-{'' if '## Conclusion' in manuscript.conclusion else '## Conclusion'}
-{manuscript.conclusion}
-        """.strip()
+        return manuscript.source if manuscript else ""
 
     def setup_manuscript(self, concept: str):
         title = self.libby.ask(
@@ -79,7 +60,9 @@ class Workflow:
         self.libby.set_context(self.base_prompt + f"\n\n{concept}" + f"\n\n{knowledge}")
         abstract = self.libby.ask(
             "Please write an abstract for a manuscript, based on the context provided. Only return the abstract text, without additional text.")
-        manuscript = Manuscript(title='# ' + title if title is not None else "# title", abstract=abstract)
+        
+        markdown_content = f"# {title}\n\n## Abstract\n{abstract}"
+        manuscript = Manuscript(source=markdown_content)
         self._save_manuscript(manuscript)
         return manuscript
 
@@ -98,20 +81,41 @@ class Workflow:
 
     def add_section(self, manuscript_id: int, section_name: str):
         manuscript = self.get_manuscript(manuscript_id)
-        self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{self.get_manuscript_text(manuscript_id)}")
+        if not manuscript:
+            return None
+            
+        self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{manuscript.source}")
         section = self.libby.ask(
             f"Please write the {section_name} section of the manuscript, based on the context provided. Only return the section text, without additional text.")
-        setattr(manuscript, section_name, section)
+        
+        # Add the new section to the markdown content
+        new_content = f"{manuscript.source}\n\n## {section_name.capitalize()}\n{section}"
+        manuscript.source = new_content
         self._save_manuscript(manuscript)
         return manuscript
 
     def enhance_section(self, manuscript_id: int, section_name: str):
         manuscript = self.get_manuscript(manuscript_id)
-        self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{self.get_manuscript_text(manuscript_id)}")
+        if not manuscript:
+            return None
+            
+        # Find and replace the existing section
+        section_header = f"## {section_name.capitalize()}"
+        if section_header not in manuscript.source:
+            return self.add_section(manuscript_id, section_name)
+            
+        self.libby.set_context(self.base_prompt + f"\n\nManuscript:\n\n{manuscript.source}")
         enhanced_section = self.libby.ask(
             f"Please enhance the {section_name} section of the manuscript, based on the context provided. Only return the enhanced section text, without additional text.")
-        setattr(manuscript, section_name, enhanced_section)
-        self._save_manuscript(manuscript)
+        
+        # Replace the existing section with the enhanced one
+        parts = manuscript.source.split(section_header)
+        if len(parts) > 1:
+            before_section = parts[0]
+            after_section = parts[1].split("\n## ", 1)[1] if "\n## " in parts[1] else ""
+            new_content = f"{before_section}{section_header}\n{enhanced_section}\n\n## {after_section}" if after_section else f"{before_section}{section_header}\n{enhanced_section}"
+            manuscript.source = new_content
+            self._save_manuscript(manuscript)
         return manuscript
 
     def update_from_text(self, manuscript_id: int, text: str):
@@ -150,14 +154,22 @@ def parse_manuscript_text(text: str) -> Dict[str, str]:
     """
     Parse a markdown text into sections
     :param text: Markdown text
-    :return: Dictionary with all th sections
+    :return: Dictionary with all the sections
     """
     parsed = {}
-    if text:
-        parsed['title'] = text.split('# Abstract')[0].strip('# ').strip()
-        parsed['abstract'] = text.split('## Introduction')[0].split('# Abstract')[1].strip()
-        parsed['introduction'] = text.split('## Methods')[0].split('## Introduction')[1].strip()
-        parsed['methods'] = text.split('## Discussion')[0].split('## Methods')[1].strip()
-        parsed['discussion'] = text.split('## Conclusion')[0].split('## Discussion')[1].strip()
-        parsed['conclusion'] = text.split('## Conclusion')[1].strip()
+    if not text:
+        return parsed
+        
+    # Extract title
+    title_parts = text.split('# ', 1)
+    if len(title_parts) > 1:
+        parsed['title'] = title_parts[1].split('\n', 1)[0].strip()
+    
+    # Extract sections
+    sections = text.split('## ')
+    for section in sections[1:]:
+        section_name = section.split('\n', 1)[0].lower()
+        section_content = section.split('\n', 1)[1].strip() if '\n' in section else ''
+        parsed[section_name] = section_content
+        
     return parsed
