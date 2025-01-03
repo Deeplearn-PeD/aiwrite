@@ -134,6 +134,7 @@ class Workflow:
         if not parsed:
             return
         manuscript.source = text
+        manuscript.last_updated = datetime.datetime.now()
         self._save_manuscript(manuscript)
 
     def get_manuscript_sections(self, manuscript_id: int) -> Dict[str, str]:

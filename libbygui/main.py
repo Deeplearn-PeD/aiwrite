@@ -129,7 +129,7 @@ def build_manuscript_card(page):
                             pr,
                             page.section_dropdown,
                             ft.ElevatedButton("Generate", on_click=add_section,
-                                          tooltip=f"Generate the {page.client_storage.get('section')} section"),
+                                          tooltip=f"Generate a new section"),
                             ft.ElevatedButton("Enhance", on_click=enhance_text,
                                           tooltip=f"Enhance the {page.client_storage.get('section')} section"),
                         ],
@@ -221,10 +221,11 @@ def build_manuscript_list(page):
         )
     )
     for man in page.WKF.get_man_list(100):
+        sections = page.WKF.get_manuscript_sections(man.id)
         mlist.content.content.controls.append(
             ft.ListTile(
                 leading=ft.Icon(ft.Icons.FILE_OPEN),
-                title=ft.Text(f'{man.source[:100]}...'),
+                title=ft.Text(f'{sections['title']}\n\n{man.source.split('## ')[1][:300]}...'),
                 subtitle=ft.Text(f'Last updated: {man.last_updated.strftime("%Y-%m-%d %H:%M")}'),
                 on_click=lambda e: load_manuscript(page, e),
                 trailing=ft.IconButton(

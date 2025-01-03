@@ -20,7 +20,7 @@ python-dotenv = "^1.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
-aider-chat = "^0.69.0"
+aider-chat = "^0.70.0"
 
 [build-system]
 requires = ["poetry-core"]
