@@ -75,19 +75,10 @@ def build_manuscript_card(page):
     pr = ft.ProgressRing(value=0)
     
     def get_sections_from_manuscript():
-        """Extract section names from the current manuscript's markdown content"""
+        """Get section names using parse_manuscript_text"""
         text = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
-        if not text:
-            return []
-            
-        sections = []
-        # Split on markdown headers (##)
-        parts = text.split('## ')
-        for part in parts[1:]:  # Skip first part as it's before first section
-            section_name = part.split('\n', 1)[0].strip()
-            if section_name:
-                sections.append(section_name)
-        return sections
+        parsed = page.WKF.parse_manuscript_text(text)
+        return list(parsed.keys())
 
     def update_section_dropdown():
         """Update the dropdown options based on current manuscript sections"""
