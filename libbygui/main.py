@@ -1,3 +1,4 @@
+from typing import List
 import flet as ft
 from flet.core.dropdown import Dropdown
 from libbydbot.brain import LibbyDBot
