@@ -390,6 +390,150 @@ def load_manuscript(page: ft.Page, e: ft.ControlEvent) -> None:
 
 
 def build_settings_page(page: ft.Page) -> ft.Container:
+    """Build the project settings page with project selection and configuration.
+    
+    Args:
+        page: The Flet page object to attach controls to
+        
+    Returns:
+        ft.Container: Configured settings interface
+    """
+    # Project selector
+    project_dropdown = ft.Dropdown(
+        label="Project",
+        options=[
+            ft.dropdown.Option(f"{proj.id}: {proj.name}")
+            for proj in page.WKF.get_projects()
+        ],
+        value=str(page.client_storage.get("project_id") or ""),
+        on_change=lambda e: load_project(page, e.control.value.split(":")[0])
+    )
+
+    # New project button
+    def create_new_project(e):
+        new_project = Project(name="New Project")
+        saved_project = page.WKF.save_project(new_project)
+        project_dropdown.options.append(
+            ft.dropdown.Option(f"{saved_project.id}: {saved_project.name}")
+        )
+        project_dropdown.value = f"{saved_project.id}: {saved_project.name}"
+        load_project(page, saved_project.id)
+        page.update()
+
+    # Project name field
+    project_name = ft.TextField(
+        label="Project Name",
+        value=page.WKF.current_project.name if page.WKF.current_project else "",
+        on_change=lambda e: update_project_field(page, "name", e.control.value)
+    )
+
+    # Manuscript selector
+    manuscript_dropdown = ft.Dropdown(
+        label="Manuscript",
+        options=[
+            ft.dropdown.Option(f"{man.id}: {parse_manuscript_text(man.source)['title']}")
+            for man in page.WKF.get_man_list()
+        ],
+        value=str(page.WKF.current_project.manuscript_id if page.WKF.current_project else ""),
+        on_change=lambda e: update_project_field(page, "manuscript_id", int(e.control.value.split(":")[0]))
+    )
+
+    # Documents folder picker
+    def handle_folder_pick(e: ft.FilePickerResultEvent):
+        if e.path:
+            update_project_field(page, "documents_folder", e.path)
+            documents_folder.value = e.path
+            page.update()
+
+    folder_picker = ft.FilePicker(on_result=handle_folder_pick)
+    page.overlay.append(folder_picker)
+    
+    documents_folder = ft.TextField(
+        label="Documents Folder",
+        value=page.WKF.current_project.documents_folder if page.WKF.current_project else "",
+        read_only=True
+    )
+
+    # Language selector
+    language_dropdown = ft.Dropdown(
+        label="Language",
+        value=page.WKF.current_project.language if page.WKF.current_project else "en",
+        options=[
+            ft.dropdown.Option("en", "English"),
+            ft.dropdown.Option("pt", "Portuguese"),
+            ft.dropdown.Option("es", "Spanish"),
+        ],
+        on_change=lambda e: update_project_field(page, "language", e.control.value)
+    )
+
+    # Model selector
+    model_dropdown = ft.Dropdown(
+        label="LLM Model",
+        value=page.WKF.current_project.model if page.WKF.current_project else "llama3",
+        options=[
+            ft.dropdown.Option("llama3", "Llama 3"),
+            ft.dropdown.Option("gpt", "GPT-4"),
+            ft.dropdown.Option("gemma2", "Gemma 2"),
+        ],
+        on_change=lambda e: update_project_field(page, "model", e.control.value)
+    )
+
+    return ft.Container(
+        content=ft.Column([
+            ft.Text("Project Settings", size=20, weight=ft.FontWeight.BOLD),
+            ft.Row([
+                project_dropdown,
+                ft.IconButton(
+                    ft.Icons.ADD,
+                    on_click=create_new_project,
+                    tooltip="Create new project"
+                )
+            ]),
+            project_name,
+            manuscript_dropdown,
+            ft.Row([
+                documents_folder,
+                ft.ElevatedButton(
+                    "Select Folder",
+                    icon=ft.Icons.FOLDER_OPEN,
+                    on_click=lambda _: folder_picker.get_directory_path()
+                )
+            ]),
+            language_dropdown,
+            model_dropdown,
+        ], scroll=ft.ScrollMode.AUTO),
+        padding=20
+    )
+
+
+def load_project(page: ft.Page, project_id: str) -> None:
+    """Load a project's settings into the UI.
+    
+    Args:
+        page: The Flet page object to update
+        project_id: ID of the project to load
+    """
+    if not project_id:
+        return
+        
+    page.client_storage.set("project_id", int(project_id))
+    page.WKF.current_project = page.WKF.get_project(int(project_id))
+    page.update()
+
+
+def update_project_field(page: ft.Page, field: str, value: Any) -> None:
+    """Update a project field and save it to the database.
+    
+    Args:
+        page: The Flet page object
+        field: Name of the field to update
+        value: New value for the field
+    """
+    if not page.WKF.current_project:
+        return
+        
+    setattr(page.WKF.current_project, field, value)
+    page.WKF.save_project(page.WKF.current_project)
     """Build the project settings page.
     
     Args:

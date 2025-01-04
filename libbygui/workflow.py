@@ -7,6 +7,37 @@ import fitz
 from fitz import EmptyFileError
 
 
+class Project(SQLModel, table=True):
+    """Represents a project configuration.
+    
+    Attributes:
+        id: Unique identifier for the project
+        name: Project name
+        manuscript_id: ID of selected manuscript
+        documents_folder: Path to documents folder
+        language: Language code (en, pt, es)
+        model: LLM model name
+        created: Timestamp when project was created
+        last_updated: Timestamp when project was last modified
+    """
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    manuscript_id: Optional[int] = Field(default=None, foreign_key="manuscript.id")
+    documents_folder: Optional[str] = None
+    language: str = Field(default="en")
+    model: str = Field(default="llama3")
+    created: datetime.datetime = Field(
+        default_factory=datetime.datetime.now,
+        nullable=False,
+        index=True
+    )
+    last_updated: datetime.datetime = Field(
+        default_factory=datetime.datetime.now,
+        nullable=False,
+        index=True
+    )
+
+
 class Manuscript(SQLModel, table=True):
     """Represents a manuscript in the database.
     
@@ -42,7 +73,7 @@ class Workflow:
     """
     
     def __init__(self, db_url: str = "sqlite:///aiwrite.db", model: str = "gpt",
-                 knowledge_base: str = "embeddings"):
+                 knowledge_base: str = "embeddings", project_id: Optional[int] = None):
         """Initialize the workflow with database, AI model and knowledge base.
         
         Args:
@@ -56,7 +87,9 @@ class Workflow:
                             "format on request.")
         self.libby = LibbyDBot(model=model)
         self.KB = DocEmbedder(col_name=knowledge_base)
-        self.manuscript= None
+        self.manuscript = None
+        self.project_id = project_id
+        self.current_project = self.get_project(project_id) if project_id else None
 
     def set_knowledge_base(self, collection_name: str) -> None:
         """Set the knowledge base collection to use.
@@ -280,6 +313,49 @@ class Workflow:
             if manuscript:
                 session.delete(manuscript)
                 session.commit()
+
+    def save_project(self, project: Project) -> Project:
+        """Save a project configuration to the database.
+        
+        Args:
+            project: Project object to save
+            
+        Returns:
+            Saved Project object
+        """
+        with Session(self.engine) as session:
+            project.last_updated = datetime.datetime.now()
+            session.add(project)
+            session.commit()
+            session.refresh(project)
+            self.current_project = project
+            self.project_id = project.id
+        return project
+
+    def get_project(self, project_id: int) -> Optional[Project]:
+        """Get a project by ID.
+        
+        Args:
+            project_id: ID of the project to retrieve
+            
+        Returns:
+            Project object if found, None otherwise
+        """
+        with Session(self.engine) as session:
+            statement = select(Project).where(Project.id == project_id)
+            project = session.exec(statement).first()
+        return project
+
+    def get_projects(self) -> List[Project]:
+        """Get all projects.
+        
+        Returns:
+            List of Project objects
+        """
+        with Session(self.engine) as session:
+            statement = select(Project)
+            projects = session.exec(statement).all()
+        return projects
 
     def _save_manuscript(self, manuscript: Manuscript) -> Manuscript:
         """Save a manuscript to the database.
