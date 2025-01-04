@@ -173,18 +173,35 @@ class Workflow:
         markdown_content = f"# {title}\n\n## Abstract\n{abstract}"
         manuscript = Manuscript(source=markdown_content)
         self._save_manuscript(manuscript)
+        if self.current_project:
+            with Session(self.engine) as session:
+                self.current_project.manuscript_id = manuscript.id
+                session.add(self.current_project)
+                session.commit()
         return manuscript
 
-    def get_most_recent_id(self) -> int:
+    def get_most_recent_project(self) -> int:
         """Get the ID of the most recently updated manuscript.
         
         Returns:
             ID of most recent manuscript, or -1 if none exist
         """
         with Session(self.engine) as session:
-            statement = select(Manuscript).order_by(Manuscript.last_updated.desc()).limit(1)
-            manuscript = session.exec(statement).first()
-        return -1 if manuscript is None else manuscript.id
+            statement = select(Project).order_by(Project.last_updated.desc()).limit(1)
+            project = session.exec(statement).first()
+        return -1 if project is None else project.id
+
+    def get_project_manuscript(self, project_id: int) -> Manuscript:
+        """Get the manuscript id associated with a project.
+
+        Args:
+            project_id: ID of the project to retrieve manuscript from
+
+        Returns:
+            Manuscript object associated with the project
+        """
+        project = self.get_project(project_id)
+        return project.manuscript_id if project.manuscript_id is not None else -1
 
     def get_manuscript(self, manuscript_id: int) -> Manuscript:
         """Retrieve a manuscript from the database by ID.
@@ -347,6 +364,7 @@ class Workflow:
         with Session(self.engine) as session:
             statement = select(Project).where(Project.id == project_id)
             project = session.exec(statement).first()
+        self.current_project = project
         return project
 
     def get_projects(self) -> List[Project]:

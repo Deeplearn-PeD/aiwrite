@@ -241,7 +241,7 @@ def build_manuscript_review_card(page: ft.Page) -> ft.Card:
                             ft.Column([
                                 ft.ElevatedButton(
                                     "Review Section",
-                                    icon=ft.Icons.REVIEW,
+                                    icon=ft.Icons.COFFEE,
                                     on_click=create_review_handler(section_name, review_result),
                                     tooltip=f"Review the {section_name} section"
                                 ),
@@ -388,6 +388,22 @@ def load_manuscript(page: ft.Page, e: ft.ControlEvent) -> None:
     page.write_button.disabled = True
     page.go('/edit')
 
+def load_manuscript_id(page, manid):
+    """
+    Load a manuscript into the editor.
+
+    Args:
+        page: The Flet page object to update
+        e: The control event that triggered the load
+    """
+    page.client_storage.set("manid", manid)
+    txt = page.WKF.get_manuscript_text(manid)
+    page.text_field.value = txt
+    page.text_field.on_change(None)
+    page.WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
+    page.write_button.disabled = True
+
+
 
 def build_settings_page(page: ft.Page) -> ft.Container:
     """Build the project settings page with project selection and configuration.
@@ -486,7 +502,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
     # Model selector
     model_dropdown = ft.Dropdown(
         label="LLM Model",
-        value=page.WKF.current_project.model if page.WKF.current_project else "llama3",
+        value=page.WKF.current_project.model if page.WKF.current_project else "llama3.2",
         options=[
             ft.dropdown.Option(text="OpenAI", key='gpt'),
             ft.dropdown.Option(text="Google", key='gemma2'),
@@ -603,6 +619,8 @@ def update_project_field(page: ft.Page, field: str, value: Any) -> None:
     if field == "model":
         page.client_storage.set("model", value.lower())
         page.WKF.set_model(value.lower())
+    elif field == "manuscript_id":
+        load_manuscript_id(page, value)
 
     setattr(page.WKF.current_project, field, value)
     page.WKF.save_project(page.WKF.current_project)
@@ -696,8 +714,9 @@ def main(page: ft.Page) -> None:
     page.client_storage.set("language", "en")
     page.client_storage.set("project_name", "My Manuscript Project")
     page.WKF = Workflow()
-    page.client_storage.set("manid", page.WKF.get_most_recent_id())
-    page.WKF.set_knowledge_base(collection_name=f"man_{page.client_storage.get('manid')}")
+    page.client_storage.set('project_id', page.WKF.get_most_recent_project())
+    page.client_storage.set("manid", page.WKF.get_project_manuscript(page.client_storage.get("project_id")))
+    page.WKF.set_knowledge_base(collection_name=f"man_{page.client_storage.get('project_id')}")
     page.appbar = build_appbar(page)
     nav_bar = build_navigation_bar(page)
     page.theme = ft.Theme(color_scheme_seed="green")
