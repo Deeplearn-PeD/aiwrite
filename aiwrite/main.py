@@ -24,14 +24,6 @@ def build_appbar(page: ft.Page) -> ft.AppBar:
         page.file_picker.save_file(dialog_title="Save manscript as", file_name="manuscript.md",
                                    file_type=ft.FilePickerFileType.ANY)
 
-    def new_manuscript(e):
-        page.client_storage.set("manid", -1)
-        page.text_field.value = ""
-        page.context.value = ""
-        page.WKF.update_from_text(page.client_storage.get("manid"), page.text_field.value)
-        page.write_button.disabled = False
-        page.go("/edit")
-
     # def change_model(e):
     #     page.client_storage.set("model", e.control.value.lower())
     #     page.WKF.set_model(e.control.value.lower())
@@ -45,7 +37,6 @@ def build_appbar(page: ft.Page) -> ft.AppBar:
         adaptive=True,
         toolbar_height=80,
         actions=[
-            ft.IconButton(ft.Icons.NOTE_ADD, tooltip="New Manuscript", on_click=new_manuscript),
             ft.IconButton(ft.Icons.SAVE, tooltip="Export Manuscript", on_click=save_file),
             ft.IconButton(ft.Icons.EXIT_TO_APP, tooltip="Exit Ai Write",
                           on_click=lambda e: page.window.destroy()),
