@@ -400,8 +400,17 @@ def build_settings_page(page: ft.Page) -> ft.Container:
 
     # New project button
     def create_new_project(e):
+        # Clear current manuscript state
+        page.client_storage.set("manid", -1)
+        page.text_field.value = ""
+        page.md.value = ""
+        page.context.value = ""
+        
+        # Create and save new project
         new_project = Project(name="New Project")
         saved_project = page.WKF.save_project(new_project)
+        
+        # Update UI
         project_dropdown.options.append(
             ft.dropdown.Option(f"{saved_project.id}: {saved_project.name}")
         )
