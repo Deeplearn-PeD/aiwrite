@@ -385,6 +385,8 @@ def build_settings_page(page: ft.Page) -> ft.Container:
     Returns:
         ft.Container: Configured settings interface
     """
+    # Declare variables that need to be accessed by update_project_fields
+    global project_name, manuscript_dropdown, documents_folder, language_dropdown, model_dropdown
     # Project selector
     project_dropdown = ft.Dropdown(
         label="Project",
@@ -404,7 +406,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
             ft.dropdown.Option(f"{saved_project.id}: {saved_project.name}")
         )
         project_dropdown.value = f"{saved_project.id}: {saved_project.name}"
-        load_project(page, saved_project.id)
+        update_project_fields(page, saved_project.id)
         page.update()
 
     # Project name field
@@ -507,6 +509,8 @@ def update_project_fields(page: ft.Page, project_id: str) -> None:
         page: The Flet page object to update
         project_id: ID of the project to load
     """
+    # Access the global variables we need to update
+    global project_name, manuscript_dropdown, documents_folder, language_dropdown, model_dropdown
     if not project_id:
         return
 
