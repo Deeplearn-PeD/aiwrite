@@ -491,6 +491,12 @@ def build_settings_page(page: ft.Page) -> ft.Container:
                     "Select Folder",
                     icon=ft.Icons.FOLDER_OPEN,
                     on_click=lambda _: folder_picker.get_directory_path()
+                ),
+                ft.ElevatedButton(
+                    "Re-scan Folder",
+                    icon=ft.Icons.REFRESH,
+                    on_click=lambda _: page.WKF.KB.embed_path(documents_folder.value) if documents_folder.value else None,
+                    tooltip="Re-scan and re-embed documents in the selected folder"
                 )
             ]),
             language_dropdown,
