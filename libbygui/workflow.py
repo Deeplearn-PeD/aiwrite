@@ -41,7 +41,7 @@ class Workflow:
         manuscript: Currently loaded manuscript
     """
     
-    def __init__(self, db_url: str = "sqlite:///manuscripts.db", model: str = "gpt",
+    def __init__(self, db_url: str = "sqlite:///aiwrite.db", model: str = "gpt",
                  knowledge_base: str = "embeddings"):
         """Initialize the workflow with database, AI model and knowledge base.
         
