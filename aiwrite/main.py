@@ -540,14 +540,23 @@ def update_project_fields(page: ft.Page, project_id: str) -> None:
         # Update model
         model_dropdown.value = project.model
         
-        # If there's a manuscript ID, load it
+        # Handle manuscript loading/clearing
         if project.manuscript_id:
+            # Load associated manuscript
             page.client_storage.set("manid", project.manuscript_id)
             txt = page.WKF.get_manuscript_text(project.manuscript_id)
             page.text_field.value = txt
+            page.md.value = txt
             page.text_field.on_change(None)
             page.WKF.update_from_text(project.manuscript_id, txt)
             page.write_button.disabled = True
+        else:
+            # Clear editor if no manuscript
+            page.client_storage.set("manid", -1)
+            page.text_field.value = ""
+            page.md.value = ""
+            page.text_field.on_change(None)
+            page.write_button.disabled = False
             
     page.update()
 
