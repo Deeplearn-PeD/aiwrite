@@ -1,9 +1,8 @@
-from typing import List
-
+from typing import List, Any
 import dotenv
 import flet as ft
 
-from libbygui.workflow import Workflow, parse_manuscript_text
+from libbygui.workflow import Workflow, parse_manuscript_text, Project
 
 dotenv.load_dotenv()
 
