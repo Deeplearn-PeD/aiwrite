@@ -393,7 +393,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
             for proj in page.WKF.get_projects()
         ],
         value=str(page.client_storage.get("project_id") or ""),
-        on_change=lambda e: load_project(page, e.control.value.split(":")[0])
+        on_change=lambda e: update_project_fields(page, e.control.value.split(":")[0])
     )
 
     # New project button
@@ -413,6 +413,12 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         value=page.WKF.current_project.name if page.WKF.current_project else "",
         on_change=lambda e: update_project_field(page, "name", e.control.value)
     )
+    
+    # Initialize fields with current project data
+    if page.WKF.current_project:
+        project_name.value = page.WKF.current_project.name
+        if page.WKF.current_project.manuscript_id:
+            page.client_storage.set("manid", page.WKF.current_project.manuscript_id)
 
     # Manuscript selector
     manuscript_dropdown = ft.Dropdown(
@@ -493,9 +499,9 @@ def build_settings_page(page: ft.Page) -> ft.Container:
     )
 
 
-def load_project(page: ft.Page, project_id: str) -> None:
+def update_project_fields(page: ft.Page, project_id: str) -> None:
     """
-    Load a project's settings into the UI.
+    Load a project's settings and update all related fields in the UI.
     
     Args:
         page: The Flet page object to update
@@ -504,8 +510,41 @@ def load_project(page: ft.Page, project_id: str) -> None:
     if not project_id:
         return
 
+    # Load the project
     page.client_storage.set("project_id", int(project_id))
     page.WKF.current_project = page.WKF.get_project(int(project_id))
+    
+    # Update all fields in the settings page
+    project = page.WKF.current_project
+    if project:
+        # Update project name
+        project_name.value = project.name
+        
+        # Update manuscript dropdown
+        manuscript_dropdown.options = [
+            ft.dropdown.Option(f"{man.id}: {parse_manuscript_text(man.source)['title']}")
+            for man in page.WKF.get_man_list()
+        ]
+        manuscript_dropdown.value = str(project.manuscript_id) if project.manuscript_id else ""
+        
+        # Update documents folder
+        documents_folder.value = project.documents_folder or ""
+        
+        # Update language
+        language_dropdown.value = project.language
+        
+        # Update model
+        model_dropdown.value = project.model
+        
+        # If there's a manuscript ID, load it
+        if project.manuscript_id:
+            page.client_storage.set("manid", project.manuscript_id)
+            txt = page.WKF.get_manuscript_text(project.manuscript_id)
+            page.text_field.value = txt
+            page.text_field.on_change(None)
+            page.WKF.update_from_text(project.manuscript_id, txt)
+            page.write_button.disabled = True
+            
     page.update()
 
 
