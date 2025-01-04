@@ -27,7 +27,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 COPY pyproject.toml .
 COPY poetry.lock .
 COPY requirements.txt .
-COPY libbygui /libbygui/
+COPY aiwrite /libbygui/
 COPY ./Docker/poetry_install.sh /scripts/poetry_install.sh
 COPY ./Docker/entrypoint.sh /scripts/entrypoint.sh
 
@@ -42,7 +42,7 @@ RUN . .venv/bin/activate
 #RUN pip install --no-cache-dir -U git+https://github.com/Deeplearn-PeD/libby.git@main --break-system-packages
 
 ENTRYPOINT ["/bin/bash","-c","/scripts/entrypoint.sh"]
-#CMD ["uvicorn", "libbygui.main:run", "--host", "0.0.0.0", "--port", "8860"]
+#CMD ["uvicorn", "aiwrite.main:run", "--host", "0.0.0.0", "--port", "8860"]
 
 
 

@@ -1,8 +1,9 @@
 from typing import List, Any
+
 import dotenv
 import flet as ft
 
-from libbygui.workflow import Workflow, parse_manuscript_text, Project
+from aiwrite.workflow import Workflow, parse_manuscript_text, Project
 
 dotenv.load_dotenv()
 
@@ -446,7 +447,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
 
     folder_picker = ft.FilePicker(on_result=handle_folder_pick)
     page.overlay.append(folder_picker)
-    
+
     documents_folder = ft.TextField(
         label="Documents Folder",
         value=page.WKF.current_project.documents_folder if page.WKF.current_project else "",
@@ -506,7 +507,8 @@ def build_settings_page(page: ft.Page) -> ft.Container:
 
 
 def load_project(page: ft.Page, project_id: str) -> None:
-    """Load a project's settings into the UI.
+    """
+    Load a project's settings into the UI.
     
     Args:
         page: The Flet page object to update
@@ -514,14 +516,15 @@ def load_project(page: ft.Page, project_id: str) -> None:
     """
     if not project_id:
         return
-        
+
     page.client_storage.set("project_id", int(project_id))
     page.WKF.current_project = page.WKF.get_project(int(project_id))
     page.update()
 
 
 def update_project_field(page: ft.Page, field: str, value: Any) -> None:
-    """Update a project field and save it to the database.
+    """
+    Update a project field and save it to the database.
     
     Args:
         page: The Flet page object
@@ -530,93 +533,86 @@ def update_project_field(page: ft.Page, field: str, value: Any) -> None:
     """
     if not page.WKF.current_project:
         return
-        
+
     setattr(page.WKF.current_project, field, value)
     page.WKF.save_project(page.WKF.current_project)
-    """Build the project settings page.
-    
-    Args:
-        page: The Flet page object to attach controls to
-        
-    Returns:
-        ft.Container: Configured settings interface
-    """
-    # Project name field
-    project_name = ft.TextField(
-        label="Project Name",
-        value=page.client_storage.get("project_name") or "",
-        on_change=lambda e: page.client_storage.set("project_name", e.control.value)
-    )
 
-    # Manuscript selector
-    manuscript_dropdown = ft.Dropdown(
-        label="Manuscript",
-        options=[
-            ft.dropdown.Option(f"{man.id}: {parse_manuscript_text(man.source)['title']}")
-            for man in page.WKF.get_man_list()
-        ],
-        value=str(page.client_storage.get("selected_manuscript_id") or ""),
-        on_change=lambda e: page.client_storage.set("selected_manuscript_id", int(e.control.value.split(":")[0]))
-    )
-
-    # Documents folder picker
-    def handle_folder_pick(e: ft.FilePickerResultEvent):
-        if e.path:
-            page.client_storage.set("documents_folder", e.path)
-            documents_folder.value = e.path
-            page.update()
-
-    folder_picker = ft.FilePicker(on_result=handle_folder_pick)
-    page.overlay.append(folder_picker)
-    
-    documents_folder = ft.TextField(
-        label="Documents Folder",
-        value=page.client_storage.get("documents_folder") or "",
-        read_only=True
-    )
-
-    # Language selector
-    language_dropdown = ft.Dropdown(
-        label="Language",
-        value=page.client_storage.get("language") or "en",
-        options=[
-            ft.dropdown.Option("en", "English"),
-            ft.dropdown.Option("pt", "Portuguese"),
-            ft.dropdown.Option("es", "Spanish"),
-        ],
-        on_change=lambda e: page.client_storage.set("language", e.control.value)
-    )
-
-    # Model selector
-    model_dropdown = ft.Dropdown(
-        label="LLM Model",
-        value=page.client_storage.get("model") or "llama3",
-        options=[
-            ft.dropdown.Option("llama3", "Llama 3"),
-            ft.dropdown.Option("gpt", "GPT-4"),
-            ft.dropdown.Option("gemma2", "Gemma 2"),
-        ],
-        on_change=lambda e: page.WKF.set_model(e.control.value)
-    )
-
-    return ft.Container(
-        content=ft.Column([
-            ft.Text("Project Settings", size=20, weight=ft.FontWeight.BOLD),
-            project_name,
-            manuscript_dropdown,
-            ft.Row([
-                documents_folder,
-                ft.ElevatedButton(
-                    "Select Folder",
-                    icon=ft.Icons.FOLDER_OPEN,
-                    on_click=lambda _: folder_picker.get_directory_path()
-                )
-            ]),
-            language_dropdown,
-            model_dropdown,
-        ], scroll=ft.ScrollMode.AUTO),
-        padding=20
-    )
+    # # Project name field
+    # project_name = ft.TextField(
+    #     label="Project Name",
+    #     value=page.client_storage.get("project_name") or "",
+    #     on_change=lambda e: page.client_storage.set("project_name", e.control.value)
+    # )
+    #
+    # # Manuscript selector
+    # manuscript_dropdown = ft.Dropdown(
+    #     label="Manuscript",
+    #     options=[
+    #         ft.dropdown.Option(f"{man.id}: {parse_manuscript_text(man.source)['title']}")
+    #         for man in page.WKF.get_man_list()
+    #     ],
+    #     value=str(page.client_storage.get("selected_manuscript_id") or ""),
+    #     on_change=lambda e: page.client_storage.set("selected_manuscript_id", int(e.control.value.split(":")[0]))
+    # )
+    #
+    # # Documents folder picker
+    # def handle_folder_pick(e: ft.FilePickerResultEvent):
+    #     if e.path:
+    #         page.client_storage.set("documents_folder", e.path)
+    #         documents_folder.value = e.path
+    #         page.update()
+    #
+    # folder_picker = ft.FilePicker(on_result=handle_folder_pick)
+    # page.overlay.append(folder_picker)
+    #
+    # documents_folder = ft.TextField(
+    #     label="Documents Folder",
+    #     value=page.client_storage.get("documents_folder") or "",
+    #     read_only=True
+    # )
+    #
+    # # Language selector
+    # language_dropdown = ft.Dropdown(
+    #     label="Language",
+    #     value=page.client_storage.get("language") or "en",
+    #     options=[
+    #         ft.dropdown.Option("en", "English"),
+    #         ft.dropdown.Option("pt", "Portuguese"),
+    #         ft.dropdown.Option("es", "Spanish"),
+    #     ],
+    #     on_change=lambda e: page.client_storage.set("language", e.control.value)
+    # )
+    #
+    # # Model selector
+    # model_dropdown = ft.Dropdown(
+    #     label="LLM Model",
+    #     value=page.client_storage.get("model") or "llama3",
+    #     options=[
+    #         ft.dropdown.Option("llama3", "Llama 3"),
+    #         ft.dropdown.Option("gpt", "GPT-4"),
+    #         ft.dropdown.Option("gemma2", "Gemma 2"),
+    #     ],
+    #     on_change=lambda e: page.WKF.set_model(e.control.value)
+    # )
+    #
+    # return ft.Container(
+    #     content=ft.Column([
+    #         ft.Text("Project Settings", size=20, weight=ft.FontWeight.BOLD),
+    #         project_name,
+    #         manuscript_dropdown,
+    #         ft.Row([
+    #             documents_folder,
+    #             ft.ElevatedButton(
+    #                 "Select Folder",
+    #                 icon=ft.Icons.FOLDER_OPEN,
+    #                 on_click=lambda _: folder_picker.get_directory_path()
+    #             )
+    #         ]),
+    #         language_dropdown,
+    #         model_dropdown,
+    #     ], scroll=ft.ScrollMode.AUTO),
+    #     padding=20
+    # )
 
 
 def build_knowledge_page(page: ft.Page) -> ft.Container:

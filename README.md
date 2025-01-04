@@ -12,5 +12,5 @@ sudo apt-get install libmpv1
 ## Starting the application
 ```bash
 poetry shell
-libbygui
+aiwrite
 ```

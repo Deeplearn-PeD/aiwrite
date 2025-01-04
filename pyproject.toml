@@ -1,15 +1,15 @@
 [tool.poetry]
-name = "libbygui"
+name = "aiwrite"
 version = "0.1.0"
 description = ""
 authors = ["Flávio Codeço Coelho <fccoelho@gmail.com>"]
 readme = "README.md"
 packages = [
-    { include = "libbygui", from = "." }
+    { include = "aiwrite", from = "." }
 ]
 
 [tool.poetry.scripts]
-libbygui = "libbygui.main:run"
+libbygui = "aiwrite.main:run"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
