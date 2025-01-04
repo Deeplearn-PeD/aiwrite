@@ -1,5 +1,7 @@
 import unittest
-from libbygui.workflow import Workflow, Manuscript, parse_manuscript_text
+
+from aiwrite.workflow import Workflow, Manuscript, parse_manuscript_text
+
 
 class TestWorkflow(unittest.TestCase):
     def setUp(self):
@@ -34,12 +36,14 @@ class TestWorkflow(unittest.TestCase):
         self.assertIsNotNone(manuscript.introduction)
 
     def test_enhance_section(self):
-        manuscript = Manuscript(title='test', abstract='test', introduction='test')  # assuming this is a valid manuscript
+        manuscript = Manuscript(title='test', abstract='test',
+                                introduction='test')  # assuming this is a valid manuscript
         self.workflow.enhance_section(manuscript, 'introduction')
         self.assertIsNotNone(manuscript.introduction)
 
     def test_criticize_section(self):
-        manuscript = Manuscript(title='test', abstract='test', introduction='test')  # assuming this is a valid manuscript
+        manuscript = Manuscript(title='test', abstract='test',
+                                introduction='test')  # assuming this is a valid manuscript
         self.workflow.criticize_section(manuscript, 'introduction')
         self.assertIsNotNone(manuscript.introduction)
 
@@ -54,6 +58,7 @@ class TestWorkflow(unittest.TestCase):
         manuscript = parse_manuscript_text(text)
         self.assertEqual(manuscript['title'], '"Thermogenic Fever: The Warming World\'s Role in Dengue\'s Global Rise"')
         self.assertEqual(manuscript['abstract'].strip()[:20], '\n\nThermogenic fever')
+
 
 if __name__ == '__main__':
     unittest.main()
