@@ -191,56 +191,79 @@ def update_section_dropdown(page: ft.Page) -> None:
 
 def build_manuscript_review_card(page: ft.Page) -> ft.Card:
     """
-    Build the manuscript review card with critique functionality.
+    Build the manuscript review card with section-by-section critique functionality.
     
     Args:
         page: The Flet page object to attach controls to
         
     Returns:
-        ft.Card: Container with critique controls and manuscript display
+        ft.Card: Container with section editors and critique controls
     """
-    pr = ft.ProgressRing(value=0)
-    review = ft.Text("Crítica ", color="red", expand=True)
+    # Get all sections from the current manuscript
+    sections = page.WKF.get_manuscript_sections(page.client_storage.get("manid"))
+    
+    # Create a column to hold all section review controls
+    review_controls = ft.Column(scroll=ft.ScrollMode.AUTO)
+    
+    # Create a review panel for each section
+    for section_name, section_content in sections.items():
+        # Create review result display
+        review_result = ft.Text("", color="red", expand=True)
+        
+        # Create markdown editor for the section
+        section_editor = ft.Markdown(
+            value=section_content,
+            selectable=True,
+            expand=True,
+            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB
+        )
+        
+        # Create review button for this section
+        def create_review_handler(section_name, review_result):
+            def on_criticize(e):
+                critic = page.WKF.criticize_section(
+                    page.client_storage.get("manid"), 
+                    section_name
+                )
+                review_result.value = critic
+                page.update()
+            return on_criticize
+        
+        # Add section controls to the column
+        review_controls.controls.append(
+            ft.Card(
+                content=ft.Container(
+                    content=ft.Column([
+                        ft.Text(f"Section: {section_name}", weight=ft.FontWeight.BOLD),
+                        ft.Row([
+                            section_editor,
+                            ft.VerticalDivider(width=10),
+                            ft.Column([
+                                ft.ElevatedButton(
+                                    "Review Section",
+                                    icon=ft.Icons.REVIEW,
+                                    on_click=create_review_handler(section_name, review_result),
+                                    tooltip=f"Review the {section_name} section"
+                                ),
+                                ft.Divider(),
+                                review_result
+                            ], width=300)
+                        ])
+                    ]),
+                    padding=10
+                )
+            )
+        )
 
-    def on_criticize(e):
-        critic = page.WKF.criticize_section(page.client_storage.get("manid"), page.client_storage.get("section"))
-        pr.value = 100
-        review.value = critic
-        page.update()
-
-    card = ft.Card(
+    return ft.Card(
         content=ft.Container(
-            content=ft.Column(
-                [
-                    ft.Row(
-                        [
-                            pr,
-                            ft.ElevatedButton("Criticize", on_click=on_criticize,
-                                              tooltip=f"Criticize the {page.client_storage.get('section')} section"),
-                        ],
-                        alignment=ft.MainAxisAlignment.END,
-                    ),
-                    ft.Row(
-                        [
-                            review,
-                            ft.Markdown(
-                                value=page.WKF.get_manuscript_text(page.client_storage.get("manid")),
-                                expand=True,
-                                extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                            ),
-                        ],
-                        alignment=ft.MainAxisAlignment.START,
-                    ),
-                ],
-                scroll=ft.ScrollMode.AUTO,
-            ),
-            # width=400,
-            padding=10,
-        ),
-        # height=page.window_height,
-        # expand=True
+            content=ft.Column([
+                ft.Text("Manuscript Review", size=20, weight=ft.FontWeight.BOLD),
+                review_controls
+            ]),
+            padding=20
+        )
     )
-    return card
 
 
 def build_manuscript_list(page: ft.Page) -> ft.Card:
