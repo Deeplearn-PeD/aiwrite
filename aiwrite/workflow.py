@@ -357,6 +357,18 @@ class Workflow:
             projects = session.exec(statement).all()
         return projects
 
+    def delete_project(self, project_id: int) -> None:
+        """Delete a project from the database.
+        
+        Args:
+            project_id: ID of the project to delete
+        """
+        with Session(self.engine) as session:
+            project = session.get(Project, project_id)
+            if project:
+                session.delete(project)
+                session.commit()
+
     def _save_manuscript(self, manuscript: Manuscript) -> Manuscript:
         """Save a manuscript to the database.
         
