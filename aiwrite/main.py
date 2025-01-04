@@ -32,9 +32,9 @@ def build_appbar(page: ft.Page) -> ft.AppBar:
         page.write_button.disabled = False
         page.go("/edit")
 
-    def change_model(e):
-        page.client_storage.set("model", e.control.value.lower())
-        page.WKF.set_model(e.control.value.lower())
+    # def change_model(e):
+    #     page.client_storage.set("model", e.control.value.lower())
+    #     page.WKF.set_model(e.control.value.lower())
 
     appbar = ft.AppBar(
         leading=ft.Icon(ft.Icons.TEXT_SNIPPET_ROUNDED),
@@ -49,19 +49,6 @@ def build_appbar(page: ft.Page) -> ft.AppBar:
             ft.IconButton(ft.Icons.SAVE, tooltip="Export Manuscript", on_click=save_file),
             ft.IconButton(ft.Icons.EXIT_TO_APP, tooltip="Exit Ai Write",
                           on_click=lambda e: page.window.destroy()),
-            ft.Dropdown(
-                value='Llama',
-                width=150,
-                label="Model",
-                tooltip="Select the AI model to use for writing",
-                options=[
-                    ft.dropdown.Option(text="OpenAI", key='gpt'),
-                    ft.dropdown.Option(text="Google", key='gemma2'),
-                    ft.dropdown.Option(text="Llama", key='llama3.2'),
-                ],
-                on_change=change_model
-            ),
-
         ],
     )
     return appbar
@@ -84,7 +71,7 @@ def build_navigation_bar(page: ft.Page) -> ft.NavigationBar:
             ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge"),  # tooltip="Knowledge Base"),
             ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", tooltip="Review your text",
                                         disabled=False),
-            ft.NavigationBarDestination(icon=ft.Icons.SETTINGS, label="Settings", tooltip="Project settings"),
+            ft.NavigationBarDestination(icon=ft.Icons.SETTINGS, label="Projects", tooltip="Project settings"),
         ],
         on_change=lambda e: page.go(
             '/' + e.control.destinations[e.control.selected_index].label.lower().replace(" ", "_"))
@@ -471,9 +458,9 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         label="LLM Model",
         value=page.WKF.current_project.model if page.WKF.current_project else "llama3",
         options=[
-            ft.dropdown.Option("llama3", "Llama 3"),
-            ft.dropdown.Option("gpt", "GPT-4"),
-            ft.dropdown.Option("gemma2", "Gemma 2"),
+            ft.dropdown.Option(text="OpenAI", key='gpt'),
+            ft.dropdown.Option(text="Google", key='gemma2'),
+            ft.dropdown.Option(text="Llama", key='llama3.2'),
         ],
         on_change=lambda e: update_project_field(page, "model", e.control.value)
     )
@@ -533,86 +520,13 @@ def update_project_field(page: ft.Page, field: str, value: Any) -> None:
     """
     if not page.WKF.current_project:
         return
+    if field == "model":
+        page.client_storage.set("model", value.lower())
+        page.WKF.set_model(value.lower())
 
     setattr(page.WKF.current_project, field, value)
     page.WKF.save_project(page.WKF.current_project)
 
-    # # Project name field
-    # project_name = ft.TextField(
-    #     label="Project Name",
-    #     value=page.client_storage.get("project_name") or "",
-    #     on_change=lambda e: page.client_storage.set("project_name", e.control.value)
-    # )
-    #
-    # # Manuscript selector
-    # manuscript_dropdown = ft.Dropdown(
-    #     label="Manuscript",
-    #     options=[
-    #         ft.dropdown.Option(f"{man.id}: {parse_manuscript_text(man.source)['title']}")
-    #         for man in page.WKF.get_man_list()
-    #     ],
-    #     value=str(page.client_storage.get("selected_manuscript_id") or ""),
-    #     on_change=lambda e: page.client_storage.set("selected_manuscript_id", int(e.control.value.split(":")[0]))
-    # )
-    #
-    # # Documents folder picker
-    # def handle_folder_pick(e: ft.FilePickerResultEvent):
-    #     if e.path:
-    #         page.client_storage.set("documents_folder", e.path)
-    #         documents_folder.value = e.path
-    #         page.update()
-    #
-    # folder_picker = ft.FilePicker(on_result=handle_folder_pick)
-    # page.overlay.append(folder_picker)
-    #
-    # documents_folder = ft.TextField(
-    #     label="Documents Folder",
-    #     value=page.client_storage.get("documents_folder") or "",
-    #     read_only=True
-    # )
-    #
-    # # Language selector
-    # language_dropdown = ft.Dropdown(
-    #     label="Language",
-    #     value=page.client_storage.get("language") or "en",
-    #     options=[
-    #         ft.dropdown.Option("en", "English"),
-    #         ft.dropdown.Option("pt", "Portuguese"),
-    #         ft.dropdown.Option("es", "Spanish"),
-    #     ],
-    #     on_change=lambda e: page.client_storage.set("language", e.control.value)
-    # )
-    #
-    # # Model selector
-    # model_dropdown = ft.Dropdown(
-    #     label="LLM Model",
-    #     value=page.client_storage.get("model") or "llama3",
-    #     options=[
-    #         ft.dropdown.Option("llama3", "Llama 3"),
-    #         ft.dropdown.Option("gpt", "GPT-4"),
-    #         ft.dropdown.Option("gemma2", "Gemma 2"),
-    #     ],
-    #     on_change=lambda e: page.WKF.set_model(e.control.value)
-    # )
-    #
-    # return ft.Container(
-    #     content=ft.Column([
-    #         ft.Text("Project Settings", size=20, weight=ft.FontWeight.BOLD),
-    #         project_name,
-    #         manuscript_dropdown,
-    #         ft.Row([
-    #             documents_folder,
-    #             ft.ElevatedButton(
-    #                 "Select Folder",
-    #                 icon=ft.Icons.FOLDER_OPEN,
-    #                 on_click=lambda _: folder_picker.get_directory_path()
-    #             )
-    #         ]),
-    #         language_dropdown,
-    #         model_dropdown,
-    #     ], scroll=ft.ScrollMode.AUTO),
-    #     padding=20
-    # )
 
 
 def build_knowledge_page(page: ft.Page) -> ft.Container:
