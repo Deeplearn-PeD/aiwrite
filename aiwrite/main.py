@@ -60,9 +60,8 @@ def build_navigation_bar(page: ft.Page) -> ft.NavigationBar:
             ft.NavigationBarDestination(icon=ft.Icons.EDIT_DOCUMENT, label="Edit"),
             ft.NavigationBarDestination(icon=ft.Icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
             ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge"),  # tooltip="Knowledge Base"),
-            ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", tooltip="Review your text",
-                                        disabled=False),
-            ft.NavigationBarDestination(icon=ft.Icons.SETTINGS, label="Projects", tooltip="Project settings"),
+            ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", disabled=False),
+            ft.NavigationBarDestination(icon=ft.Icons.SETTINGS, label="Projects"),
         ],
         on_change=lambda e: page.go(
             '/' + e.control.destinations[e.control.selected_index].label.lower().replace(" ", "_"))

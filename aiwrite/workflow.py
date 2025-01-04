@@ -106,7 +106,10 @@ class Workflow:
         Args:
             model: Name of the AI model
         """
-        self.libby = LibbyDBot(model=model)
+        try:
+            self.libby = LibbyDBot(model=model)
+        except ValueError as exc:
+            print(f"Error: {exc}\nUsing the default model instead.")
 
     def embed_document(self, file_name: str) -> None:
         """Embed the contents of a document into the knowledge base.

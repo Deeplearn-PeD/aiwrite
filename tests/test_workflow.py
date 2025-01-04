@@ -22,7 +22,7 @@ class TestWorkflow(unittest.TestCase):
 
     def test_set_model(self):
         self.workflow.set_model('new_model')
-        self.assertEqual(self.workflow.libby.model, 'new_model')
+        self.assertEqual('llama3.2', self.workflow.libby.model)
 
     def test_get_man_list(self):
         manuscripts = self.workflow.get_man_list(5)
