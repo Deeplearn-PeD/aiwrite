@@ -1,17 +1,16 @@
 from typing import List
-import flet as ft
-from flet.core.dropdown import Dropdown
-from libbydbot.brain import LibbyDBot
-from libbygui.workflow import Workflow, parse_manuscript_text
-import sys
-import copy
+
 import dotenv
+import flet as ft
+
+from libbygui.workflow import Workflow, parse_manuscript_text
 
 dotenv.load_dotenv()
 
 
 def build_appbar(page: ft.Page) -> ft.AppBar:
-    """Build the application's top app bar with navigation controls.
+    """
+     Build the application's top app bar with navigation controls.
     
     Args:
         page: The Flet page object to attach controls to
@@ -19,11 +18,12 @@ def build_appbar(page: ft.Page) -> ft.AppBar:
     Returns:
         ft.AppBar: Configured app bar with navigation buttons and model selector
     """
+
     def save_file(e):
         txt = page.text_field.value
         page.file_picker.save_file(dialog_title="Save manscript as", file_name="manuscript.md",
                                    file_type=ft.FilePickerFileType.ANY)
-    
+
     def new_manuscript(e):
         page.client_storage.set("manid", -1)
         page.text_field.value = ""
@@ -55,7 +55,7 @@ def build_appbar(page: ft.Page) -> ft.AppBar:
                 label="Model",
                 tooltip="Select the AI model to use for writing",
                 options=[
-                    ft.dropdown.Option(text="OpenAI",key='gpt'),
+                    ft.dropdown.Option(text="OpenAI", key='gpt'),
                     ft.dropdown.Option(text="Google", key='gemma2'),
                     ft.dropdown.Option(text="Llama", key='llama3.2'),
                 ],
@@ -68,7 +68,8 @@ def build_appbar(page: ft.Page) -> ft.AppBar:
 
 
 def build_navigation_bar(page: ft.Page) -> ft.NavigationBar:
-    """Build the bottom navigation bar for switching between app views.
+    """
+    Build the bottom navigation bar for switching between app views.
     
     Args:
         page: The Flet page object to attach controls to
@@ -80,8 +81,9 @@ def build_navigation_bar(page: ft.Page) -> ft.NavigationBar:
         destinations=[
             ft.NavigationBarDestination(icon=ft.Icons.EDIT_DOCUMENT, label="Edit"),
             ft.NavigationBarDestination(icon=ft.Icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
-            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge"),# tooltip="Knowledge Base"),
-            ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", tooltip="Review your text", disabled=False),
+            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge"),  # tooltip="Knowledge Base"),
+            ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", tooltip="Review your text",
+                                        disabled=False),
         ],
         on_change=lambda e: page.go(
             '/' + e.control.destinations[e.control.selected_index].label.lower().replace(" ", "_"))
@@ -90,7 +92,8 @@ def build_navigation_bar(page: ft.Page) -> ft.NavigationBar:
 
 
 def build_manuscript_card(page: ft.Page) -> ft.Card:
-    """Build the manuscript editing card with section controls and markdown editor.
+    """
+    Build the manuscript editing card with section controls and markdown editor.
     
     Args:
         page: The Flet page object to attach controls to
@@ -144,7 +147,7 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
         options=[],
         on_change=lambda e: page.client_storage.set("section", e.control.value.lower())
     )
-    
+
     card = ft.Card(
         content=ft.Container(
             content=ft.Column(
@@ -154,9 +157,9 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
                             pr,
                             page.section_dropdown,
                             ft.ElevatedButton("Generate", on_click=add_section,
-                                          tooltip=f"Generate a new section"),
+                                              tooltip=f"Generate a new section"),
                             ft.ElevatedButton("Enhance", on_click=enhance_text,
-                                          tooltip=f"Enhance the {page.client_storage.get('section')} section"),
+                                              tooltip=f"Enhance the {page.client_storage.get('section')} section"),
                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
@@ -167,11 +170,13 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
             padding=10,
         )
     )
-    
+
     return card
 
+
 def get_sections_from_manuscript(page: ft.Page) -> List[str]:
-    """Get section names from the current manuscript using parse_manuscript_text.
+    """
+    Get section names from the current manuscript using parse_manuscript_text.
     
     Args:
         page: The Flet page object containing the current manuscript
@@ -183,8 +188,10 @@ def get_sections_from_manuscript(page: ft.Page) -> List[str]:
     parsed = parse_manuscript_text(text)
     return list(parsed.keys())
 
+
 def update_section_dropdown(page: ft.Page) -> None:
-    """Update the section dropdown options based on current manuscript sections.
+    """
+    Update the section dropdown options based on current manuscript sections.
     
     Args:
         page: The Flet page object containing the current manuscript
@@ -200,11 +207,13 @@ def update_section_dropdown(page: ft.Page) -> None:
         page.section_dropdown.value = None
     try:
         page.section_dropdown.update()
-    except AssertionError:  #  Dropdown not in view
+    except AssertionError:  # Dropdown not in view
         pass
 
+
 def build_manuscript_review_card(page: ft.Page) -> ft.Card:
-    """Build the manuscript review card with critique functionality.
+    """
+    Build the manuscript review card with critique functionality.
     
     Args:
         page: The Flet page object to attach controls to
@@ -257,7 +266,8 @@ def build_manuscript_review_card(page: ft.Page) -> ft.Card:
 
 
 def build_manuscript_list(page: ft.Page) -> ft.Card:
-    """Build a list of manuscripts with controls to load or delete them.
+    """
+    Build a list of manuscripts with controls to load or delete them.
     
     Args:
         page: The Flet page object to attach controls to
@@ -347,7 +357,8 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
 
 
 def delete_manuscript(e: ft.ControlEvent, manid: int, page: ft.Page) -> None:
-    """Delete a manuscript and update the UI.
+    """
+    Delete a manuscript and update the UI.
     
     Args:
         e: The control event that triggered the deletion
@@ -358,8 +369,10 @@ def delete_manuscript(e: ft.ControlEvent, manid: int, page: ft.Page) -> None:
     page.go('/manuscripts')
     page.update()
 
+
 def load_manuscript(page: ft.Page, e: ft.ControlEvent) -> None:
-    """Load a manuscript into the editor.
+    """
+    Load a manuscript into the editor.
     
     Args:
         page: The Flet page object to update
@@ -374,8 +387,10 @@ def load_manuscript(page: ft.Page, e: ft.ControlEvent) -> None:
     page.write_button.disabled = True
     page.go('/edit')
 
+
 def build_knowledge_page(page: ft.Page) -> ft.Container:
-    """Build the knowledge base page for managing uploaded documents.
+    """
+    Build the knowledge base page for managing uploaded documents.
     
     Args:
         page: The Flet page object to attach controls to
@@ -445,7 +460,8 @@ def build_knowledge_page(page: ft.Page) -> ft.Container:
 
 
 def main(page: ft.Page) -> None:
-    """Main application entry point that sets up the UI and routing.
+    """
+    Main application entry point that sets up the UI and routing.
     
     Args:
         page: The Flet page object to configure
@@ -571,12 +587,13 @@ def main(page: ft.Page) -> None:
     page.go(page.route)
 
 
-
-
-
 def run() -> None:
-    """Run the Flet application."""
+    """
+    Run the Flet application.
+    """
     app = ft.app(target=main)
     # ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+
+
 if __name__ == "__main__":
     run()
