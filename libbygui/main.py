@@ -9,7 +9,15 @@ import dotenv
 dotenv.load_dotenv()
 
 
-def build_appbar(page):
+def build_appbar(page: ft.Page) -> ft.AppBar:
+    """Build the application's top app bar with navigation controls.
+    
+    Args:
+        page: The Flet page object to attach controls to
+        
+    Returns:
+        ft.AppBar: Configured app bar with navigation buttons and model selector
+    """
     def save_file(e):
         txt = page.text_field.value
         page.file_picker.save_file(dialog_title="Save manscript as", file_name="manuscript.md",
@@ -58,7 +66,15 @@ def build_appbar(page):
     return appbar
 
 
-def build_navigation_bar(page):
+def build_navigation_bar(page: ft.Page) -> ft.NavigationBar:
+    """Build the bottom navigation bar for switching between app views.
+    
+    Args:
+        page: The Flet page object to attach controls to
+        
+    Returns:
+        ft.NavigationBar: Configured navigation bar with view destinations
+    """
     navigation_bar = ft.NavigationBar(
         destinations=[
             ft.NavigationBarDestination(icon=ft.Icons.EDIT_DOCUMENT, label="Edit"),
@@ -72,7 +88,15 @@ def build_navigation_bar(page):
     return navigation_bar
 
 
-def build_manuscript_card(page):
+def build_manuscript_card(page: ft.Page) -> ft.Card:
+    """Build the manuscript editing card with section controls and markdown editor.
+    
+    Args:
+        page: The Flet page object to attach controls to
+        
+    Returns:
+        ft.Card: Container with section controls and markdown editor
+    """
     pr = ft.ProgressRing(value=0)
 
     def add_section(e):
@@ -145,14 +169,25 @@ def build_manuscript_card(page):
     
     return card
 
-def get_sections_from_manuscript(page):
-    """Get section names using parse_manuscript_text"""
+def get_sections_from_manuscript(page: ft.Page) -> List[str]:
+    """Get section names from the current manuscript using parse_manuscript_text.
+    
+    Args:
+        page: The Flet page object containing the current manuscript
+        
+    Returns:
+        List[str]: List of section names in the manuscript
+    """
     text = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
     parsed = parse_manuscript_text(text)
     return list(parsed.keys())
 
-def update_section_dropdown(page):
-    """Update the dropdown options based on current manuscript sections"""
+def update_section_dropdown(page: ft.Page) -> None:
+    """Update the section dropdown options based on current manuscript sections.
+    
+    Args:
+        page: The Flet page object containing the current manuscript
+    """
     sections = get_sections_from_manuscript(page)
     page.section_dropdown.options = [
         ft.dropdown.Option(section) for section in sections
@@ -167,7 +202,15 @@ def update_section_dropdown(page):
     except AssertionError:  #  Dropdown not in view
         pass
 
-def build_manuscript_review_card(page):
+def build_manuscript_review_card(page: ft.Page) -> ft.Card:
+    """Build the manuscript review card with critique functionality.
+    
+    Args:
+        page: The Flet page object to attach controls to
+        
+    Returns:
+        ft.Card: Container with critique controls and manuscript display
+    """
     pr = ft.ProgressRing(value=0)
     review = ft.Text("Crítica ", color="red", expand=True)
 
@@ -212,7 +255,15 @@ def build_manuscript_review_card(page):
     return card
 
 
-def build_manuscript_list(page):
+def build_manuscript_list(page: ft.Page) -> ft.Card:
+    """Build a list of manuscripts with controls to load or delete them.
+    
+    Args:
+        page: The Flet page object to attach controls to
+        
+    Returns:
+        ft.Card: Container with list of manuscripts and associated controls
+    """
     mlist = ft.Card(
         content=ft.Container(
             content=ft.Column([]),
@@ -294,12 +345,25 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
     return editor
 
 
-def delete_manuscript(e, manid, page):
+def delete_manuscript(e: ft.ControlEvent, manid: int, page: ft.Page) -> None:
+    """Delete a manuscript and update the UI.
+    
+    Args:
+        e: The control event that triggered the deletion
+        manid: ID of the manuscript to delete
+        page: The Flet page object to update
+    """
     page.WKF.delete_manuscript(manid)
     page.go('/manuscripts')
     page.update()
 
-def load_manuscript(page, e):
+def load_manuscript(page: ft.Page, e: ft.ControlEvent) -> None:
+    """Load a manuscript into the editor.
+    
+    Args:
+        page: The Flet page object to update
+        e: The control event that triggered the load
+    """
     manid = int(e.control.title.value.split('.')[0])
     page.client_storage.set("manid", manid)
     txt = page.WKF.get_manuscript_text(manid)
@@ -309,7 +373,15 @@ def load_manuscript(page, e):
     page.write_button.disabled = True
     page.go('/edit')
 
-def build_knowledge_page(page):
+def build_knowledge_page(page: ft.Page) -> ft.Container:
+    """Build the knowledge base page for managing uploaded documents.
+    
+    Args:
+        page: The Flet page object to attach controls to
+        
+    Returns:
+        ft.Container: Configured knowledge base interface
+    """
     # List to store uploaded files
     uploaded_files = []
     files_column = ft.Column(scroll=ft.ScrollMode.AUTO)
@@ -371,7 +443,12 @@ def build_knowledge_page(page):
     )
 
 
-def main(page: ft.Page):
+def main(page: ft.Page) -> None:
+    """Main application entry point that sets up the UI and routing.
+    
+    Args:
+        page: The Flet page object to configure
+    """
     page.adaptive = True
     page.title = "AI Write"
     page.scroll = "adaptive"
@@ -496,7 +573,8 @@ def main(page: ft.Page):
 
 
 
-def run():
+def run() -> None:
+    """Run the Flet application."""
     app = ft.app(target=main)
     # ft.app(target=main, view=ft.AppView.WEB_BROWSER)
 if __name__ == "__main__":
