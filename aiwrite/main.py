@@ -732,10 +732,10 @@ def main(page: ft.Page) -> None:
                     scroll=ft.ScrollMode.AUTO
                 )
             )
-        elif page.route == "/settings":
+        elif page.route == "/projects":
             page.views.append(
                 ft.View(
-                    "/settings",
+                    "/projects",
                     [
                         page.appbar,
                         build_settings_page(page),
