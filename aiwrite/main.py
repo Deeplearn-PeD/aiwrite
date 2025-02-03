@@ -379,7 +379,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         ft.Container: Configured settings interface
     """
     # Declare variables that need to be accessed by update_project_fields
-    global project_name, manuscript_dropdown, documents_folder, language_dropdown, model_dropdown
+    global project_name, project_title, documents_folder, language_dropdown, model_dropdown
     # Project selector
     project_dropdown = ft.Dropdown(
         label="Project",
@@ -424,15 +424,12 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         if page.WKF.current_project.manuscript_id:
             page.client_storage.set("manid", page.WKF.current_project.manuscript_id)
 
-    # Manuscript selector
-    manuscript_dropdown = ft.Dropdown(
-        label="Manuscript",
-        options=[
-            ft.dropdown.Option(f"{man.id}: {parse_manuscript_text(man.source)['title']}")
-            for man in page.WKF.get_man_list()
-        ],
-        value=str(page.WKF.current_project.manuscript_id if page.WKF.current_project else ""),
-        on_change=lambda e: update_project_field(page, "manuscript_id", int(e.control.value.split(":")[0]))
+    # Project title display
+    project_title = ft.TextField(
+        label="Manuscript Title",
+        value=parse_manuscript_text(page.WKF.get_manuscript_text(page.WKF.current_project.manuscript_id))['title'] 
+              if page.WKF.current_project and page.WKF.current_project.manuscript_id else "",
+        read_only=True
     )
 
     # Documents folder picker
@@ -487,7 +484,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
                 )
             ]),
             project_name,
-            manuscript_dropdown,
+            project_title,
             ft.Row([
                 documents_folder,
                 ft.ElevatedButton(
@@ -532,12 +529,11 @@ def update_project_fields(page: ft.Page, project_id: str) -> None:
         # Update project name
         project_name.value = project.name
         
-        # Update manuscript dropdown
-        manuscript_dropdown.options = [
-            ft.dropdown.Option(f"{man.id}: {parse_manuscript_text(man.source)['title']}")
-            for man in page.WKF.get_man_list()
-        ]
-        manuscript_dropdown.value = str(project.manuscript_id) if project.manuscript_id else ""
+        # Update project title
+        if project.manuscript_id:
+            project_title.value = parse_manuscript_text(page.WKF.get_manuscript_text(project.manuscript_id))['title']
+        else:
+            project_title.value = ""
         
         # Update documents folder
         documents_folder.value = project.documents_folder or ""
