@@ -391,6 +391,44 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         on_change=lambda e: update_project_fields(page, e.control.value.split(":")[0])
     )
 
+    # Delete project handler
+    def delete_project(e):
+        if not page.WKF.current_project:
+            return
+            
+        def confirm_delete(e):
+            page.WKF.delete_project(page.WKF.current_project.id)
+            page.dialog.open = False
+            # Clear fields and reset to first project
+            projects = page.WKF.get_projects()
+            if projects:
+                update_project_fields(page, str(projects[0].id))
+            else:
+                # No projects left - clear everything
+                page.WKF.current_project = None
+                project_name.value = ""
+                project_title.value = ""
+                documents_folder.value = ""
+                language_dropdown.value = "en"
+                model_dropdown.value = "llama3.2"
+                page.client_storage.set("project_id", None)
+                page.client_storage.set("manid", None)
+                page.text_field.value = ""
+                page.md.value = ""
+            page.update()
+
+        page.dialog = ft.AlertDialog(
+            title=ft.Text(f"Delete '{page.WKF.current_project.name}'?"),
+            content=ft.Text("This will permanently delete the project and its manuscript."),
+            actions=[
+                ft.TextButton("Delete", on_click=confirm_delete),
+                ft.TextButton("Cancel", on_click=lambda e: setattr(page.dialog, "open", False))
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        page.dialog.open = True
+        page.update()
+
     # New project button
     def create_new_project(e):
         # Clear current manuscript state
@@ -481,6 +519,12 @@ def build_settings_page(page: ft.Page) -> ft.Container:
                     ft.Icons.ADD,
                     on_click=create_new_project,
                     tooltip="Create new project"
+                ),
+                ft.IconButton(
+                    ft.Icons.DELETE,
+                    on_click=delete_project,
+                    tooltip="Delete current project",
+                    icon_color=ft.colors.RED
                 )
             ]),
             project_name,
