@@ -475,33 +475,6 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         on_change=lambda e: update_project_field(page, "model", e.control.value)
     )
 
-    # Create manuscript list card
-    manuscript_list = ft.Card(
-        content=ft.Container(
-            content=ft.Column([]),
-            padding=ft.padding.symmetric(vertical=10),
-        )
-    )
-    
-    # Populate manuscript list
-    for man in page.WKF.get_man_list(100):
-        sections = page.WKF.get_manuscript_sections(man.id)
-        manuscript_list.content.content.controls.append(
-            ft.ListTile(
-                leading=ft.Icon(ft.Icons.FILE_OPEN),
-                title=ft.Text(f'{sections['title']}\n\n{man.source.split('## ')[1][:300]}...'),
-                subtitle=ft.Text(f'Last updated: {man.last_updated.strftime("%Y-%m-%d %H:%M")}'),
-                on_click=lambda e: load_manuscript(page, e),
-                trailing=ft.IconButton(
-                    ft.Icons.DELETE_OUTLINE,
-                    icon_color="red",
-                    data=man.id,
-                    tooltip="Delete manuscript",
-                    on_click=lambda e: delete_manuscript(e, e.control.data, page)
-                )
-            )
-        )
-
     return ft.Container(
         content=ft.Column([
             ft.Text("Project Settings", size=20, weight=ft.FontWeight.BOLD),
@@ -515,8 +488,6 @@ def build_settings_page(page: ft.Page) -> ft.Container:
             ]),
             project_name,
             manuscript_dropdown,
-            ft.Text("Manuscripts", size=16, weight=ft.FontWeight.BOLD),
-            manuscript_list,
             ft.Row([
                 documents_folder,
                 ft.ElevatedButton(
