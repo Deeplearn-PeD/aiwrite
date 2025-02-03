@@ -503,11 +503,11 @@ def build_settings_page(page: ft.Page) -> ft.Container:
     model_dropdown = ft.Dropdown(
         label="LLM Model",
         value=page.WKF.current_project.model if page.WKF.current_project else "llama3.2",
-        options=[
-            ft.dropdown.Option(text="OpenAI", key='gpt'),
-            ft.dropdown.Option(text="Google", key='gemma2'),
-            ft.dropdown.Option(text="Llama", key='llama3.2'),
-        ],
+        options=[ft.dropdown.Option(text=m, key=m) for m in page.WKF.libby.llm.available_models],
+        #     ft.dropdown.Option(text="OpenAI", key='gpt'),
+        #     ft.dropdown.Option(text="Google", key='gemma2'),
+        #     ft.dropdown.Option(text="Llama", key='llama3.2'),
+        # ],
         on_change=lambda e: update_project_field(page, "model", e.control.value)
     )
 
