@@ -666,7 +666,8 @@ def main(page: ft.Page) -> None:
         page: The Flet page object to configure
     """
     page.adaptive = True
-    page.title = "AI Write"
+    page.title = "Writing Desk"
+    page.window_title = "Writing Desk"
     page.scroll = "adaptive"
     # Initialize default settings
     page.client_storage.set("model", "llama3")
@@ -674,9 +675,15 @@ def main(page: ft.Page) -> None:
     page.client_storage.set("language", "en")
     page.client_storage.set("project_name", "My Manuscript Project")
     page.WKF = Workflow()
-    page.client_storage.set('project_id', page.WKF.get_most_recent_project())
-    page.client_storage.set("manid", page.WKF.get_project_manuscript(page.client_storage.get("project_id")))
-    page.WKF.set_knowledge_base(collection_name=f"man_{page.client_storage.get('project_id')}")
+    # Load most recent project on startup
+    most_recent_project_id = page.WKF.get_most_recent_project()
+    page.client_storage.set('project_id', most_recent_project_id)
+    if most_recent_project_id:
+        page.WKF.current_project = page.WKF.get_project(most_recent_project_id)
+        manid = page.WKF.get_project_manuscript(most_recent_project_id)
+        page.client_storage.set("manid", manid)
+        if manid:
+            page.WKF.set_knowledge_base(collection_name=f"man_{most_recent_project_id}")
     page.appbar = build_appbar(page)
     nav_bar = build_navigation_bar(page)
     page.theme = ft.Theme(color_scheme_seed="green")
@@ -748,7 +755,12 @@ def main(page: ft.Page) -> None:
                     scroll=ft.ScrollMode.AUTO
                 )
             )
-        page.appbar.title.value = f"Writing Desk - {page.route.strip('/').capitalize()}"
+        # Update window title with project name if available
+        project_name = ""
+        if page.WKF.current_project:
+            project_name = f" - {page.WKF.current_project.name}"
+        page.appbar.title.value = f"Writing Desk{project_name} - {page.route.strip('/').capitalize()}"
+        page.window_title = f"Writing Desk{project_name}"
         page.text_field.value = page.WKF.get_manuscript_text(manid)
         page.update()
 
