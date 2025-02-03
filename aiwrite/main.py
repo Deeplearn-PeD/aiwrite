@@ -58,8 +58,7 @@ def build_navigation_bar(page: ft.Page) -> ft.NavigationBar:
     navigation_bar = ft.NavigationBar(
         destinations=[
             ft.NavigationBarDestination(icon=ft.Icons.EDIT_DOCUMENT, label="Edit"),
-            ft.NavigationBarDestination(icon=ft.Icons.DOCUMENT_SCANNER_OUTLINED, label="Manuscripts"),
-            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge"),  # tooltip="Knowledge Base"),
+            ft.NavigationBarDestination(icon=ft.Icons.BOOK, label="Knowledge"),
             ft.NavigationBarDestination(icon=ft.Icons.COFFEE, label="Review", disabled=False),
             ft.NavigationBarDestination(icon=ft.Icons.SETTINGS, label="Projects"),
         ],
@@ -266,41 +265,6 @@ def build_manuscript_review_card(page: ft.Page) -> ft.Card:
     )
 
 
-def build_manuscript_list(page: ft.Page) -> ft.Card:
-    """
-    Build a list of manuscripts with controls to load or delete them.
-    
-    Args:
-        page: The Flet page object to attach controls to
-        
-    Returns:
-        ft.Card: Container with list of manuscripts and associated controls
-    """
-    mlist = ft.Card(
-        content=ft.Container(
-            content=ft.Column([]),
-            # width=400,
-            padding=ft.padding.symmetric(vertical=10),
-        )
-    )
-    for man in page.WKF.get_man_list(100):
-        sections = page.WKF.get_manuscript_sections(man.id)
-        mlist.content.content.controls.append(
-            ft.ListTile(
-                leading=ft.Icon(ft.Icons.FILE_OPEN),
-                title=ft.Text(f'{sections['title']}\n\n{man.source.split('## ')[1][:300]}...'),
-                subtitle=ft.Text(f'Last updated: {man.last_updated.strftime("%Y-%m-%d %H:%M")}'),
-                on_click=lambda e: load_manuscript(page, e),
-                trailing=ft.IconButton(
-                    ft.Icons.DELETE_OUTLINE,
-                    icon_color="red",
-                    data=man.id,
-                    tooltip="Delete manuscript",
-                    on_click=lambda e: delete_manuscript(e, e.control.data, page)
-                )
-            )
-        )
-    return mlist
 
 
 def build_markdown_editor(page: ft.Page) -> ft.Row:
@@ -511,6 +475,33 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         on_change=lambda e: update_project_field(page, "model", e.control.value)
     )
 
+    # Create manuscript list card
+    manuscript_list = ft.Card(
+        content=ft.Container(
+            content=ft.Column([]),
+            padding=ft.padding.symmetric(vertical=10),
+        )
+    )
+    
+    # Populate manuscript list
+    for man in page.WKF.get_man_list(100):
+        sections = page.WKF.get_manuscript_sections(man.id)
+        manuscript_list.content.content.controls.append(
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.FILE_OPEN),
+                title=ft.Text(f'{sections['title']}\n\n{man.source.split('## ')[1][:300]}...'),
+                subtitle=ft.Text(f'Last updated: {man.last_updated.strftime("%Y-%m-%d %H:%M")}'),
+                on_click=lambda e: load_manuscript(page, e),
+                trailing=ft.IconButton(
+                    ft.Icons.DELETE_OUTLINE,
+                    icon_color="red",
+                    data=man.id,
+                    tooltip="Delete manuscript",
+                    on_click=lambda e: delete_manuscript(e, e.control.data, page)
+                )
+            )
+        )
+
     return ft.Container(
         content=ft.Column([
             ft.Text("Project Settings", size=20, weight=ft.FontWeight.BOLD),
@@ -524,6 +515,8 @@ def build_settings_page(page: ft.Page) -> ft.Container:
             ]),
             project_name,
             manuscript_dropdown,
+            ft.Text("Manuscripts", size=16, weight=ft.FontWeight.BOLD),
+            manuscript_list,
             ft.Row([
                 documents_folder,
                 ft.ElevatedButton(
@@ -752,19 +745,7 @@ def main(page: ft.Page) -> None:
                 page.text_field.value = page.WKF.get_manuscript_text(manid)
                 page.text_field.on_change(None)
 
-        if page.route == "/manuscripts":
-            page.views.append(
-                ft.View(
-                    "/manuscripts",
-                    [
-                        page.appbar,
-                        build_manuscript_list(page),
-                        nav_bar
-                    ],
-                    scroll=ft.ScrollMode.AUTO
-                )
-            )
-        elif page.route == "/review":
+        if page.route == "/review":
             page.views.append(
                 ft.View(
                     "/review",
