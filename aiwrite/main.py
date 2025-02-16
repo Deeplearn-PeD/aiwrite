@@ -554,11 +554,17 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         label="LLM Model",
         value=page.WKF.current_project.model if page.WKF.current_project else "llama3.2",
         options=[ft.dropdown.Option(text=m, key=m) for m in page.WKF.libby.llm.available_models],
-        #     ft.dropdown.Option(text="OpenAI", key='gpt'),
-        #     ft.dropdown.Option(text="Google", key='gemma2'),
-        #     ft.dropdown.Option(text="Llama", key='llama3.2'),
-        # ],
         on_change=lambda e: update_project_field(page, "model", e.control.value)
+    )
+
+    # Base prompt editor
+    base_prompt_field = ft.TextField(
+        label="Base Prompt",
+        value=page.WKF.base_prompt,
+        multiline=True,
+        min_lines=4,
+        max_lines=10,
+        on_change=lambda e: update_base_prompt(page, e.control.value)
     )
 
     return ft.Container(
@@ -596,6 +602,8 @@ def build_settings_page(page: ft.Page) -> ft.Container:
             ]),
             language_dropdown,
             model_dropdown,
+            ft.Text("Base Prompt Configuration", size=16, weight=ft.FontWeight.BOLD),
+            base_prompt_field,
         ], scroll=ft.ScrollMode.AUTO),
         padding=20
     )
@@ -659,6 +667,17 @@ def update_project_fields(page: ft.Page, project_id: str) -> None:
             
     page.update()
 
+
+def update_base_prompt(page: ft.Page, new_prompt: str) -> None:
+    """
+    Update the base prompt in the workflow and set it in the LLM context.
+    
+    Args:
+        page: The Flet page object
+        new_prompt: The new base prompt value
+    """
+    page.WKF.base_prompt = new_prompt
+    page.WKF.libby.set_context(new_prompt)
 
 def update_project_field(page: ft.Page, field: str, value: Any) -> None:
     """
