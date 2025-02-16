@@ -98,7 +98,7 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
             page.update()
 
         section_name = ft.TextField(label="Section Name", autofocus=True)
-        page.dialog = ft.AlertDialog(
+        dialog = ft.AlertDialog(
             title=ft.Text("Add New Section"),
             content=section_name,
             actions=[
@@ -107,7 +107,8 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
-        page.dialog.open = True
+        page.overlay.append(dialog)
+        # page.dialog.open = True
         page.update()
 
     def enhance_text(e):
@@ -524,7 +525,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
                     ft.Icons.DELETE,
                     on_click=delete_project,
                     tooltip="Delete current project",
-                    icon_color=ft.colors.RED
+                    icon_color=ft.Colors.RED
                 )
             ]),
             project_name,
