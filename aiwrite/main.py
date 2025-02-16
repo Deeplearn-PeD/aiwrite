@@ -218,14 +218,29 @@ def build_manuscript_review_card(page: ft.Page) -> ft.Card:
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB
         )
         
-        # Create review button for this section
-        def create_review_handler(section_name, review_result):
+        # Create review button and progress ring for this section
+        review_progress = ft.ProgressRing(
+            width=16,
+            height=16,
+            stroke_width=2,
+            visible=False
+        )
+
+        def create_review_handler(section_name, review_result, progress):
             def on_criticize(e):
+                # Show progress ring
+                progress.visible = True
+                page.update()
+                
+                # Get critique
                 critic = page.WKF.criticize_section(
                     page.client_storage.get("manid"), 
                     section_name
                 )
+                
+                # Update UI
                 review_result.value = critic
+                progress.visible = False
                 page.update()
             return on_criticize
         
@@ -239,12 +254,15 @@ def build_manuscript_review_card(page: ft.Page) -> ft.Card:
                             section_editor,
                             ft.VerticalDivider(width=10),
                             ft.Column([
-                                ft.ElevatedButton(
-                                    "Review Section",
-                                    icon=ft.Icons.COFFEE,
-                                    on_click=create_review_handler(section_name, review_result),
-                                    tooltip=f"Review the {section_name} section"
-                                ),
+                                ft.Row([
+                                    ft.ElevatedButton(
+                                        "Review Section",
+                                        icon=ft.Icons.COFFEE,
+                                        on_click=create_review_handler(section_name, review_result, review_progress),
+                                        tooltip=f"Review the {section_name} section"
+                                    ),
+                                    review_progress
+                                ], spacing=10),
                                 ft.Divider(),
                                 review_result
                             ], width=300)
