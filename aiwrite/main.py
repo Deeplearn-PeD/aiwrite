@@ -80,20 +80,37 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
     """
     pr = ft.ProgressRing(value=0)
 
+    # Create progress rings for generate and enhance buttons
+    generate_progress = ft.ProgressRing(
+        width=16,
+        height=16,
+        stroke_width=2,
+        visible=False
+    )
+    enhance_progress = ft.ProgressRing(
+        width=16,
+        height=16,
+        stroke_width=2,
+        visible=False
+    )
+
     def add_section(e):
         def handle_dialog(e):
             if not section_name.value:
                 return
             page.client_storage.set("section", section_name.value.lower())
             page.dialog.open = False
-            man = page.WKF.add_section(page.client_storage.get("manid"), section_name.value.lower())
-            pr.value = 50
+            # Show progress ring
+            generate_progress.visible = True
             page.update()
+            
+            # Generate section
+            man = page.WKF.add_section(page.client_storage.get("manid"), section_name.value.lower())
+            
+            # Update UI
             page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
             page.md.value = page.text_field.value
-            pr.value = 100
-            page.update()
-            pr.value = 0
+            generate_progress.visible = False
             update_section_dropdown(page)
             page.update()
 
@@ -112,9 +129,17 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
         page.update()
 
     def enhance_text(e):
+        # Show progress ring
+        enhance_progress.visible = True
+        page.update()
+        
+        # Enhance section
         man = page.WKF.enhance_section(page.client_storage.get("manid"), page.client_storage.get("section"))
+        
+        # Update UI
         page.text_field.value = page.WKF.get_manuscript_text(page.client_storage.get("manid"))
         page.md.value = page.text_field.value
+        enhance_progress.visible = False
         update_section_dropdown(page)
         page.update()
 
@@ -134,10 +159,16 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
                         [
                             pr,
                             page.section_dropdown,
-                            ft.ElevatedButton("Generate", on_click=add_section,
-                                              tooltip=f"Generate a new section"),
-                            ft.ElevatedButton("Enhance", on_click=enhance_text,
-                                              tooltip=f"Enhance the {page.client_storage.get('section')} section"),
+                            ft.Row([
+                                ft.ElevatedButton("Generate", on_click=add_section,
+                                                  tooltip=f"Generate a new section"),
+                                generate_progress
+                            ], spacing=10),
+                            ft.Row([
+                                ft.ElevatedButton("Enhance", on_click=enhance_text,
+                                                  tooltip=f"Enhance the {page.client_storage.get('section')} section"),
+                                enhance_progress
+                            ], spacing=10),
                         ],
                         alignment=ft.MainAxisAlignment.END,
                     ),
