@@ -124,8 +124,9 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
-        page.overlay.append(dialog)
-        # page.dialog.open = True
+        page.dialog = dialog
+        # page.overlay.append(dialog)
+        page.dialog.open = True
         page.update()
 
     def enhance_text(e):
