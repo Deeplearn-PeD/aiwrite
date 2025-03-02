@@ -352,20 +352,43 @@ class Workflow:
             self.project_id = project.id
         return project
 
-    def get_project(self, project_id: int) -> Optional[Project]:
-        """Get a project by ID.
+    def get_project(self, project_id: int) -> Project:
+        """Get a project by ID. If project doesn't exist or table is empty,
+        create a new project with empty manuscript.
         
         Args:
             project_id: ID of the project to retrieve
             
         Returns:
-            Project object if found, None otherwise
+            Project object (new one created if needed)
         """
         with Session(self.engine) as session:
+            # Check if project exists
             statement = select(Project).where(Project.id == project_id)
             project = session.exec(statement).first()
-        self.current_project = project
-        return project
+            
+            # If project doesn't exist or table is empty, create new one
+            if not project:
+                # Create empty manuscript
+                empty_manuscript = Manuscript(source="# New Manuscript\n\n## Abstract\n")
+                session.add(empty_manuscript)
+                session.commit()
+                session.refresh(empty_manuscript)
+                
+                # Create new project
+                project = Project(
+                    name="New Project",
+                    manuscript_id=empty_manuscript.id,
+                    language="en",
+                    model="llama3"
+                )
+                session.add(project)
+                session.commit()
+                session.refresh(project)
+                
+            self.current_project = project
+            self.project_id = project.id
+            return project
 
     def get_projects(self) -> List[Project]:
         """Get all projects.
