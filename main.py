@@ -920,7 +920,10 @@ def run() -> None:
     """
     Run the Flet application.
     """
-    app = ft.app(target=main)
+    app = ft.app(
+        target=main,
+        assets_dir="assets",
+    )
     # ft.app(target=main, view=ft.AppView.WEB_BROWSER)
 
 

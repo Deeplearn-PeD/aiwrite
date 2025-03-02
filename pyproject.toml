@@ -13,9 +13,9 @@ libbygui = "aiwrite.main:run"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
-flet = "^0.25.2"
+flet = ">=0.25.2"
 libby = {git = "https://github.com/Deeplearn-PeD/libby"}
-sqlmodel = "^0.0.18"
+sqlmodel = ">=0.0.18"
 python-dotenv = "^1.0.1"
 
 
