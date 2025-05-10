@@ -208,7 +208,7 @@ def update_section_dropdown(page: ft.Page) -> None:
     """
     sections = get_sections_from_manuscript(page)
     page.section_dropdown.options = [
-        ft.dropdown.Option(section) for section in sections
+        ft.DropdownOption(section) for section in sections
     ]
     if sections:
         page.section_dropdown.value = sections[0]
@@ -240,7 +240,13 @@ def build_manuscript_review_card(page: ft.Page) -> ft.Card:
     # Create a review panel for each section
     for section_name, section_content in sections.items():
         # Create review result display
-        review_result = ft.Text("", color="red", expand=True)
+        review_result = ft.Markdown(
+            value="",
+            selectable=True,
+            # color="red",
+            expand=True,
+            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB
+        )
         
         # Create markdown editor for the section
         section_editor = ft.Markdown(
@@ -361,8 +367,8 @@ def build_markdown_editor(page: ft.Page) -> ft.Row:
             ft.Container(
                 page.md,
                 expand=True,
-                alignment=ft.alignment.top_left,
-                padding=ft.padding.Padding(12, 12, 12, 0),
+                alignment=ft.core.alignment.top_left,
+                padding=ft.core.padding.only(12, 12, 12, 0),
                 bgcolor=ft.Colors.AMBER_300,
             )
         ],
@@ -435,7 +441,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
     project_dropdown = ft.Dropdown(
         label="Project",
         options=[
-            ft.dropdown.Option(f"{proj.id}: {proj.name}")
+            ft.DropdownOption(f"{proj.id}: {proj.name}")
             for proj in page.WKF.get_projects()
         ],
         value=str(page.client_storage.get("project_id") or ""),
@@ -494,7 +500,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         
         # Update UI
         project_dropdown.options.append(
-            ft.dropdown.Option(f"{saved_project.id}: {saved_project.name}")
+            ft.DropdownOption(f"{saved_project.id}: {saved_project.name}")
         )
         project_dropdown.value = f"{saved_project.id}: {saved_project.name}"
         update_project_fields(page, saved_project.id)
@@ -542,9 +548,9 @@ def build_settings_page(page: ft.Page) -> ft.Container:
         label="Language",
         value=page.WKF.current_project.language if page.WKF.current_project else "en",
         options=[
-            ft.dropdown.Option("en", "English"),
-            ft.dropdown.Option("pt", "Portuguese"),
-            ft.dropdown.Option("es", "Spanish"),
+            ft.DropdownOption("en", "English"),
+            ft.DropdownOption("pt", "Portuguese"),
+            ft.DropdownOption("es", "Spanish"),
         ],
         on_change=lambda e: update_project_field(page, "language", e.control.value)
     )
@@ -553,7 +559,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
     model_dropdown = ft.Dropdown(
         label="LLM Model",
         value=page.WKF.current_project.model if page.WKF.current_project else "llama3.2",
-        options=[ft.dropdown.Option(text=m, key=m) for m in page.WKF.libby.llm.available_models],
+        options=[ft.DropdownOption(text=m, key=m) for m in page.WKF.libby.llm.available_models],
         on_change=lambda e: update_project_field(page, "model", e.control.value)
     )
 
@@ -804,8 +810,8 @@ def main(page: ft.Page) -> None:
     page.update()
 
     def file_save(e: ft.FilePickerResultEvent):
-        if e.file:
-            with open(e.file, 'w') as f:
+        if e.files:
+            with open(e.path, 'w') as f:
                 f.write(page.text_field.value)
 
     page.file_picker = ft.FilePicker(on_result=file_save)
@@ -905,7 +911,8 @@ def main(page: ft.Page) -> None:
 
     # print(editor)
     def view_pop(view):
-        page.views.pop()
+        if len(page.views) > 1:
+            page.views.pop()
         top_view = page.views[-1]
         page.go(top_view.route)
 

@@ -9,4 +9,14 @@
     </deployment>
     <method v="2" />
   </configuration>
+  <configuration default="false" name="Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
+    <deployment type="dockerfile">
+      <settings>
+        <option name="imageTag" value="latest" />
+        <option name="containerName" value="libbygui" />
+        <option name="sourceFilePath" value="Dockerfile" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
 </component>
