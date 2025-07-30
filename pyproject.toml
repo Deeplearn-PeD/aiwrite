@@ -17,6 +17,7 @@ flet = ">=0.25.2"
 libby = {git = "https://github.com/Deeplearn-PeD/libby"}
 sqlmodel = ">=0.0.18"
 python-dotenv = "^1.0.1"
+gradio = "^5.38.2"
 
 
 
