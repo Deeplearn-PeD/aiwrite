@@ -1,0 +1,311 @@
+import gradio as gr
+import os
+from typing import List, Dict, Optional, Tuple
+from aiwrite.workflow import Workflow, Project, Manuscript
+
+class GradioAIWrite:
+    def __init__(self):
+        self.workflow = Workflow()
+        self.current_manuscript_id = None
+        self.current_section = None
+        
+    def get_manuscripts_list(self) -> List[Tuple[str, int]]:
+        """Get list of manuscripts for dropdown"""
+        manuscripts = self.workflow.get_man_list()
+        return [(f"{m.concept} (ID: {m.id})", m.id) for m in manuscripts]
+    
+    def get_projects_list(self) -> List[Tuple[str, int]]:
+        """Get list of projects for dropdown"""
+        projects = self.workflow.get_projects()
+        return [(f"{p.name} (ID: {p.id})", p.id) for p in projects]
+    
+    def create_manuscript(self, concept: str) -> Tuple[str, gr.Dropdown]:
+        """Create new manuscript"""
+        if not concept.strip():
+            return "Por favor, insira um conceito para o manuscrito.", gr.Dropdown()
+        
+        try:
+            manuscript = self.workflow.setup_manuscript(concept)
+            self.current_manuscript_id = manuscript.id
+            manuscripts_list = self.get_manuscripts_list()
+            return f"Manuscrito criado com sucesso! ID: {manuscript.id}", gr.Dropdown(choices=manuscripts_list, value=manuscript.id)
+        except Exception as e:
+            return f"Erro ao criar manuscrito: {str(e)}", gr.Dropdown()
+    
+    def load_manuscript(self, manuscript_id: int) -> Tuple[str, str, gr.Dropdown]:
+        """Load manuscript and return its content"""
+        if not manuscript_id:
+            return "Selecione um manuscrito.", "", gr.Dropdown()
+        
+        try:
+            self.current_manuscript_id = manuscript_id
+            manuscript = self.workflow.get_manuscript(manuscript_id)
+            sections = self.workflow.get_manuscript_sections(manuscript_id)
+            section_names = list(sections.keys())
+            
+            content = self.workflow.get_manuscript_text(manuscript_id)
+            return f"Manuscrito carregado: {manuscript.concept}", content, gr.Dropdown(choices=section_names, value=section_names[0] if section_names else None)
+        except Exception as e:
+            return f"Erro ao carregar manuscrito: {str(e)}", "", gr.Dropdown()
+    
+    def add_section(self, section_name: str) -> str:
+        """Add new section to current manuscript"""
+        if not self.current_manuscript_id:
+            return "Nenhum manuscrito selecionado."
+        
+        if not section_name.strip():
+            return "Por favor, insira um nome para a seção."
+        
+        try:
+            self.workflow.add_section(self.current_manuscript_id, section_name.lower())
+            return f"Seção '{section_name}' adicionada com sucesso!"
+        except Exception as e:
+            return f"Erro ao adicionar seção: {str(e)}"
+    
+    def enhance_section(self, section_name: str) -> str:
+        """Enhance existing section"""
+        if not self.current_manuscript_id:
+            return "Nenhum manuscrito selecionado."
+        
+        if not section_name:
+            return "Selecione uma seção."
+        
+        try:
+            self.workflow.enhance_section(self.current_manuscript_id, section_name)
+            content = self.workflow.get_manuscript_text(self.current_manuscript_id)
+            return content
+        except Exception as e:
+            return f"Erro ao melhorar seção: {str(e)}"
+    
+    def criticize_section(self, section_name: str) -> str:
+        """Get critique for a section"""
+        if not self.current_manuscript_id:
+            return "Nenhum manuscrito selecionado."
+        
+        if not section_name:
+            return "Selecione uma seção."
+        
+        try:
+            critique = self.workflow.criticize_section(self.current_manuscript_id, section_name)
+            return critique
+        except Exception as e:
+            return f"Erro ao criticar seção: {str(e)}"
+    
+    def update_manuscript_text(self, text: str) -> str:
+        """Update manuscript with new text"""
+        if not self.current_manuscript_id:
+            return "Nenhum manuscrito selecionado."
+        
+        try:
+            self.workflow.update_from_text(self.current_manuscript_id, text)
+            return "Manuscrito atualizado com sucesso!"
+        except Exception as e:
+            return f"Erro ao atualizar manuscrito: {str(e)}"
+    
+    def delete_manuscript(self, manuscript_id: int) -> Tuple[str, gr.Dropdown]:
+        """Delete manuscript"""
+        if not manuscript_id:
+            return "Selecione um manuscrito para deletar.", gr.Dropdown()
+        
+        try:
+            self.workflow.delete_manuscript(manuscript_id)
+            manuscripts_list = self.get_manuscripts_list()
+            if manuscript_id == self.current_manuscript_id:
+                self.current_manuscript_id = None
+            return "Manuscrito deletado com sucesso!", gr.Dropdown(choices=manuscripts_list)
+        except Exception as e:
+            return f"Erro ao deletar manuscrito: {str(e)}", gr.Dropdown()
+    
+    def create_project(self, name: str, language: str, model: str) -> Tuple[str, gr.Dropdown]:
+        """Create new project"""
+        if not name.strip():
+            return "Por favor, insira um nome para o projeto.", gr.Dropdown()
+        
+        try:
+            project = Project(
+                name=name,
+                language=language,
+                model=model,
+                documents_folder="",
+                manuscript_id=0
+            )
+            saved_project = self.workflow.save_project(project)
+            projects_list = self.get_projects_list()
+            return f"Projeto criado com sucesso! ID: {saved_project.id}", gr.Dropdown(choices=projects_list, value=saved_project.id)
+        except Exception as e:
+            return f"Erro ao criar projeto: {str(e)}", gr.Dropdown()
+    
+    def embed_document(self, file) -> str:
+        """Embed document into knowledge base"""
+        if not file:
+            return "Selecione um arquivo."
+        
+        try:
+            self.workflow.embed_document(file.name)
+            return f"Documento '{os.path.basename(file.name)}' incorporado com sucesso!"
+        except Exception as e:
+            return f"Erro ao incorporar documento: {str(e)}"
+
+def create_interface():
+    app = GradioAIWrite()
+    
+    with gr.Blocks(title="AIWrite - Assistente de Escrita com IA") as interface:
+        gr.Markdown("# AIWrite - Assistente de Escrita com IA")
+        
+        with gr.Tabs():
+            # Tab 1: Manuscritos
+            with gr.TabItem("Manuscritos"):
+                with gr.Row():
+                    with gr.Column():
+                        gr.Markdown("## Gerenciar Manuscritos")
+                        
+                        # Create manuscript
+                        concept_input = gr.Textbox(label="Conceito do Manuscrito", placeholder="Digite o conceito...")
+                        create_btn = gr.Button("Criar Manuscrito")
+                        
+                        # Load manuscript
+                        manuscripts_dropdown = gr.Dropdown(
+                            choices=app.get_manuscripts_list(),
+                            label="Selecionar Manuscrito",
+                            interactive=True
+                        )
+                        load_btn = gr.Button("Carregar Manuscrito")
+                        delete_btn = gr.Button("Deletar Manuscrito", variant="stop")
+                        
+                        status_text = gr.Textbox(label="Status", interactive=False)
+                    
+                    with gr.Column():
+                        gr.Markdown("## Editor de Seções")
+                        
+                        sections_dropdown = gr.Dropdown(label="Seções", interactive=True)
+                        
+                        with gr.Row():
+                            section_name_input = gr.Textbox(label="Nome da Nova Seção", placeholder="introdução, metodologia, etc.")
+                            add_section_btn = gr.Button("Adicionar Seção")
+                        
+                        enhance_btn = gr.Button("Melhorar Seção Selecionada")
+                        
+                        manuscript_editor = gr.Textbox(
+                            label="Conteúdo do Manuscrito",
+                            lines=20,
+                            max_lines=30,
+                            interactive=True
+                        )
+                        
+                        update_btn = gr.Button("Atualizar Manuscrito")
+            
+            # Tab 2: Revisão
+            with gr.TabItem("Revisão"):
+                gr.Markdown("## Revisão e Crítica")
+                
+                with gr.Row():
+                    review_sections_dropdown = gr.Dropdown(label="Seção para Revisar", interactive=True)
+                    criticize_btn = gr.Button("Criticar Seção")
+                
+                critique_output = gr.Textbox(
+                    label="Crítica da Seção",
+                    lines=15,
+                    interactive=False
+                )
+            
+            # Tab 3: Projetos
+            with gr.TabItem("Projetos"):
+                gr.Markdown("## Gerenciar Projetos")
+                
+                with gr.Row():
+                    with gr.Column():
+                        project_name_input = gr.Textbox(label="Nome do Projeto")
+                        project_language = gr.Dropdown(
+                            choices=["pt", "en", "es", "fr"],
+                            value="pt",
+                            label="Idioma"
+                        )
+                        project_model = gr.Dropdown(
+                            choices=["gpt", "llama3.2", "claude"],
+                            value="gpt",
+                            label="Modelo de IA"
+                        )
+                        create_project_btn = gr.Button("Criar Projeto")
+                    
+                    with gr.Column():
+                        projects_dropdown = gr.Dropdown(
+                            choices=app.get_projects_list(),
+                            label="Projetos Existentes"
+                        )
+                        project_status = gr.Textbox(label="Status do Projeto", interactive=False)
+            
+            # Tab 4: Base de Conhecimento
+            with gr.TabItem("Base de Conhecimento"):
+                gr.Markdown("## Gerenciar Base de Conhecimento")
+                
+                file_upload = gr.File(label="Carregar Documento")
+                embed_btn = gr.Button("Incorporar Documento")
+                embed_status = gr.Textbox(label="Status", interactive=False)
+        
+        # Event handlers
+        create_btn.click(
+            app.create_manuscript,
+            inputs=[concept_input],
+            outputs=[status_text, manuscripts_dropdown]
+        )
+        
+        load_btn.click(
+            app.load_manuscript,
+            inputs=[manuscripts_dropdown],
+            outputs=[status_text, manuscript_editor, sections_dropdown]
+        )
+        
+        add_section_btn.click(
+            app.add_section,
+            inputs=[section_name_input],
+            outputs=[status_text]
+        )
+        
+        enhance_btn.click(
+            app.enhance_section,
+            inputs=[sections_dropdown],
+            outputs=[manuscript_editor]
+        )
+        
+        update_btn.click(
+            app.update_manuscript_text,
+            inputs=[manuscript_editor],
+            outputs=[status_text]
+        )
+        
+        delete_btn.click(
+            app.delete_manuscript,
+            inputs=[manuscripts_dropdown],
+            outputs=[status_text, manuscripts_dropdown]
+        )
+        
+        criticize_btn.click(
+            app.criticize_section,
+            inputs=[review_sections_dropdown],
+            outputs=[critique_output]
+        )
+        
+        create_project_btn.click(
+            app.create_project,
+            inputs=[project_name_input, project_language, project_model],
+            outputs=[project_status, projects_dropdown]
+        )
+        
+        embed_btn.click(
+            app.embed_document,
+            inputs=[file_upload],
+            outputs=[embed_status]
+        )
+        
+        # Update review sections when manuscript is loaded
+        manuscripts_dropdown.change(
+            lambda x: gr.Dropdown(choices=list(app.workflow.get_manuscript_sections(x).keys()) if x else []),
+            inputs=[manuscripts_dropdown],
+            outputs=[review_sections_dropdown]
+        )
+    
+    return interface
+
+if __name__ == "__main__":
+    interface = create_interface()
+    interface.launch(server_name="0.0.0.0", server_port=7860, share=False)
