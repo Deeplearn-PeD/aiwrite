@@ -12,7 +12,7 @@ class GradioAIWrite:
     def get_manuscripts_list(self) -> List[Tuple[str, int]]:
         """Get list of manuscripts for dropdown"""
         manuscripts = self.workflow.get_man_list()
-        return [(f"{m.source[:10]}... (ID: {m.id})", m.id) for m in manuscripts]
+        return [(f"{m.id} - {m.source.split('\n')[0]}", m.id) for m in manuscripts]
     
     def get_projects_list(self) -> List[Tuple[str, int]]:
         """Get list of projects for dropdown"""
@@ -44,7 +44,7 @@ class GradioAIWrite:
             section_names = list(sections.keys())
             
             content = self.workflow.get_manuscript_text(manuscript_id)
-            return f"Manuscrito carregado: {manuscript.source[:20]}...", content, gr.Dropdown(choices=section_names, value=section_names[0] if section_names else None)
+            return f"Manuscrito carregado: {manuscript.source.split('\n')[0]}...", content, gr.Dropdown(choices=section_names, value=section_names[0] if section_names else None)
         except Exception as e:
             return f"Erro ao carregar manuscrito: {str(e)}", "", gr.Dropdown()
     
