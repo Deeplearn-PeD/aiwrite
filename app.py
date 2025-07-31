@@ -186,14 +186,22 @@ def create_interface():
                         
                         enhance_btn = gr.Button("Melhorar Seção Selecionada")
                         
-                        manuscript_editor = gr.Textbox(
-                            label="Conteúdo do Manuscrito",
-                            lines=20,
-                            max_lines=30,
-                            interactive=True
-                        )
-                        
-                        update_btn = gr.Button("Atualizar Manuscrito")
+                        with gr.Row():
+                            with gr.Column():
+                                manuscript_editor = gr.Textbox(
+                                    label="Conteúdo do Manuscrito",
+                                    lines=20,
+                                    max_lines=30,
+                                    interactive=True
+                                )
+                                update_btn = gr.Button("Atualizar Manuscrito")
+                            
+                            with gr.Column():
+                                manuscript_preview = gr.Markdown(
+                                    label="Prévia do Manuscrito",
+                                    value="",
+                                    height=500
+                                )
             
             # Tab 2: Revisão
             with gr.TabItem("Revisão"):
@@ -254,6 +262,10 @@ def create_interface():
             app.load_manuscript,
             inputs=[manuscripts_dropdown],
             outputs=[status_text, manuscript_editor, sections_dropdown]
+        ).then(
+            lambda text: text,
+            inputs=[manuscript_editor],
+            outputs=[manuscript_preview]
         )
         
         add_section_btn.click(
@@ -266,12 +278,23 @@ def create_interface():
             app.enhance_section,
             inputs=[sections_dropdown],
             outputs=[manuscript_editor]
+        ).then(
+            lambda text: text,
+            inputs=[manuscript_editor],
+            outputs=[manuscript_preview]
         )
         
         update_btn.click(
             app.update_manuscript_text,
             inputs=[manuscript_editor],
             outputs=[status_text]
+        )
+        
+        # Update preview when editor content changes
+        manuscript_editor.change(
+            lambda text: text,
+            inputs=[manuscript_editor],
+            outputs=[manuscript_preview]
         )
         
         delete_btn.click(
