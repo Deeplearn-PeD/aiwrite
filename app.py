@@ -57,7 +57,8 @@ class GradioAIWrite:
             return "Por favor, insira um nome para a seção."
         
         try:
-            self.workflow.add_section(self.current_manuscript_id, section_name.lower())
+            manuscript = self.workflow.add_section(self.current_manuscript_id, section_name.lower())
+            self.load_manuscript(manuscript_id=manuscript.id)
             return f"Seção '{section_name}' adicionada com sucesso!"
         except Exception as e:
             return f"Erro ao adicionar seção: {str(e)}"
