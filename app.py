@@ -136,6 +136,23 @@ class GradioAIWrite:
         except Exception as e:
             return f"Erro ao criar projeto: {str(e)}", gr.Dropdown()
     
+    def load_project(self, project_id: int) -> Tuple[str, str, str, str]:
+        """Load existing project and return its details"""
+        if not project_id:
+            return "Selecione um projeto.", "", "", ""
+        
+        try:
+            project = self.workflow.get_project(project_id)
+            self.workflow.current_project = project
+            return (
+                f"Projeto carregado: {project.name}",
+                project.name,
+                project.language,
+                project.model
+            )
+        except Exception as e:
+            return f"Erro ao carregar projeto: {str(e)}", "", "", ""
+    
     def embed_document(self, file) -> str:
         """Embed document into knowledge base"""
         if not file:
@@ -224,6 +241,7 @@ def create_interface():
                 
                 with gr.Row():
                     with gr.Column():
+                        gr.Markdown("### Criar Novo Projeto")
                         project_name_input = gr.Textbox(label="Nome do Projeto")
                         project_language = gr.Dropdown(
                             choices=["pt", "en", "es", "fr"],
@@ -238,10 +256,12 @@ def create_interface():
                         create_project_btn = gr.Button("Criar Projeto")
                     
                     with gr.Column():
+                        gr.Markdown("### Carregar Projeto Existente")
                         projects_dropdown = gr.Dropdown(
                             choices=app.get_projects_list(),
                             label="Projetos Existentes"
                         )
+                        load_project_btn = gr.Button("Carregar Projeto")
                         project_status = gr.Textbox(label="Status do Projeto", interactive=False)
             
             # Tab 4: Base de Conhecimento
@@ -314,6 +334,12 @@ def create_interface():
             app.create_project,
             inputs=[project_name_input, project_language, project_model],
             outputs=[project_status, projects_dropdown]
+        )
+        
+        load_project_btn.click(
+            app.load_project,
+            inputs=[projects_dropdown],
+            outputs=[project_status, project_name_input, project_language, project_model]
         )
         
         embed_btn.click(
