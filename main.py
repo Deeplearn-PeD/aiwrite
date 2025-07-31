@@ -117,6 +117,7 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
         section_name = ft.TextField(label="Section Name", autofocus=True)
         dialog = ft.AlertDialog(
             title=ft.Text("Add New Section"),
+            modal=True,
             content=section_name,
             actions=[
                 ft.TextButton("Add", on_click=handle_dialog),
@@ -126,7 +127,7 @@ def build_manuscript_card(page: ft.Page) -> ft.Card:
         )
         page.dialog = dialog
         # page.overlay.append(dialog)
-        page.dialog.open = True
+        page.open(dialog)
         page.update()
 
     def enhance_text(e):
@@ -522,7 +523,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
     # Project title display
     project_title = ft.TextField(
         label="Manuscript Title",
-        value=parse_manuscript_text(page.WKF.get_manuscript_text(page.WKF.current_project.manuscript_id))['title'] 
+        value=parse_manuscript_text(page.WKF.get_manuscript_text(page.WKF.current_project.g_id))['title'] 
               if page.WKF.current_project and page.WKF.current_project.manuscript_id else "",
         read_only=True
     )
@@ -637,21 +638,25 @@ def update_project_fields(page: ft.Page, project_id: str) -> None:
     if project:
         # Update project name
         project_name.value = project.name
+        page.client_storage.set("project_name", project.name)
         
         # Update project title
         if project.manuscript_id:
             project_title.value = parse_manuscript_text(page.WKF.get_manuscript_text(project.manuscript_id))['title']
         else:
             project_title.value = ""
+        page.client_storage.set("project_title", project_title.value)
         
         # Update documents folder
         documents_folder.value = project.documents_folder or ""
         
         # Update language
         language_dropdown.value = project.language
+        page.client_storage.set("language", project.language)
         
         # Update model
         model_dropdown.value = project.model
+        page.client_storage.set("model", project.model)
         
         # Handle manuscript loading/clearing
         if project.manuscript_id:
@@ -790,11 +795,11 @@ def main(page: ft.Page) -> None:
     page.window_title = "Writing Desk"
     page.scroll = "adaptive"
     # Initialize default settings
-    page.client_storage.set("model", "llama3")
+    page.client_storage.set("model", "qwen3")
     page.client_storage.set("section", "introduction")
     page.client_storage.set("language", "en")
     page.client_storage.set("project_name", "My Manuscript Project")
-    page.WKF = Workflow()
+    page.WKF = Workflow(model=page.client_storage.get("model"))
     # Load most recent project on startup
     most_recent_project_id = page.WKF.get_most_recent_project()
     page.client_storage.set('project_id', most_recent_project_id)
@@ -919,7 +924,7 @@ def main(page: ft.Page) -> None:
     # page.add(context, write_button, response_card)
     page.on_route_change = route_change
     page.on_view_pop = view_pop
-    page.route = "/edit"
+    page.route = "/projects"
     page.go(page.route)
 
 
