@@ -157,7 +157,7 @@ def create_interface():
             # Tab 1: Manuscritos
             with gr.TabItem("Manuscritos"):
                 with gr.Row():
-                    with gr.Column():
+                    with gr.Column(scale=1):
                         gr.Markdown("## Gerenciar Manuscritos")
                         
                         # Create manuscript
@@ -175,7 +175,7 @@ def create_interface():
                         
                         status_text = gr.Textbox(label="Status", interactive=False)
                     
-                    with gr.Column():
+                    with gr.Column(scale=2):
                         gr.Markdown("## Editor de Seções")
                         
                         sections_dropdown = gr.Dropdown(label="Seções", interactive=True)
@@ -199,6 +199,7 @@ def create_interface():
                             with gr.Column():
                                 manuscript_preview = gr.Markdown(
                                     label="Prévia do Manuscrito",
+                                    show_label=True,
                                     value="",
                                     height=500
                                 )
