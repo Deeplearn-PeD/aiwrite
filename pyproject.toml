@@ -9,7 +9,7 @@ packages = [
 ]
 
 [tool.poetry.scripts]
-libbygui = "aiwrite.main:run"
+aiwrite = "aiwrite.main:run"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.14"

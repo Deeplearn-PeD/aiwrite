@@ -44,7 +44,7 @@ class GradioAIWrite:
             section_names = list(sections.keys())
             
             content = self.workflow.get_manuscript_text(manuscript_id)
-            return f"Manuscrito carregado: {manuscript.source.split('\n')[0]}...", content, gr.Dropdown(choices=section_names, value=section_names[0] if section_names else None)
+            return f"Manuscrito carregado: {manuscript.source.split('\n')[0]}", content, gr.Dropdown(choices=section_names, value=section_names[0] if section_names else None)
         except Exception as e:
             return f"Erro ao carregar manuscrito: {str(e)}", "", gr.Dropdown()
     
@@ -357,6 +357,9 @@ def create_interface():
     
     return interface
 
-if __name__ == "__main__":
+def main():
     interface = create_interface()
     interface.launch(server_name="0.0.0.0", server_port=7860, share=False)
+
+if __name__ == "__main__":
+    main()
