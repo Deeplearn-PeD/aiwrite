@@ -5,9 +5,10 @@ from aiwrite.workflow import Workflow, Project, Manuscript
 
 class GradioAIWrite:
     def __init__(self):
-        self.workflow = Workflow(model='qwen3')
+        self.workflow = Workflow(model='gemini')
         self.current_manuscript_id = None
         self.current_section = None
+        self.available_models = self.workflow.libby.llm.available_models
         
     def get_manuscripts_list(self) -> List[Tuple[str, int]]:
         """Get list of manuscripts for dropdown"""
@@ -18,7 +19,13 @@ class GradioAIWrite:
         """Get list of projects for dropdown"""
         projects = self.workflow.get_projects()
         return [(f"{p.name} (ID: {p.id})", p.id) for p in projects]
-    
+
+    def update_project_model(self, model: str)-> str:
+        """Set the model for the workflow"""
+        try:
+            self.workflow.set_model(model)
+        except Exception as e:
+            return f"Erro ao atualizar modelo: {str(e)}"
     def create_manuscript(self, concept: str) -> Tuple[str, gr.Dropdown]:
         """Create new manuscript"""
         if not concept.strip():
@@ -249,8 +256,8 @@ def create_interface():
                             label="Idioma"
                         )
                         project_model = gr.Dropdown(
-                            choices=["gpt", "llama3.2", "claude"],
-                            value="gpt",
+                            choices=app.available_models,
+                            value=app.available_models[0],
                             label="Modelo de IA"
                         )
                         create_project_btn = gr.Button("Criar Projeto")
@@ -341,7 +348,13 @@ def create_interface():
             inputs=[projects_dropdown],
             outputs=[project_status, project_name_input, project_language, project_model]
         )
-        
+
+        project_model.change(
+            app.update_project_model,
+            inputs=[project_model],
+            outputs=[project_status]
+        )
+
         embed_btn.click(
             app.embed_document,
             inputs=[file_upload],
