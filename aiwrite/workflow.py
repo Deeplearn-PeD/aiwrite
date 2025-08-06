@@ -88,8 +88,8 @@ class Workflow:
         self.base_prompt = ("You are a scientific writer. You should write sections of scientific articles in markdown "
                             "format on request.")
         self.libby = LibbyDBot(model=model)
-        self.db_url = dburl
-        self.KB = DocEmbedder(col_name=knowledge_base, db_url=dburl)
+        self.dburl = dburl
+        self.KB = DocEmbedder(col_name=knowledge_base, dburl=dburl)
         self.manuscript = None
         self.project_id = project_id
         self.current_project = self.get_project(project_id) if project_id else None
