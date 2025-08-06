@@ -21,12 +21,28 @@ class GradioAIWrite:
         return [(f"{p.name} (ID: {p.id})", p.id) for p in projects]
 
     def update_project_model(self, model: str)-> str:
-        """Set the model for the workflow"""
+        """Set the model for the workflow and save project"""
         try:
             self.workflow.set_model(model)
+            # Update and save current project if exists
+            if self.workflow.current_project:
+                self.workflow.current_project.model = model
+                self.workflow.save_project(self.workflow.current_project)
             return f"Modelo atualizado com sucesso para {model}!"
         except Exception as e:
             return f"Erro ao atualizar modelo: {str(e)}"
+    
+    def update_project_property(self, property_name: str, value: str) -> str:
+        """Update a project property and save automatically"""
+        if not self.workflow.current_project:
+            return "Nenhum projeto carregado."
+        
+        try:
+            setattr(self.workflow.current_project, property_name, value)
+            self.workflow.save_project(self.workflow.current_project)
+            return f"Propriedade '{property_name}' atualizada e salva com sucesso!"
+        except Exception as e:
+            return f"Erro ao atualizar propriedade: {str(e)}"
     
     def get_base_prompt(self) -> str:
         """Get current base prompt"""
@@ -386,6 +402,20 @@ def create_interface():
         project_model.change(
             app.update_project_model,
             inputs=[project_model],
+            outputs=[project_status]
+        )
+        
+        # Auto-save project name changes
+        project_name_input.change(
+            lambda name: app.update_project_property("name", name),
+            inputs=[project_name_input],
+            outputs=[project_status]
+        )
+        
+        # Auto-save project language changes
+        project_language.change(
+            lambda lang: app.update_project_property("language", lang),
+            inputs=[project_language],
             outputs=[project_status]
         )
 
