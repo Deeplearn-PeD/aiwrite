@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/LibbyGui.iml" filepath="$PROJECT_DIR$/.idea/LibbyGui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/aiwrite.iml" filepath="$PROJECT_DIR$/.idea/aiwrite.iml" />
     </modules>
   </component>
 </project>
