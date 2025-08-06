@@ -339,7 +339,7 @@ def create_interface():
         load_btn.click(
             app.load_manuscript,
             inputs=[manuscripts_dropdown],
-            outputs=[status_text, manuscript_editor, sections_dropdown]
+            outputs=[status_text, manuscript_editor, sections_dropdown, review_sections_dropdown]
         ).then(
             lambda text: text,
             inputs=[manuscript_editor],
