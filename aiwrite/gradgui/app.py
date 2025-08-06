@@ -258,7 +258,8 @@ def create_interface():
                         project_model = gr.Dropdown(
                             choices=app.available_models,
                             value=app.available_models[0],
-                            label="Modelo de IA"
+                            label="Modelo de IA",
+                            allow_custom_value="True"
                         )
                         create_project_btn = gr.Button("Criar Projeto")
                     
