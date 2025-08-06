@@ -27,6 +27,21 @@ class GradioAIWrite:
             return f"Modelo atualizado com sucesso para {model}!"
         except Exception as e:
             return f"Erro ao atualizar modelo: {str(e)}"
+    
+    def get_base_prompt(self) -> str:
+        """Get current base prompt"""
+        return self.workflow.base_prompt
+    
+    def update_base_prompt(self, new_prompt: str) -> str:
+        """Update the base prompt for the workflow"""
+        if not new_prompt.strip():
+            return "Por favor, insira um prompt válido."
+        
+        try:
+            self.workflow.base_prompt = new_prompt
+            return "Prompt base atualizado com sucesso!"
+        except Exception as e:
+            return f"Erro ao atualizar prompt base: {str(e)}"
     def create_manuscript(self, concept: str) -> Tuple[str, gr.Dropdown]:
         """Create new manuscript"""
         if not concept.strip():
@@ -273,6 +288,17 @@ def create_interface():
                         )
                         load_project_btn = gr.Button("Carregar Projeto")
                         project_status = gr.Textbox(label="Status do Projeto", interactive=False)
+                
+                gr.Markdown("### Configurar Prompt Base")
+                base_prompt_display = gr.Textbox(
+                    label="Prompt Base Atual",
+                    value=app.get_base_prompt(),
+                    lines=5,
+                    interactive=True,
+                    placeholder="Digite o prompt base para o modelo de IA..."
+                )
+                update_prompt_btn = gr.Button("Atualizar Prompt Base")
+                prompt_status = gr.Textbox(label="Status do Prompt", interactive=False)
             
             # Tab 4: Base de Conhecimento
             with gr.TabItem("Base de Conhecimento"):
@@ -362,6 +388,12 @@ def create_interface():
             app.embed_document,
             inputs=[file_upload],
             outputs=[embed_status]
+        )
+        
+        update_prompt_btn.click(
+            app.update_base_prompt,
+            inputs=[base_prompt_display],
+            outputs=[prompt_status]
         )
         
         # Update review sections when manuscript is loaded
