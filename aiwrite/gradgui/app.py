@@ -243,7 +243,7 @@ def create_interface():
                                     value="",
                                     height=500
                                 )
-            status_text = gr.Textbox(label="Status", interactive=False)
+            
             # Tab 2: Revisão
             with gr.TabItem("Revisão"):
                 gr.Markdown("## Revisão e Crítica")
@@ -309,6 +309,9 @@ def create_interface():
                 file_upload = gr.File(label="Carregar Documento")
                 embed_btn = gr.Button("Incorporar Documento")
                 embed_status = gr.Textbox(label="Status", interactive=False)
+        
+        # Status geral
+        status_text = gr.Textbox(label="Status", interactive=False)
         
         # Event handlers
         create_btn.click(
