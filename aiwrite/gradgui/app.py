@@ -279,6 +279,17 @@ def create_interface():
                             interactive=True
                         )
                         create_project_btn = gr.Button("Criar Projeto")
+
+                        gr.Markdown("### Configurar Prompt Base")
+                        base_prompt_display = gr.Textbox(
+                            label="Prompt Base Atual",
+                            value=app.get_base_prompt(),
+                            lines=5,
+                            interactive=True,
+                            placeholder="Digite o prompt base para o modelo de IA..."
+                        )
+                        update_prompt_btn = gr.Button("Atualizar Prompt Base")
+                        prompt_status = gr.Textbox(label="Status do Prompt", interactive=False)
                     
                     with gr.Column():
                         gr.Markdown("### Carregar Projeto Existente")
@@ -289,16 +300,7 @@ def create_interface():
                         load_project_btn = gr.Button("Carregar Projeto")
                         project_status = gr.Textbox(label="Status do Projeto", interactive=False)
                 
-                gr.Markdown("### Configurar Prompt Base")
-                base_prompt_display = gr.Textbox(
-                    label="Prompt Base Atual",
-                    value=app.get_base_prompt(),
-                    lines=5,
-                    interactive=True,
-                    placeholder="Digite o prompt base para o modelo de IA..."
-                )
-                update_prompt_btn = gr.Button("Atualizar Prompt Base")
-                prompt_status = gr.Textbox(label="Status do Prompt", interactive=False)
+
             
             # Tab 4: Base de Conhecimento
             with gr.TabItem("Base de Conhecimento"):
