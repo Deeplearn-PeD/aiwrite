@@ -95,7 +95,10 @@ class TestWorkflow(unittest.TestCase):
     def tearDown(self):
         # Clean up test data
         if hasattr(self, 'test_project'):
-            self.workflow.delete_project(self.test_project.id)
+            try:
+                self.workflow.delete_project(self.test_project.id)
+            except Exception as e:
+                print(f"Error deleting project: {e}")
 
 
 if __name__ == '__main__':
