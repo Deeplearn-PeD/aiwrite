@@ -24,6 +24,7 @@ class GradioAIWrite:
         """Set the model for the workflow"""
         try:
             self.workflow.set_model(model)
+            return f"Modelo atualizado com sucesso para {model}!"
         except Exception as e:
             return f"Erro ao atualizar modelo: {str(e)}"
     def create_manuscript(self, concept: str) -> Tuple[str, gr.Dropdown]:
@@ -259,7 +260,8 @@ def create_interface():
                             choices=app.available_models,
                             value=app.available_models[0],
                             label="Modelo de IA",
-                            allow_custom_value="True"
+                            allow_custom_value="True",
+                            interactive=True
                         )
                         create_project_btn = gr.Button("Criar Projeto")
                     
