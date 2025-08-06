@@ -190,7 +190,7 @@ def create_interface():
                         load_btn = gr.Button("Carregar Manuscrito")
                         delete_btn = gr.Button("Deletar Manuscrito", variant="stop")
                         
-                        status_text = gr.Textbox(label="Status", interactive=False)
+                        # status_text = gr.Textbox(label="Status", interactive=False)
                     
                     with gr.Column(scale=2):
                         gr.Markdown("## Editor de Seções")
@@ -220,7 +220,7 @@ def create_interface():
                                     value="",
                                     height=500
                                 )
-            
+            status_text = gr.Textbox(label="Status", interactive=False)
             # Tab 2: Revisão
             with gr.TabItem("Revisão"):
                 gr.Markdown("## Revisão e Crítica")
