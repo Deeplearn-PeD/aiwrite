@@ -73,21 +73,23 @@ class Workflow:
         manuscript: Currently loaded manuscript
     """
 
-    def __init__(self, db_url: str = "sqlite:///aiwrite.db", model: str = "gpt",
+    def __init__(self, dburl: str = "sqlite:///aiwrite.db", model: str = "gpt",
                  knowledge_base: str = "embeddings", project_id: Optional[int] = None):
         """Initialize the workflow with database, AI model and knowledge base.
         
         Args:
-            db_url: Database connection URL
+            dburl: Database connection URL
             model: Name of AI model to use
             knowledge_base: Name of knowledge base collection
+            project_id: ID of the project to load (if any)
         """
-        self.engine = create_engine(db_url)
+        self.engine = create_engine(dburl)
         SQLModel.metadata.create_all(self.engine)
         self.base_prompt = ("You are a scientific writer. You should write sections of scientific articles in markdown "
                             "format on request.")
         self.libby = LibbyDBot(model=model)
-        self.KB = DocEmbedder(col_name=knowledge_base)
+        self.db_url = dburl
+        self.KB = DocEmbedder(col_name=knowledge_base, db_url=dburl)
         self.manuscript = None
         self.project_id = project_id
         self.current_project = self.get_project(project_id) if project_id else None
@@ -98,7 +100,7 @@ class Workflow:
         Args:
             collection_name: Name of the knowledge base collection
         """
-        self.KB = DocEmbedder(col_name=collection_name)
+        self.KB = DocEmbedder(col_name=collection_name, dburl=self.dburl)
 
     def set_model(self, model: str) -> None:
         """Set the AI model to use for writing.

@@ -100,6 +100,7 @@ class GradioAIWrite:
         
         try:
             manuscript = self.workflow.add_section(self.current_manuscript_id, section_name.lower())
+
             self.load_manuscript(manuscript_id=manuscript.id)
             return f"Seção '{section_name}' adicionada com sucesso!"
         except Exception as e:
