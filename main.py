@@ -523,7 +523,7 @@ def build_settings_page(page: ft.Page) -> ft.Container:
     # Project title display
     project_title = ft.TextField(
         label="Manuscript Title",
-        value=parse_manuscript_text(page.WKF.get_manuscript_text(page.WKF.current_project.g_id))['title'] 
+        value=parse_manuscript_text(page.WKF.get_manuscript_text(page.WKF.current_project.id))['title']
               if page.WKF.current_project and page.WKF.current_project.manuscript_id else "",
         read_only=True
     )

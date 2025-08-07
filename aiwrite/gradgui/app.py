@@ -199,11 +199,8 @@ class GradioAIWrite:
     def get_embedded_documents(self) -> List[str]:
         """Get list of embedded documents from knowledge base"""
         try:
-            if hasattr(self.workflow, 'KB') and self.workflow.KB:
-                # Assuming the KB has a method to list documents
-                # This might need adjustment based on the actual KB implementation
-                return getattr(self.workflow.KB, 'list_documents', lambda: [])()
-            return []
+            doc_list = self.KB.get_embedded_documents()
+            return doc_list
         except Exception as e:
             return [f"Erro ao listar documentos: {str(e)}"]
     
@@ -354,8 +351,8 @@ def create_interface():
                     with gr.Column(scale=2):
                         gr.Markdown("### Documentos Incorporados")
                         documents_display = gr.Dataframe(
-                            headers=["Documentos Incorporados"],
-                            value=[[doc] for doc in app.get_embedded_documents()],
+                            headers=["Documentos Incorporados (Name and Collection"],
+                            value=[f'{doc[0]} - {doc[1]}'  for doc in app.get_embedded_documents()],
                             interactive=False,
                             height=300
                         )
