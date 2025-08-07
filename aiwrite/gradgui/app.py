@@ -199,7 +199,7 @@ class GradioAIWrite:
     def get_embedded_documents(self) -> List[str]:
         """Get list of embedded documents from knowledge base"""
         try:
-            doc_list = self.KB.get_embedded_documents()
+            doc_list = self.workflow.KB.get_embedded_documents()
             return doc_list
         except Exception as e:
             return [f"Erro ao listar documentos: {str(e)}"]
