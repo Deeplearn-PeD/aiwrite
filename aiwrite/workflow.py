@@ -89,7 +89,7 @@ class Workflow:
                             "format on request.")
         self.libby = LibbyDBot(model=model)
         self.dburl = dburl
-        self.KB = DocEmbedder(col_name=knowledge_base, dburl=dburl)
+        self.KB = DocEmbedder(col_name=knowledge_base, dburl=dburl, embedding_model='gemini-embedding-001')
         self.manuscript = None
         self.project_id = project_id
         self.current_project = self.get_project(project_id) if project_id else None
