@@ -196,16 +196,36 @@ class GradioAIWrite:
         except Exception as e:
             return f"Erro ao carregar projeto: {str(e)}", "", "", ""
     
-    def embed_document(self, file) -> str:
+    def get_embedded_documents(self) -> List[str]:
+        """Get list of embedded documents from knowledge base"""
+        try:
+            if hasattr(self.workflow, 'KB') and self.workflow.KB:
+                # Assuming the KB has a method to list documents
+                # This might need adjustment based on the actual KB implementation
+                return getattr(self.workflow.KB, 'list_documents', lambda: [])()
+            return []
+        except Exception as e:
+            return [f"Erro ao listar documentos: {str(e)}"]
+    
+    def refresh_documents_list(self) -> gr.Dataframe:
+        """Refresh the documents list display"""
+        documents = self.get_embedded_documents()
+        df_data = [[doc] for doc in documents] if documents else []
+        return gr.Dataframe(value=df_data, headers=["Documentos Incorporados"])
+    
+    def embed_document(self, file) -> Tuple[str, gr.Dataframe]:
         """Embed document into knowledge base"""
         if not file:
-            return "Selecione um arquivo."
+            return "Selecione um arquivo.", gr.Dataframe()
         
         try:
             self.workflow.embed_document(file.name)
-            return f"Documento '{os.path.basename(file.name)}' incorporado com sucesso!"
+            documents = self.get_embedded_documents()
+            df_data = [[doc] for doc in documents] if documents else []
+            return (f"Documento '{os.path.basename(file.name)}' incorporado com sucesso!", 
+                   gr.Dataframe(value=df_data, headers=["Documentos Incorporados"]))
         except Exception as e:
-            return f"Erro ao incorporar documento: {str(e)}"
+            return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe()
 
 def create_interface():
     app = GradioAIWrite()
@@ -326,9 +346,20 @@ def create_interface():
             with gr.TabItem("Base de Conhecimento"):
                 gr.Markdown("## Gerenciar Base de Conhecimento")
                 
-                file_upload = gr.File(label="Carregar Documento")
-                embed_btn = gr.Button("Incorporar Documento")
-                # embed_status = gr.Textbox(label="Status", interactive=False)
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        file_upload = gr.File(label="Carregar Documento")
+                        embed_btn = gr.Button("Incorporar Documento")
+                    
+                    with gr.Column(scale=2):
+                        gr.Markdown("### Documentos Incorporados")
+                        documents_display = gr.Dataframe(
+                            headers=["Documentos Incorporados"],
+                            value=[[doc] for doc in app.get_embedded_documents()],
+                            interactive=False,
+                            height=300
+                        )
+                        refresh_docs_btn = gr.Button("Atualizar Lista")
         
         # Status geral
         status_text = gr.Textbox(label="Status", interactive=False)
@@ -426,7 +457,12 @@ def create_interface():
         embed_btn.click(
             app.embed_document,
             inputs=[file_upload],
-            outputs=[status_text]
+            outputs=[status_text, documents_display]
+        )
+        
+        refresh_docs_btn.click(
+            lambda: gr.Dataframe(value=[[doc] for doc in app.get_embedded_documents()], headers=["Documentos Incorporados"]),
+            outputs=[documents_display]
         )
         
         update_prompt_btn.click(
