@@ -328,7 +328,7 @@ def create_interface():
                 
                 file_upload = gr.File(label="Carregar Documento")
                 embed_btn = gr.Button("Incorporar Documento")
-                embed_status = gr.Textbox(label="Status", interactive=False)
+                # embed_status = gr.Textbox(label="Status", interactive=False)
         
         # Status geral
         status_text = gr.Textbox(label="Status", interactive=False)
@@ -426,7 +426,7 @@ def create_interface():
         embed_btn.click(
             app.embed_document,
             inputs=[file_upload],
-            outputs=[embed_status]
+            outputs=[status_text]
         )
         
         update_prompt_btn.click(
