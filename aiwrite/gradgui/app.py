@@ -354,7 +354,6 @@ def create_interface():
                             headers=["Documentos Incorporados (Name and Collection"],
                             value=[f'{doc[0]} - {doc[1]}'  for doc in app.get_embedded_documents()],
                             interactive=False,
-                            height=300
                         )
                         refresh_docs_btn = gr.Button("Atualizar Lista")
         
