@@ -5,7 +5,7 @@ from aiwrite.workflow import Workflow, Project, Manuscript
 
 class GradioAIWrite:
     def __init__(self):
-        self.workflow = Workflow(model='gemini', dburl='duckdb:///aiwrite.db')
+        self.workflow = Workflow(model='gemini', dburl='duckdb:///aiwrite.duckdb')
         self.current_manuscript_id = None
         self.current_section = None
         self.available_models = self.workflow.libby.llm.available_models
