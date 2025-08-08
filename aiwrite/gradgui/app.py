@@ -362,8 +362,8 @@ def create_interface(db_path):
                     with gr.Column(scale=2):
                         gr.Markdown("### Documentos Incorporados")
                         documents_display = gr.Dataframe(
-                            headers=["Documentos Incorporados (Name - Collection)"],
-                            value=[f'{doc[0].split('/')[-1]} - {doc[1]}'  for doc in app.get_embedded_documents()],
+                            headers=["Name", "Collection"],
+                            value=[[doc[0].split('/')[-1], doc[1]]  for doc in app.get_embedded_documents()],
                             interactive=False,
                         )
                         refresh_docs_btn = gr.Button("Atualizar Lista")
