@@ -211,16 +211,21 @@ class GradioAIWrite:
         df_data = [[doc] for doc in documents] if documents else []
         return gr.Dataframe(value=df_data, headers=["Documentos Incorporados"])
     
-    def embed_document(self, file) -> Tuple[str, gr.Dataframe]:
+    def embed_document(self, file, collection_name: str) -> Tuple[str, gr.Dataframe]:
         """Embed document into knowledge base"""
         if not file:
             return "Selecione um arquivo.", gr.Dataframe()
         
+        if not collection_name.strip():
+            return "Por favor, especifique um nome para a coleção.", gr.Dataframe()
+        
         try:
+            # Set the knowledge base collection before embedding
+            self.workflow.set_knowledge_base(collection_name.strip())
             self.workflow.embed_document(file.name)
             documents = self.get_embedded_documents()
-            df_data = [[doc] for doc in documents] if documents else []
-            return (f"Documento '{os.path.basename(file.name)}' incorporado com sucesso!", 
+            df_data = [[f'{doc[0].split("/")[-1]} - {doc[1]}'] for doc in documents] if documents else []
+            return (f"Documento '{os.path.basename(file.name)}' incorporado com sucesso na coleção '{collection_name}'!", 
                    gr.Dataframe(value=df_data, headers=["Documentos Incorporados"]))
         except Exception as e:
             return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe()
@@ -347,6 +352,11 @@ def create_interface(db_path):
                 with gr.Row():
                     with gr.Column(scale=1):
                         file_upload = gr.File(label="Carregar Documento")
+                        collection_name_input = gr.Textbox(
+                            label="Nome da Coleção",
+                            placeholder="Digite o nome da coleção...",
+                            info="Especifique a coleção onde o documento será armazenado"
+                        )
                         embed_btn = gr.Button("Incorporar Documento")
                     
                     with gr.Column(scale=2):
@@ -453,7 +463,7 @@ def create_interface(db_path):
 
         embed_btn.click(
             app.embed_document,
-            inputs=[file_upload],
+            inputs=[file_upload, collection_name_input],
             outputs=[status_text, documents_display]
         )
         
