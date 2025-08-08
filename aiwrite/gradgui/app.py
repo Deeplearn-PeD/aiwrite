@@ -226,7 +226,7 @@ class GradioAIWrite:
             return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe()
 
 def create_interface(db_path):
-    app = GradioAIWrite(db_path)
+    app = GradioAIWrite(db_path=db_path)
     
     with gr.Blocks(title="AIWrite - Assistente de Escrita com IA") as interface:
         gr.Markdown("# AIWrite - Assistente de Escrita com IA")
@@ -478,7 +478,7 @@ def create_interface(db_path):
     return interface
 
 def main(db_path: Optional[str] = '/data'):
-    interface = create_interface(db_path)
+    interface = create_interface(db_path=db_path)
     interface.launch(server_name="0.0.0.0", server_port=7860, share=False)
 
 if __name__ == "__main__":
