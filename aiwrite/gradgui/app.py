@@ -327,7 +327,7 @@ def create_interface(db_path):
                             placeholder="Digite o prompt base para o modelo de IA..."
                         )
                         update_prompt_btn = gr.Button("Atualizar Prompt Base")
-                        prompt_status = gr.Textbox(label="Status do Prompt", interactive=False)
+
                     
                     with gr.Column():
                         gr.Markdown("### Carregar Projeto Existente")
@@ -465,7 +465,7 @@ def create_interface(db_path):
         update_prompt_btn.click(
             app.update_base_prompt,
             inputs=[base_prompt_display],
-            outputs=[prompt_status]
+            outputs=[status_text]
         )
         
         # Update review sections when manuscript is loaded
