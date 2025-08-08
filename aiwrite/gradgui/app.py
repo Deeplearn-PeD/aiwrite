@@ -4,8 +4,9 @@ from typing import List, Dict, Optional, Tuple
 from aiwrite.workflow import Workflow, Project, Manuscript
 
 class GradioAIWrite:
-    def __init__(self):
-        self.workflow = Workflow(model='gemini', dburl='sqlite:///aiwrite.db')
+    def __init__(self, db_path):
+        self.workflow = Workflow(model='gemini', dburl=f'sqlite://{db_path}/aiwrite.db', db_path=db_path)
+        self.db_path = db_path
         self.current_manuscript_id = None
         self.current_section = None
         self.available_models = self.workflow.libby.llm.available_models
@@ -224,8 +225,8 @@ class GradioAIWrite:
         except Exception as e:
             return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe()
 
-def create_interface():
-    app = GradioAIWrite()
+def create_interface(db_path):
+    app = GradioAIWrite(db_path)
     
     with gr.Blocks(title="AIWrite - Assistente de Escrita com IA") as interface:
         gr.Markdown("# AIWrite - Assistente de Escrita com IA")
@@ -476,8 +477,8 @@ def create_interface():
     
     return interface
 
-def main():
-    interface = create_interface()
+def main(db_path: Optional[str] = '/data'):
+    interface = create_interface(db_path)
     interface.launch(server_name="0.0.0.0", server_port=7860, share=False)
 
 if __name__ == "__main__":

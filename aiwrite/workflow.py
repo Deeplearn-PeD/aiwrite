@@ -1,4 +1,5 @@
 import datetime
+import os
 from typing import List, Dict, Optional
 
 import fitz
@@ -73,7 +74,7 @@ class Workflow:
         manuscript: Currently loaded manuscript
     """
 
-    def __init__(self, dburl: str = "sqlite:///aiwrite.db", model: str = "gpt",
+    def __init__(self, dburl: str = "sqlite:///data/aiwrite.db", model: str = "gpt", db_path: str = "/data",
                  knowledge_base: str = "embeddings", project_id: Optional[int] = None):
         """Initialize the workflow with database, AI model and knowledge base.
         
@@ -84,12 +85,15 @@ class Workflow:
             project_id: ID of the project to load (if any)
         """
         self.engine = create_engine(dburl)
+        self.db_path = db_path
+        if not os.path.exists(db_path.strip('/')):
+            os.makedirs(db_path.strip('/'))
         SQLModel.metadata.create_all(self.engine)
         self.base_prompt = ("You are a scientific writer. You should write sections of scientific articles in markdown "
                             "format on request.")
         self.libby = LibbyDBot(model=model)
         self.dburl = dburl
-        self.KB = DocEmbedder(col_name=knowledge_base, dburl='duckdb:///embedding.duckdb', embedding_model='gemini-embedding-001')
+        self.KB = DocEmbedder(col_name=knowledge_base, dburl=f'duckdb://{db_path}/embedding.duckdb', embedding_model='gemini-embedding-001')
         self.manuscript = None
         self.project_id = project_id
         self.current_project = self.get_project(project_id) if project_id else None
