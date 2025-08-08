@@ -75,13 +75,13 @@ class Workflow:
     """
 
     def __init__(self, dburl: str = "sqlite:///data/aiwrite.db", model: str = "gpt", db_path: str = "/data",
-                 knowledge_base: str = "embeddings", project_id: Optional[int] = None):
+                 collection_name: str = "embeddings", project_id: Optional[int] = None):
         """Initialize the workflow with database, AI model and knowledge base.
         
         Args:
             dburl: Database connection URL
             model: Name of AI model to use
-            knowledge_base: Name of knowledge base collection
+            collection_name: Name of knowledge base collection
             project_id: ID of the project to load (if any)
         """
         self.engine = create_engine(dburl)
@@ -93,7 +93,7 @@ class Workflow:
                             "format on request.")
         self.libby = LibbyDBot(model=model)
         self.dburl = dburl
-        self.KB = DocEmbedder(col_name=knowledge_base, dburl=f'duckdb://{db_path}/embedding.duckdb', embedding_model='gemini-embedding-001')
+        self.KB = DocEmbedder(col_name=collection_name, dburl=f'duckdb://{db_path}/embedding.duckdb', embedding_model='gemini-embedding-001')
         self.manuscript = None
         self.project_id = project_id
         self.current_project = self.get_project(project_id) if project_id else None
