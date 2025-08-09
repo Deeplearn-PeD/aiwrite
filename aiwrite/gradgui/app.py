@@ -224,7 +224,7 @@ class GradioAIWrite:
             self.workflow.set_knowledge_base(collection_name.strip())
             self.workflow.embed_document(file.name)
             documents = self.get_embedded_documents()
-            df_data = [[f'{doc[0].split("/")[-1]} - {doc[1]}'] for doc in documents] if documents else []
+            df_data = [[doc[0].split("/")[-1], doc[1]] for doc in documents] if documents else []
             return (f"Documento '{os.path.basename(file.name)}' incorporado com sucesso na coleção '{collection_name}'!", 
                    gr.Dataframe(value=df_data, headers=["Name", "Collection"], interactive=False))
         except Exception as e:
