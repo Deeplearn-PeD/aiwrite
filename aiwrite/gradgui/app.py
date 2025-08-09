@@ -489,7 +489,11 @@ def create_interface(db_path):
 
 def main(db_path: Optional[str] = '/data'):
     interface = create_interface(db_path=db_path)
-    interface.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    interface.launch(server_name="0.0.0.0",
+                     server_port=7860,
+                     share=False,
+                     favicon_path="assets/icon.png",
+                     )
 
 if __name__ == "__main__":
     main()
