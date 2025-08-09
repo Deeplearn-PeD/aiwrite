@@ -233,7 +233,10 @@ class GradioAIWrite:
 def create_interface(db_path):
     app = GradioAIWrite(db_path=db_path)
     
-    with gr.Blocks(title="AIWrite - Assistente de Escrita com IA") as interface:
+    with gr.Blocks(title="AIWrite - Assistente de Escrita com IA",
+                   theme=gr.themes.Glass(),
+                   css="footer {visibility: hidden}"
+                   ) as interface:
         gr.Markdown("# AIWrite - Assistente de Escrita com IA")
         
         with gr.Tabs():
@@ -500,7 +503,6 @@ def main(db_path: Optional[str] = '/data'):
                      server_port=7860,
                      share=False,
                      favicon_path="assets/icon.png",
-                     css="footer {visibility: hidden}"
                      )
 
 if __name__ == "__main__":
