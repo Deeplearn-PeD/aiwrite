@@ -500,6 +500,7 @@ def main(db_path: Optional[str] = '/data'):
                      server_port=7860,
                      share=False,
                      favicon_path="assets/icon.png",
+                     css="footer {visibility: hidden}"
                      )
 
 if __name__ == "__main__":
