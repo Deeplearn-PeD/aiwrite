@@ -14,7 +14,7 @@ aiwrite = "aiwrite.main:run"
 [tool.poetry.dependencies]
 python = ">=3.12,<3.14"
 flet = ">=0.25.2"
-libby = {git = "https://github.com/Deeplearn-PeD/libby"}
+libby = {git = "https://github.com/Deeplearn-PeD/libby", branch = "main"}
 sqlmodel = ">=0.0.18"
 python-dotenv = "^1.0.1"
 gradio = "^5.38.2"
