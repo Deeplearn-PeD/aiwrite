@@ -226,9 +226,9 @@ class GradioAIWrite:
             documents = self.get_embedded_documents()
             df_data = [[f'{doc[0].split("/")[-1]} - {doc[1]}'] for doc in documents] if documents else []
             return (f"Documento '{os.path.basename(file.name)}' incorporado com sucesso na coleção '{collection_name}'!", 
-                   gr.Dataframe(value=df_data, headers=["Name", "Collection"], interactive=False]))
+                   gr.Dataframe(value=df_data, headers=["Name", "Collection"], interactive=False))
         except Exception as e:
-            return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe(value=df_data, headers=["Name", "Collection"])
+            return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe(value=df_data, headers=["Name", "Collection"], interactive=False)
 
 def create_interface(db_path):
     app = GradioAIWrite(db_path=db_path)
