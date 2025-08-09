@@ -371,6 +371,13 @@ def create_interface(db_path):
         # Status geral
         status_text = gr.Textbox(label="Status", interactive=False)
         
+        # Footer
+        gr.Markdown(
+            "---\n"
+            "(c) Copyright [Deeplearn Ltd](https://www.deeplearn.ltd)",
+            elem_id="footer"
+        )
+        
         # Event handlers
         create_btn.click(
             app.create_manuscript,
