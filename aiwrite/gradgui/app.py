@@ -377,7 +377,7 @@ def create_interface(db_path):
         # Footer
         gr.Markdown(
             "---\n"
-            "(c) Copyright [Deeplearn Ltd](https://www.deeplearn.ltd)",
+            "**© Copyright 2025 by [Deeplearn Ltd](https://www.deeplearn.ltd)**",
             elem_id="footer"
         )
         
@@ -502,7 +502,8 @@ def main(db_path: Optional[str] = '/data'):
     interface.launch(server_name="0.0.0.0",
                      server_port=7860,
                      share=False,
-                     favicon_path="assets/icon.png",
+                     favicon_path="./assets/icon.png",
+                     pwa=True,
                      )
 
 if __name__ == "__main__":
