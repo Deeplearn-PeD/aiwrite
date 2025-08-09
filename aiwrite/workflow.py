@@ -75,7 +75,7 @@ class Workflow:
     """
 
     def __init__(self, dburl: str = "sqlite:///data/aiwrite.db", model: str = "gpt", db_path: str = "/data",
-                 collection_name: str = "embeddings", project_id: Optional[int] = None):
+                 collection_name: str = "literature", project_id: Optional[int] = None):
         """Initialize the workflow with database, AI model and knowledge base.
         
         Args:
