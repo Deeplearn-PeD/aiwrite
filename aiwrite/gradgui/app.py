@@ -5,7 +5,7 @@ from aiwrite.workflow import Workflow, Project, Manuscript
 
 class GradioAIWrite:
     def __init__(self, db_path):
-        self.workflow = Workflow(model='gemini', dburl=f'sqlite://{db_path}/aiwrite.db', db_path=db_path)
+        self.workflow = Workflow(model='gemini', dburl=f'sqlite:///{db_path}/aiwrite.db', db_path=db_path)
         self.db_path = db_path
         self.current_manuscript_id = None
         self.current_section = None
