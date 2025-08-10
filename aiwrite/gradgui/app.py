@@ -91,7 +91,7 @@ class GradioAIWrite:
         except Exception as e:
             return f"Erro ao carregar manuscrito: {str(e)}", "", gr.Dropdown()
     
-    def add_section(self, section_name: str) -> str:
+    def add_section(self, section_name: str) -> Tuple[str, str]:
         """Add new section to current manuscript"""
         if not self.current_manuscript_id:
             return "Nenhum manuscrito selecionado."
@@ -103,9 +103,9 @@ class GradioAIWrite:
             manuscript = self.workflow.add_section(self.current_manuscript_id, section_name.lower())
 
             self.load_manuscript(manuscript_id=manuscript.id)
-            return f"Seção '{section_name}' adicionada com sucesso!"
+            return f"Seção '{section_name}' adicionada com sucesso!", manuscript.source
         except Exception as e:
-            return f"Erro ao adicionar seção: {str(e)}"
+            return f"Erro ao adicionar seção: {str(e)}", manuscript.source
     
     def enhance_section(self, section_name: str) -> str:
         """Enhance existing section"""
@@ -401,7 +401,7 @@ def create_interface(db_path):
         add_section_btn.click(
             app.add_section,
             inputs=[section_name_input],
-            outputs=[status_text]
+            outputs=[status_text, manuscript_editor]
         )
         
         enhance_btn.click(
