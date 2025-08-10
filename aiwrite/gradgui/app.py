@@ -479,7 +479,7 @@ def create_interface(db_path):
         )
         
         refresh_docs_btn.click(
-            lambda: gr.Dataframe(value=[[doc] for doc in app.get_embedded_documents()], headers=["Documentos Incorporados"]),
+            lambda: gr.Dataframe(value=[[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()], headers=["Name", "Collection"]),
             outputs=[documents_display]
         )
         
