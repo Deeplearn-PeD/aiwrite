@@ -197,13 +197,13 @@ class GradioAIWrite:
         except Exception as e:
             return f"Erro ao carregar projeto: {str(e)}", "", "", ""
     
-    def get_embedded_documents(self) -> List[str]:
+    def get_embedded_documents(self) -> List[Tuple[str, str]]:
         """Get list of embedded documents from knowledge base"""
         try:
             doc_list = self.workflow.KB.get_embedded_documents()
             return doc_list
         except Exception as e:
-            return [f"Erro ao listar documentos: {str(e)}"]
+            return []
     
     def refresh_documents_list(self) -> gr.Dataframe:
         """Refresh the documents list display"""
@@ -283,11 +283,11 @@ def create_interface(db_path):
                                 update_btn = gr.Button("Atualizar Manuscrito")
                             
                             with gr.Column():
+                                gr.Markdown('### Prévia do Manuscrito')
                                 manuscript_preview = gr.Markdown(
                                     label="Prévia do Manuscrito",
                                     show_label=True,
                                     value="",
-                                    height=500
                                 )
             
             # Tab 2: Revisão
@@ -364,9 +364,10 @@ def create_interface(db_path):
                     
                     with gr.Column(scale=2):
                         gr.Markdown("### Documentos Incorporados")
+                        documents_list = [[doc[0].split('/')[-1], doc[1]]  for doc in app.get_embedded_documents()]
                         documents_display = gr.Dataframe(
                             headers=["Name", "Collection"],
-                            value=[[doc[0].split('/')[-1], doc[1]]  for doc in app.get_embedded_documents()],
+                            value=documents_list,
                             interactive=False,
                         )
                         refresh_docs_btn = gr.Button("Atualizar Lista")
