@@ -266,7 +266,7 @@ def create_interface(db_path):
     app = GradioAIWrite(db_path=db_path)
     
     # Initialize I18n with locales
-    i18n_path = 'locales' if os.path.exists('locales') else 'aiwrite/gradgui/locales'
+    i18n_path = 'locales' if os.path.exists('locales') else os.path.join(os.path.dirname(__file__), 'locales')
     locales = {f'{fn.split('.')[0]}': json.load(open(os.path.join(i18n_path, fn), 'r', encoding='utf-8')) for fn in os.listdir(i18n_path) if fn.endswith('.json')}
     i18n = gr.I18n(**locales)
     
