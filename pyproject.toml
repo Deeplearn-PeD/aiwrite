@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aiwrite"
-version = "0.2.2"
+version = "0.3.0"
 description = ""
 authors = ["Flávio Codeço Coelho <fccoelho@gmail.com>"]
 readme = "README.md"
