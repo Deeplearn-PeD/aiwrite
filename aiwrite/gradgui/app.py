@@ -11,6 +11,12 @@ class GradioAIWrite:
         self.current_section = None
         self.available_models = self.workflow.libby.llm.available_models
         
+        # Inicializar a base de conhecimento com uma coleção padrão
+        try:
+            self.workflow.set_knowledge_base("Literatura")  # ou qualquer nome padrão
+        except Exception as e:
+            print(f"Aviso: Não foi possível inicializar a base de conhecimento: {str(e)}")
+        
     def get_manuscripts_list(self) -> List[Tuple[str, int]]:
         """Get list of manuscripts for dropdown"""
         manuscripts = self.workflow.get_man_list()
@@ -200,9 +206,12 @@ class GradioAIWrite:
     def get_embedded_documents(self) -> List[Tuple[str, str]]:
         """Get list of embedded documents from knowledge base"""
         try:
+            # Garantir que a KB está inicializada
+            if not hasattr(self.workflow, 'KB') or self.workflow.KB is None:
+                self.workflow.set_knowledge_base("Literatura")
+            
             doc_list = self.workflow.KB.get_embedded_documents()
-            # print("Embedded documents:", doc_list)
-            return doc_list
+            return doc_list if doc_list else []
         except Exception as e:
             print(f"Error getting embedded documents: {str(e)}")
             return []
@@ -367,10 +376,15 @@ def create_interface(db_path):
                     
                     with gr.Column(scale=2):
                         gr.Markdown("### Documentos Incorporados")
-                        documents_list = [[doc[0].split('/')[-1], doc[1]]  for doc in app.get_embedded_documents()]
+                        # Inicializar com dados atuais em vez de chamar a função diretamente
+                        try:
+                            initial_documents = [[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()]
+                        except:
+                            initial_documents = []
+                        
                         documents_display = gr.Dataframe(
                             headers=["Nome", "Coleção"],
-                            value=documents_list,
+                            value=initial_documents,
                             interactive=False,
                         )
                         refresh_docs_btn = gr.Button("Atualizar Lista")
@@ -500,6 +514,16 @@ def create_interface(db_path):
             lambda x: gr.Dropdown(choices=list(app.workflow.get_manuscript_sections(x).keys()) if x else []),
             inputs=[manuscripts_dropdown],
             outputs=[review_sections_dropdown]
+        )
+        
+        # Carregar documentos na inicialização
+        interface.load(
+            lambda: gr.Dataframe(
+                value=[[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()],
+                headers=["Nome", "Coleção"],
+                interactive=False
+            ),
+            outputs=[documents_display]
         )
     
     return interface
