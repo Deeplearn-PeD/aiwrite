@@ -266,6 +266,7 @@ class GradioAIWrite:
                 f"Documento '{os.path.basename(file.name)}' incorporado com sucesso na coleção '{collection_name}'!",
                 gr.Dataframe(value=df_data, headers=["Name", "Collection"], interactive=False))
         except Exception as e:
+            df_data= locals().get('df_data', [])
             return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe(value=df_data,
                                                                            headers=["Name", "Collection"],
                                                                            interactive=False)
