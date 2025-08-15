@@ -216,6 +216,26 @@ class GradioAIWrite:
             print(f"Error getting embedded documents: {str(e)}")
             return []
     
+    def get_collections_list(self) -> List[str]:
+        """Get list of existing collections from knowledge base"""
+        try:
+            # Garantir que a KB está inicializada
+            if not hasattr(self.workflow, 'KB') or self.workflow.KB is None:
+                self.workflow.set_knowledge_base("Literatura")
+            
+            # Obter todas as coleções únicas dos documentos
+            documents = self.workflow.KB.get_embedded_documents()
+            collections = list(set([doc[1] for doc in documents if len(doc) > 1]))
+            
+            # Garantir que "Literatura" está sempre na lista
+            if "Literatura" not in collections:
+                collections.insert(0, "Literatura")
+            
+            return collections if collections else ["Literatura"]
+        except Exception as e:
+            print(f"Error getting collections: {str(e)}")
+            return ["Literatura"]
+    
     def refresh_documents_list(self) -> gr.Dataframe:
         """Refresh the documents list display"""
         documents = self.get_embedded_documents()
@@ -366,13 +386,16 @@ def create_interface(db_path):
                 with gr.Row():
                     with gr.Column(scale=1):
                         file_upload = gr.File(label="Carregar Documento")
-                        collection_name_input = gr.Textbox(
-                            label="Nome da Coleção",
-                            placeholder="Digite o nome da coleção...",
+                        collection_name_dropdown = gr.Dropdown(
+                            choices=app.get_collections_list(),
                             value="Literatura",
-                            info="Especifique a coleção onde o documento será armazenado"
+                            label="Nome da Coleção",
+                            info="Selecione uma coleção existente ou digite um novo nome",
+                            allow_custom_value=True,
+                            interactive=True
                         )
                         embed_btn = gr.Button("Incorporar Documento")
+                        refresh_collections_btn = gr.Button("Atualizar Coleções")
                     
                     with gr.Column(scale=2):
                         gr.Markdown("### Documentos Incorporados")
@@ -491,7 +514,7 @@ def create_interface(db_path):
 
         embed_btn.click(
             app.embed_document,
-            inputs=[file_upload, collection_name_input],
+            inputs=[file_upload, collection_name_dropdown],
             outputs=[status_text, documents_display]
         )
         
@@ -501,6 +524,11 @@ def create_interface(db_path):
                                  interactive=False
                                  ),
             outputs=[documents_display]
+        )
+        
+        refresh_collections_btn.click(
+            lambda: gr.Dropdown(choices=app.get_collections_list(), value="Literatura"),
+            outputs=[collection_name_dropdown]
         )
         
         update_prompt_btn.click(
