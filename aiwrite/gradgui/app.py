@@ -352,13 +352,13 @@ def create_interface(db_path):
                 )
             
             # Tab 3: Projetos
-            with gr.TabItem("Projetos"):
-                gr.Markdown("## Gerenciar Projetos")
+            with gr.TabItem(i18n("projects_tab")):
+                gr.Markdown(i18n("manage_projects"))
                 
                 with gr.Row():
                     with gr.Column():
-                        gr.Markdown("### Criar Novo Projeto")
-                        project_name_input = gr.Textbox(label="Nome do Projeto")
+                        gr.Markdown(i18n("create_new_project)"))
+                        project_name_input = gr.Textbox(label=i18n("project_name"))
                         project_language = gr.Dropdown(
                             choices=["pt", "en", "es", "fr"],
                             value="pt",
@@ -371,9 +371,9 @@ def create_interface(db_path):
                             allow_custom_value="True",
                             interactive=True
                         )
-                        create_project_btn = gr.Button("Criar Projeto")
+                        create_project_btn = gr.Button(i18n("create_project"))
 
-                        gr.Markdown("### Configurar Prompt Base")
+                        gr.Markdown(i18n("configure_base_prompt"))
                         base_prompt_display = gr.Textbox(
                             label="Prompt Base Atual",
                             value=app.get_base_prompt(),
@@ -536,7 +536,7 @@ def create_interface(db_path):
         
         refresh_docs_btn.click(
             lambda: gr.Dataframe(value=[[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()],
-                                 headers=["Name", "Collection"],
+                                 headers=["Nome", "Coleção"],
                                  interactive=False
                                  ),
             outputs=[documents_display]
