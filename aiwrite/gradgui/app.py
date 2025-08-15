@@ -246,7 +246,7 @@ class GradioAIWrite:
         """Refresh the documents list display"""
         documents = self.get_embedded_documents()
         df_data = [[doc] for doc in documents] if documents else []
-        return gr.Dataframe(value=df_data, headers=["Documentos Incorporados"])
+        return gr.Dataframe(value=df_data, headers=["Nome", "Coleção"])
 
     def embed_document(self, file, collection_name: str) -> Tuple[str, gr.Dataframe]:
         """Embed document into knowledge base"""
@@ -264,11 +264,11 @@ class GradioAIWrite:
             df_data = [[doc[0].split("/")[-1], doc[1]] for doc in documents] if documents else []
             return (
                 f"Documento '{os.path.basename(file.name)}' incorporado com sucesso na coleção '{collection_name}'!",
-                gr.Dataframe(value=df_data, headers=["Name", "Collection"], interactive=False))
+                gr.Dataframe(value=df_data, headers=["Nome", "Coleção"], interactive=False))
         except Exception as e:
             df_data= locals().get('df_data', [])
             return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe(value=df_data,
-                                                                           headers=["Name", "Collection"],
+                                                                           headers=["Nome", "Coleção"],
                                                                            interactive=False)
 
 
@@ -582,7 +582,7 @@ def create_interface(db_path):
         interface.load(
             lambda: gr.Dataframe(
                 value=[[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()],
-                headers=[i18n("name"), i18n("collection")],
+                headers=["nome", "Coleção"],
                 interactive=False
             ),
             outputs=[documents_display]
