@@ -281,7 +281,7 @@ def create_interface(db_path):
                os.listdir(i18n_path) if fn.endswith('.json')}
     i18n = gr.I18n(**locales)
 
-    with gr.Blocks(title=i18n("title"),
+    with gr.Blocks(title="AIWrite (Demo)",
                    theme=gr.themes.Glass(),
                    css="footer {visibility: hidden}"
                    ) as interface:
