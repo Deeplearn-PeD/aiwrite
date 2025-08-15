@@ -65,23 +65,23 @@ class GradioAIWrite:
             return "Prompt base atualizado com sucesso!"
         except Exception as e:
             return f"Erro ao atualizar prompt base: {str(e)}"
-    def create_manuscript(self, concept: str) -> Tuple[str, gr.Dropdown]:
+    def create_manuscript(self, concept: str, i18n: gr.I18n) -> Tuple[str, gr.Dropdown]:
         """Create new manuscript"""
         if not concept.strip():
-            return "Por favor, insira um conceito para o manuscrito.", gr.Dropdown()
+            return i18n("enter_valid_concept"), gr.Dropdown()
         
         try:
             manuscript = self.workflow.setup_manuscript(concept)
             self.current_manuscript_id = manuscript.id
             manuscripts_list = self.get_manuscripts_list()
-            return f"Manuscrito criado com sucesso! ID: {manuscript.id}", gr.Dropdown(choices=manuscripts_list, value=manuscript.id)
+            return i18n("manuscript_created", id=manuscript.id), gr.Dropdown(choices=manuscripts_list, value=manuscript.id)
         except Exception as e:
-            return f"Erro ao criar manuscrito: {str(e)}", gr.Dropdown()
+            return i18n("error_creating_manuscript", error=str(e)), gr.Dropdown()
     
-    def load_manuscript(self, manuscript_id: int) -> Tuple[str, str, gr.Dropdown]:
+    def load_manuscript(self, manuscript_id: int, i18n: gr.I18n) -> Tuple[str, str, gr.Dropdown]:
         """Load manuscript and return its content"""
         if not manuscript_id:
-            return "Selecione um manuscrito.", "", gr.Dropdown()
+            return i18n("select_manuscript_msg"), "", gr.Dropdown()
         
         try:
             self.current_manuscript_id = manuscript_id
@@ -90,12 +90,12 @@ class GradioAIWrite:
             section_names = list(sections.keys())
             
             content = self.workflow.get_manuscript_text(manuscript_id)
-            return (f"Manuscrito carregado: {manuscript.source.split('\n')[0]}", content,
+            return (i18n("manuscript_loaded", title=manuscript.source.split('\n')[0]), content,
                     gr.Dropdown(choices=section_names, value=section_names[0] if section_names else None),
                     gr.Dropdown(choices=section_names, value=section_names[0] if section_names else None)
                     )
         except Exception as e:
-            return f"Erro ao carregar manuscrito: {str(e)}", "", gr.Dropdown()
+            return i18n("error_loading_manuscript", error=str(e)), "", gr.Dropdown()
     
     def add_section(self, section_name: str) -> Tuple[str, str]:
         """Add new section to current manuscript"""
@@ -264,73 +264,85 @@ class GradioAIWrite:
 def create_interface(db_path):
     app = GradioAIWrite(db_path=db_path)
     
-    with gr.Blocks(title="AIWrite - Assistente de Escrita com IA",
+    # Initialize I18n with locales
+    i18n = gr.I18n("aiwrite/gradgui/locales")
+    
+    with gr.Blocks(title=i18n("title"),
                    theme=gr.themes.Glass(),
                    css="footer {visibility: hidden}"
                    ) as interface:
-        gr.Markdown("# AIWrite - Assistente de Escrita com IA")
+        with gr.Row():
+            gr.Markdown(f"# {i18n('title')}")
+            with gr.Column(scale=1):
+                language_selector = gr.Dropdown(
+                    choices=[("Português", "pt"), ("English", "en")],
+                    value="pt",
+                    label="Language/Idioma",
+                    interactive=True,
+                    scale=1
+                )
         
         with gr.Tabs():
             # Tab 1: Manuscritos
-            with gr.TabItem("Manuscritos"):
+            with gr.TabItem(i18n("manuscripts_tab")):
                 with gr.Row():
                     with gr.Column(scale=1):
-                        gr.Markdown("## Gerenciar Manuscritos")
+                        gr.Markdown(i18n("manage_manuscripts"))
                         
                         # Create manuscript
-                        concept_input = gr.Textbox(label="Conceito do Manuscrito", placeholder="Digite o conceito...")
-                        create_btn = gr.Button("Criar Manuscrito")
+                        concept_input = gr.Textbox(label=i18n("manuscript_concept"), placeholder=i18n("concept_placeholder"))
+                        create_btn = gr.Button(i18n("create_manuscript"))
                         
                         # Load manuscript
                         manuscripts_dropdown = gr.Dropdown(
                             choices=app.get_manuscripts_list(),
-                            label="Selecionar Manuscrito",
+                            label=i18n("select_manuscript"),
                             interactive=True
                         )
-                        load_btn = gr.Button("Carregar Manuscrito")
-                        delete_btn = gr.Button("Deletar Manuscrito", variant="stop")
+                        load_btn = gr.Button(i18n("load_manuscript"))
+                        delete_btn = gr.Button(i18n("delete_manuscript"), variant="stop")
                         
                         # status_text = gr.Textbox(label="Status", interactive=False)
                     
                     with gr.Column(scale=2):
-                        gr.Markdown("## Editor de Seções")
+                        gr.Markdown(i18n("section_editor"))
                         
-                        sections_dropdown = gr.Dropdown(label="Seções", interactive=True)
+                        sections_dropdown = gr.Dropdown(label=i18n("sections"), interactive=True)
                         
                         with gr.Row():
-                            section_name_input = gr.Textbox(label="Nome da Nova Seção", placeholder="introdução, metodologia, etc.")
-                            add_section_btn = gr.Button("Adicionar Seção")
+                            section_name_input = gr.Textbox(label=i18n("new_section_name"), placeholder=i18n("section_placeholder"))
+                            add_section_btn = gr.Button(i18n("add_section"))
                         
-                        enhance_btn = gr.Button("Melhorar Seção Selecionada")
+                        enhance_btn = gr.Button(i18n("enhance_selected_section"))
                         
                         with gr.Row():
                             with gr.Column():
                                 manuscript_editor = gr.Textbox(
-                                    label="Conteúdo do Manuscrito",
+                                    label=i18n("manuscript_content"),
                                     lines=20,
                                     max_lines=30,
                                     interactive=True
                                 )
-                                update_btn = gr.Button("Atualizar Manuscrito")
+                                update_btn = gr.Button(i18n("update_manuscript"))
                             
                             with gr.Column():
-                                gr.Markdown('### Prévia do Manuscrito')
+                                gr.Markdown(i18n('manuscript_preview'))
                                 manuscript_preview = gr.Markdown(
-                                    label="Prévia do Manuscrito",
+                                    label=i18n("manuscript_preview").replace("### ", ""),
                                     show_label=True,
                                     value="",
                                 )
             
             # Tab 2: Revisão
-            with gr.TabItem("Revisão"):
-                gr.Markdown("## Revisão e Crítica")
+            with gr.TabItem(i18n("review_tab")):
+                gr.Markdown(i18n("review_and_critique"))
                 
                 with gr.Row():
-                    review_sections_dropdown = gr.Dropdown(label="Seção para Revisar", interactive=True)
-                    criticize_btn = gr.Button("Criticar Seção")
+                    review_sections_dropdown = gr.Dropdown(label=i18n("section_to_review"), interactive=True)
+                    criticize_btn = gr.Button(i18n("criticize_section"))
                 
                 critique_output = gr.Textbox(
-                    label="Crítica da Seção",
+                    label=i18n("section_critique"),
                     lines=15,
                     interactive=False
                 )
@@ -424,13 +436,13 @@ def create_interface(db_path):
         
         # Event handlers
         create_btn.click(
-            app.create_manuscript,
+            lambda concept: app.create_manuscript(concept, i18n),
             inputs=[concept_input],
             outputs=[status_text, manuscripts_dropdown]
         )
         
         load_btn.click(
-            app.load_manuscript,
+            lambda manuscript_id: app.load_manuscript(manuscript_id, i18n),
             inputs=[manuscripts_dropdown],
             outputs=[status_text, manuscript_editor, sections_dropdown, review_sections_dropdown]
         ).then(
@@ -544,11 +556,18 @@ def create_interface(db_path):
             outputs=[review_sections_dropdown]
         )
         
+        # Language change handler
+        language_selector.change(
+            lambda lang: gr.update(),
+            inputs=[language_selector],
+            outputs=[]
+        )
+        
         # Carregar documentos na inicialização
         interface.load(
             lambda: gr.Dataframe(
                 value=[[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()],
-                headers=["Nome", "Coleção"],
+                headers=[i18n("name"), i18n("collection")],
                 interactive=False
             ),
             outputs=[documents_display]
