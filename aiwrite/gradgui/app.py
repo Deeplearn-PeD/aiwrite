@@ -201,7 +201,7 @@ class GradioAIWrite:
         """Get list of embedded documents from knowledge base"""
         try:
             doc_list = self.workflow.KB.get_embedded_documents()
-            print("Embedded documents:", doc_list)
+            # print("Embedded documents:", doc_list)
             return doc_list
         except Exception as e:
             print(f"Error getting embedded documents: {str(e)}")
@@ -360,6 +360,7 @@ def create_interface(db_path):
                         collection_name_input = gr.Textbox(
                             label="Nome da Coleção",
                             placeholder="Digite o nome da coleção...",
+                            value="Literatura",
                             info="Especifique a coleção onde o documento será armazenado"
                         )
                         embed_btn = gr.Button("Incorporar Documento")
@@ -368,7 +369,7 @@ def create_interface(db_path):
                         gr.Markdown("### Documentos Incorporados")
                         documents_list = [[doc[0].split('/')[-1], doc[1]]  for doc in app.get_embedded_documents()]
                         documents_display = gr.Dataframe(
-                            headers=["Name", "Collection"],
+                            headers=["Nome", "Coleção"],
                             value=documents_list,
                             interactive=False,
                         )
@@ -481,7 +482,10 @@ def create_interface(db_path):
         )
         
         refresh_docs_btn.click(
-            lambda: gr.Dataframe(value=[[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()], headers=["Name", "Collection"]),
+            lambda: gr.Dataframe(value=[[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()],
+                                 headers=["Name", "Collection"],
+                                 interactive=False
+                                 ),
             outputs=[documents_display]
         )
         
