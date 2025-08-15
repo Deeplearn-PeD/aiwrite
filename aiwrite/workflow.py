@@ -94,6 +94,7 @@ class Workflow:
         self.libby = LibbyDBot(model=model)
         self.dburl = dburl
         self.KB = DocEmbedder(col_name=collection_name, dburl=f'sqlite:///{db_path}/embedding.db', embedding_model='gemini-embedding-001')
+        self.KB.get_embedded_documents()
         self.manuscript = None
         self.project_id = project_id
         self.current_project = self.get_project(project_id) if project_id else None
