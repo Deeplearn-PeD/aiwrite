@@ -201,8 +201,10 @@ class GradioAIWrite:
         """Get list of embedded documents from knowledge base"""
         try:
             doc_list = self.workflow.KB.get_embedded_documents()
+            print("Embedded documents:", doc_list)
             return doc_list
         except Exception as e:
+            print(f"Error getting embedded documents: {str(e)}")
             return []
     
     def refresh_documents_list(self) -> gr.Dataframe:
