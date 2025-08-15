@@ -1,5 +1,6 @@
 import gradio as gr
 import os
+import json
 from typing import List, Dict, Optional, Tuple
 from aiwrite.workflow import Workflow, Project, Manuscript
 
@@ -265,14 +266,16 @@ def create_interface(db_path):
     app = GradioAIWrite(db_path=db_path)
     
     # Initialize I18n with locales
-    i18n = gr.I18n("aiwrite/gradgui/locales")
+    locales = {f'{fn.split('.')[0]}': json.load(open(os.path.join('locales', fn), 'r', encoding='utf-8')) for fn in os.listdir('locales') if fn.endswith('.json')}
+    i18n = gr.I18n(**locales)
     
     with gr.Blocks(title=i18n("title"),
                    theme=gr.themes.Glass(),
                    css="footer {visibility: hidden}"
                    ) as interface:
         with gr.Row():
-            gr.Markdown(f"# {i18n('title')}")
+            with gr.Column(scale=6):
+                gr.Markdown(f"# {i18n('title')}")
             with gr.Column(scale=1):
                 language_selector = gr.Dropdown(
                     choices=[("Português", "pt"), ("English", "en")],
@@ -573,15 +576,16 @@ def create_interface(db_path):
             outputs=[documents_display]
         )
     
-    return interface
+    return interface, i18n
 
 def main(db_path: Optional[str] = '/data'):
-    interface = create_interface(db_path=db_path)
+    interface, i18n = create_interface(db_path=db_path)
     interface.launch(server_name="0.0.0.0",
                      server_port=7860,
                      share=False,
                      favicon_path="./assets/icon.png",
                      pwa=True,
+                     i18n=i18n
                      )
 
 if __name__ == "__main__":
