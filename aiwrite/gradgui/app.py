@@ -295,8 +295,8 @@ def create_interface(db_path):
                    """
                    ) as interface:
         with gr.Row():
-            with gr.Column(scale=6):
-                gr.Markdown(f"# {i18n('title')} | [GitHub](https://github.com/fccoelho/aiwrite)")
+            with gr.Column(scale=20):
+                gr.Markdown(f'# {i18n("title")} <a href="https://github.com/Deeplearn-PeD/aiwrite"><img src="https://twenty-icons.com/github.com/32"></a>')
             with gr.Column(scale=1):
                 language_selector = gr.Dropdown(
                     choices=[("Português", "pt"), ("English", "en")],
