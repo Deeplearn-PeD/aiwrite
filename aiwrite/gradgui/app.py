@@ -296,7 +296,7 @@ def create_interface(db_path):
                    ) as interface:
         with gr.Row():
             with gr.Column(scale=6):
-                gr.Markdown(f"# {i18n('title')}")
+                gr.Markdown(f"# {i18n('title')} | [GitHub](https://github.com/fccoelho/aiwrite)")
             with gr.Column(scale=1):
                 language_selector = gr.Dropdown(
                     choices=[("Português", "pt"), ("English", "en")],
