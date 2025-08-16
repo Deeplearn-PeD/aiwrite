@@ -283,7 +283,16 @@ def create_interface(db_path):
 
     with gr.Blocks(title="AIWrite (Demo)",
                    theme=gr.themes.Glass(),
-                   css="footer {visibility: hidden}"
+                   css="""
+                   footer {visibility: hidden}
+                   .markdown-preview-scroll {
+                       max-height: 500px;
+                       overflow-y: auto;
+                       border: 1px solid #e0e0e0;
+                       padding: 10px;
+                       border-radius: 5px;
+                   }
+                   """
                    ) as interface:
         with gr.Row():
             with gr.Column(scale=6):
@@ -348,6 +357,8 @@ def create_interface(db_path):
                                     label=i18n("manuscript_preview").replace("### ", ""),
                                     show_label=True,
                                     value="",
+                                    height=500,
+                                    elem_classes=["markdown-preview-scroll"]
                                 )
 
             # Tab 2: Revisão
