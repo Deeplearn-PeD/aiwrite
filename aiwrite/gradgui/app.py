@@ -292,7 +292,7 @@ def create_interface(db_path):
                        padding: 10px;
                        border-radius: 5px;
                    }
-                   .gradio-tabs > button {
+                   .feedback button {
                        font-size: 1.5em !important;
                        font-weight: bold !important;
                        padding: 12px 20px !important;
@@ -311,7 +311,7 @@ def create_interface(db_path):
                     scale=1
                 )
 
-        with gr.Tabs(elem_classes=["gradio-tabs"]):
+        with gr.Tabs(elem_classes=["feedback"]):
             # Tab 1: Manuscritos
             with gr.TabItem(i18n("manuscripts_tab")):
                 with gr.Row():
