@@ -292,6 +292,11 @@ def create_interface(db_path):
                        padding: 10px;
                        border-radius: 5px;
                    }
+                   .tab-nav button {
+                       font-size: 1.5em !important;
+                       font-weight: bold !important;
+                       padding: 12px 20px !important;
+                   }
                    """
                    ) as interface:
         with gr.Row():
@@ -308,7 +313,7 @@ def create_interface(db_path):
 
         with gr.Tabs():
             # Tab 1: Manuscritos
-            with gr.TabItem(i18n("manuscripts_tab")):
+            with gr.TabItem(i18n("manuscripts_tab"), elem_classes=["tab-nav"]):
                 with gr.Row():
                     with gr.Column(scale=1):
                         gr.Markdown(i18n("manage_manuscripts"))
@@ -362,7 +367,7 @@ def create_interface(db_path):
                                 )
 
             # Tab 2: Revisão
-            with gr.TabItem(i18n("review_tab")):
+            with gr.TabItem(i18n("review_tab"), elem_classes=["tab-nav"]):
                 gr.Markdown(i18n("review_and_critique"))
 
                 with gr.Row():
@@ -376,7 +381,7 @@ def create_interface(db_path):
                 )
 
             # Tab 3: Projetos
-            with gr.TabItem(i18n("projects_tab")):
+            with gr.TabItem(i18n("projects_tab"), elem_classes=["tab-nav"]):
                 gr.Markdown(i18n("manage_projects"))
 
                 with gr.Row():
@@ -417,7 +422,7 @@ def create_interface(db_path):
                         project_status = gr.Textbox(label="Status do Projeto", interactive=False)
 
             # Tab 4: Base de Conhecimento
-            with gr.TabItem("Base de Conhecimento"):
+            with gr.TabItem("Base de Conhecimento", elem_classes=["tab-nav"]):
                 gr.Markdown("## Gerenciar Base de Conhecimento")
 
                 with gr.Row():
