@@ -346,7 +346,7 @@ def create_interface(db_path):
                                 manuscript_editor = gr.Textbox(
                                     label=i18n("manuscript_content"),
                                     lines=20,
-                                    max_lines=40,
+                                    max_lines=30,
                                     interactive=True
                                 )
                                 update_btn = gr.Button(i18n("update_manuscript"))
@@ -357,7 +357,7 @@ def create_interface(db_path):
                                     label=i18n("manuscript_preview").replace("### ", ""),
                                     show_label=True,
                                     value="",
-                                    height=600,
+                                    height=800,
                                     elem_classes=["markdown-preview-scroll"]
                                 )
 
