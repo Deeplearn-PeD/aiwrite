@@ -311,9 +311,9 @@ def create_interface(db_path):
                     scale=1
                 )
 
-        with gr.Tabs(elem_classes=["feedback"]):
+        with gr.Tabs():
             # Tab 1: Manuscritos
-            with gr.TabItem(i18n("manuscripts_tab")):
+            with gr.TabItem(i18n("manuscripts_tab"),elem_classes=["feedback"]):
                 with gr.Row():
                     with gr.Column(scale=1):
                         gr.Markdown(i18n("manage_manuscripts"))
