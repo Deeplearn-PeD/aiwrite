@@ -292,8 +292,8 @@ def create_interface(db_path):
                        padding: 10px;
                        border-radius: 5px;
                    }
-                   .tab-nav button {
-                       font-size: 2.5em !important;
+                   .gradio-tabs > button {
+                       font-size: 1.5em !important;
                        font-weight: bold !important;
                        padding: 12px 20px !important;
                    }
