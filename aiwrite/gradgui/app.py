@@ -292,11 +292,6 @@ def create_interface(db_path):
                        padding: 10px;
                        border-radius: 5px;
                    }
-                   .feedback button {
-                       font-size: 1.5em !important;
-                       font-weight: bold !important;
-                       padding: 12px 20px !important;
-                   }
                    """
                    ) as interface:
         with gr.Row():
@@ -313,7 +308,7 @@ def create_interface(db_path):
 
         with gr.Tabs():
             # Tab 1: Manuscritos
-            with gr.TabItem(i18n("manuscripts_tab"),elem_classes=["feedback"]):
+            with gr.TabItem(i18n("manuscripts_tab")):
                 with gr.Row():
                     with gr.Column(scale=1):
                         gr.Markdown(i18n("manage_manuscripts"))
@@ -351,7 +346,7 @@ def create_interface(db_path):
                                 manuscript_editor = gr.Textbox(
                                     label=i18n("manuscript_content"),
                                     lines=20,
-                                    max_lines=30,
+                                    max_lines=40,
                                     interactive=True
                                 )
                                 update_btn = gr.Button(i18n("update_manuscript"))
@@ -362,7 +357,7 @@ def create_interface(db_path):
                                     label=i18n("manuscript_preview").replace("### ", ""),
                                     show_label=True,
                                     value="",
-                                    height=500,
+                                    height=600,
                                     elem_classes=["markdown-preview-scroll"]
                                 )
 
