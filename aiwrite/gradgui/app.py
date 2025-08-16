@@ -81,7 +81,7 @@ class GradioAIWrite:
             manuscripts_list = self.get_manuscripts_list()
             return i18n("manuscript_created"), gr.Dropdown(choices=manuscripts_list,value=manuscript.id)
         except Exception as e:
-            return i18n("error_creating_manuscript"), gr.Dropdown()
+            return i18n("error_creating_manuscript")+ f": {e}", gr.Dropdown()
 
     def load_manuscript(self, manuscript_id: int, i18n: gr.I18n) -> Tuple[str, str, gr.Dropdown, gr.Dropdown]:
         """Load manuscript and return its content"""
