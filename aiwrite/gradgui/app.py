@@ -293,7 +293,7 @@ def create_interface(db_path):
                        border-radius: 5px;
                    }
                    .tab-nav button {
-                       font-size: 1.5em !important;
+                       font-size: 2.5em !important;
                        font-weight: bold !important;
                        padding: 12px 20px !important;
                    }
