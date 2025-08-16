@@ -354,7 +354,7 @@ def create_interface(db_path):
                             with gr.Column():
                                 gr.Markdown(i18n('manuscript_preview'))
                                 manuscript_preview = gr.Markdown(
-                                    label=i18n("manuscript_preview").replace("### ", ""),
+                                    label=i18n("manuscript_preview"),
                                     show_label=True,
                                     value="",
                                     height=800,
