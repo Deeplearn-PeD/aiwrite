@@ -5,9 +5,11 @@ from typing import List, Dict, Optional
 import fitz
 from fitz import EmptyFileError
 from libbydbot.brain import LibbyDBot
+import loguru
 from libbydbot.brain.embed import DocEmbedder
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
+logger = loguru.logger
 
 class Project(SQLModel, table=True):
     """Represents a project configuration.
@@ -75,7 +77,7 @@ class Workflow:
     """
 
     def __init__(self, dburl: str = "sqlite:///data/aiwrite.db", model: str = "gpt", db_path: str = "/data",
-                 collection_name: str = "literature", project_id: Optional[int] = None):
+                 collection_name: str = "literature", project_id: Optional[int] = None, embedding_model: str = "gemini-embedding-001"):
         """Initialize the workflow with database, AI model and knowledge base.
         
         Args:
@@ -93,8 +95,8 @@ class Workflow:
                             "format on request.")
         self.libby = LibbyDBot(model=model)
         self.dburl = dburl
-        self.KB = DocEmbedder(col_name=collection_name, dburl=f'sqlite://{db_path}/embedding.db', embedding_model='gemini-embedding-001')
-        # self.doc_list = self.KB.get_embedded_documents()
+        self.embedding_model = embedding_model
+        self.KB = DocEmbedder(col_name=collection_name, dburl=f'sqlite://{db_path}/embedding.db', embedding_model=embedding_model)
         self.manuscript = None
         self.project_id = project_id
         self.current_project = self.get_project(project_id) if project_id else None
@@ -172,7 +174,11 @@ class Workflow:
         """
         title = self.libby.ask(
             f"Please provide a title for the manuscript, based on this concept: {concept}.\n\n Only return the title, without additional text.")
-        knowledge = self.KB.retrieve_docs(concept, num_docs=15).strip('"')
+        try:
+            knowledge = self.KB.retrieve_docs(concept, num_docs=15).strip('"')
+        except Exception as exc:
+            logger.error(f"Error retrieving documents from knowledge base: {exc}\nEmbedding model:{self.KB.embedding_model}")
+            knowledge = ""
         self.libby.set_context(self.base_prompt + f"\n\n{concept}" + f"\n\n{knowledge}")
         abstract = self.libby.ask(
             "Please write an abstract for a manuscript, based on the context provided. Only return the abstract text, without additional text.")

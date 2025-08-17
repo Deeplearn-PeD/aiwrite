@@ -10,7 +10,10 @@ from aiwrite.workflow import Workflow, Project
 
 class GradioAIWrite:
     def __init__(self, db_path):
-        self.workflow = Workflow(model='gemini', dburl=f'sqlite:///{db_path}/aiwrite.db', db_path=db_path)
+        self.workflow = Workflow(model='gemini', dburl=f'sqlite:///{db_path}/aiwrite.db', 
+                                 db_path=db_path,
+                                 embedding_model="gemini-embedding-001"
+                                 )
         self.db_path = db_path
         self.current_manuscript_id = None
         self.current_section = None
@@ -79,7 +82,7 @@ class GradioAIWrite:
         try:
             manuscript = self.workflow.setup_manuscript(concept)
             self.current_manuscript_id = manuscript.id
-            return i18n("manuscript_created")+f" {manuscript.id}", gr.Dropdown(choices=manuscripts_list,value=len(manuscripts_list)-1)
+            return i18n("manuscript_created")+f" {manuscript.id}", gr.Dropdown(choices=manuscripts_list)
         except Exception as exc:
             tb = repr(traceback.format_exception(exc))
             return i18n("error_creating_manuscript")+ f": {tb}", gr.Dropdown(choices=manuscripts_list)
