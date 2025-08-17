@@ -52,7 +52,7 @@
   "copyright": "**© Copyright 2025 by [Deeplearn Ltd](https://www.deeplearn.ltd)**",
   "select_manuscript_msg": "Selecione um manuscrito.",
   "enter_valid_concept": "Por favor, insira um conceito para o manuscrito.",
-  "manuscript_created": "Manuscrito criado com sucesso! ID: {id}",
+  "manuscript_created": "Manuscrito criado com sucesso! ID:",
   "error_creating_manuscript": "Erro ao criar manuscrito: {error}",
   "manuscript_loaded": "Manuscrito carregado: {title}",
   "error_loading_manuscript": "Erro ao carregar manuscrito: {error}",

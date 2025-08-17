@@ -74,14 +74,13 @@ class GradioAIWrite:
         """Create new manuscript"""
         if not concept.strip():
             return i18n("enter_valid_concept"), gr.Dropdown()
-
+        manuscripts_list = self.get_manuscripts_list()
         try:
             manuscript = self.workflow.setup_manuscript(concept)
             self.current_manuscript_id = manuscript.id
-            manuscripts_list = self.get_manuscripts_list()
-            return i18n("manuscript_created"), gr.Dropdown(choices=manuscripts_list,value=manuscript.id)
+            return i18n("manuscript_created")+f" {manuscript.id}", gr.Dropdown(choices=manuscripts_list,value=len(manuscripts_list)-1)
         except Exception as e:
-            return i18n("error_creating_manuscript")+ f": {e}", gr.Dropdown()
+            return i18n("error_creating_manuscript")+ f": {e}", gr.Dropdown(choices=manuscripts_list)
 
     def load_manuscript(self, manuscript_id: int, i18n: gr.I18n) -> Tuple[str, str, gr.Dropdown, gr.Dropdown]:
         """Load manuscript and return its content"""

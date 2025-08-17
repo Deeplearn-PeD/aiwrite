@@ -52,7 +52,7 @@
   "copyright": "**© Copyright 2025 by [Deeplearn Ltd](https://www.deeplearn.ltd)**",
   "select_manuscript_msg": "Select a manuscript.",
   "enter_valid_concept": "Please enter a concept for the manuscript.",
-  "manuscript_created": "Manuscript created successfully! ID: {id}",
+  "manuscript_created": "Manuscript created successfully! ID:",
   "error_creating_manuscript": "Error creating manuscript: {error}",
   "manuscript_loaded": "Manuscript loaded: {title}",
   "error_loading_manuscript": "Error loading manuscript: {error}",
