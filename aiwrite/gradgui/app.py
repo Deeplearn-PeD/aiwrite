@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 from typing import List, Optional, Tuple
 
 import gradio as gr
@@ -79,8 +80,9 @@ class GradioAIWrite:
             manuscript = self.workflow.setup_manuscript(concept)
             self.current_manuscript_id = manuscript.id
             return i18n("manuscript_created")+f" {manuscript.id}", gr.Dropdown(choices=manuscripts_list,value=len(manuscripts_list)-1)
-        except Exception as e:
-            return i18n("error_creating_manuscript")+ f": {e}", gr.Dropdown(choices=manuscripts_list)
+        except Exception as exc:
+            tb = repr(traceback.format_exception(exc))
+            return i18n("error_creating_manuscript")+ f": {tb}", gr.Dropdown(choices=manuscripts_list)
 
     def load_manuscript(self, manuscript_id: int, i18n: gr.I18n) -> Tuple[str, str, gr.Dropdown, gr.Dropdown]:
         """Load manuscript and return its content"""
@@ -450,7 +452,7 @@ def create_interface(db_path):
                         refresh_docs_btn = gr.Button("Atualizar Lista")
 
         # Status geral
-        status_text = gr.Textbox(label="Status", interactive=False)
+        status_text = gr.Textbox(label="Status", interactive=False, max_lines=3)
 
         # Footer
         gr.Markdown(
