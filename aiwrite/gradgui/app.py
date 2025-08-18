@@ -550,7 +550,7 @@ def create_interface(db_path):
         ).then(
             lambda: gr.File(visible=False),
             outputs=[download_file],
-            _js="() => { setTimeout(() => { document.querySelector('[data-testid=\"file-download\"]')?.click(); }, 100); return null; }"
+            js="() => { setTimeout(() => { document.querySelector('[data-testid=\"file-download\"]')?.click(); }, 100); return null; }"
         )
 
         # Update preview when editor content changes
