@@ -164,6 +164,33 @@ class GradioAIWrite:
         except Exception as e:
             return f"Erro ao atualizar manuscrito: {str(e)}"
 
+    def download_manuscript(self) -> Tuple[str, Optional[str]]:
+        """Prepare manuscript for download as markdown file"""
+        if not self.current_manuscript_id:
+            return "Nenhum manuscrito selecionado.", None
+
+        try:
+            manuscript = self.workflow.get_manuscript(self.current_manuscript_id)
+            content = self.workflow.get_manuscript_text(self.current_manuscript_id)
+            
+            # Create filename from manuscript title/concept
+            title = manuscript.source.split('\n')[0].strip()
+            # Clean filename - remove invalid characters
+            import re
+            filename = re.sub(r'[^\w\s-]', '', title).strip()
+            filename = re.sub(r'[-\s]+', '-', filename)
+            filename = f"manuscrito-{self.current_manuscript_id}-{filename}.md"
+            
+            # Write content to temporary file
+            import tempfile
+            temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8')
+            temp_file.write(content)
+            temp_file.close()
+            
+            return f"Manuscrito preparado para download: {filename}", temp_file.name
+        except Exception as e:
+            return f"Erro ao preparar download: {str(e)}", None
+
     def delete_manuscript(self, manuscript_id: int) -> Tuple[str, gr.Dropdown]:
         """Delete manuscript"""
         if not manuscript_id:
@@ -357,7 +384,9 @@ def create_interface(db_path):
                                     max_lines=30,
                                     interactive=True
                                 )
-                                update_btn = gr.Button(i18n("update_manuscript"))
+                                with gr.Row():
+                                    update_btn = gr.Button(i18n("update_manuscript"))
+                                    download_btn = gr.Button("📥 Baixar Manuscrito", variant="secondary")
 
                             with gr.Column():
                                 gr.Markdown(i18n('manuscript_preview'))
@@ -459,6 +488,9 @@ def create_interface(db_path):
                         )
                         refresh_docs_btn = gr.Button("Atualizar Lista")
 
+        # Download file component (hidden)
+        download_file = gr.File(visible=False)
+        
         # Status geral
         status_text = gr.Textbox(label="Status", interactive=False, max_lines=3)
 
@@ -506,6 +538,15 @@ def create_interface(db_path):
             app.update_manuscript_text,
             inputs=[manuscript_editor],
             outputs=[status_text]
+        )
+
+        download_btn.click(
+            app.download_manuscript,
+            outputs=[status_text, download_file]
+        ).then(
+            lambda file_path: gr.File(value=file_path, visible=True) if file_path else gr.File(visible=False),
+            inputs=[download_file],
+            outputs=[download_file]
         )
 
         # Update preview when editor content changes
