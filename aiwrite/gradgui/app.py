@@ -78,13 +78,15 @@ class GradioAIWrite:
         """Create new manuscript"""
         if not concept.strip():
             return i18n("enter_valid_concept"), gr.Dropdown()
-        manuscripts_list = self.get_manuscripts_list()
+
         try:
             manuscript = self.workflow.setup_manuscript(concept)
             self.current_manuscript_id = manuscript.id
+            manuscripts_list = self.get_manuscripts_list()
             return i18n("manuscript_created")+f" {manuscript.id}", gr.Dropdown(choices=manuscripts_list)
         except Exception as exc:
             tb = repr(traceback.format_exception(exc))
+            manuscripts_list = self.get_manuscripts_list()
             return i18n("error_creating_manuscript")+ f": {tb}", gr.Dropdown(choices=manuscripts_list)
 
     def load_manuscript(self, manuscript_id: int, i18n: gr.I18n) -> Tuple[str, str, gr.Dropdown, gr.Dropdown]:
@@ -268,12 +270,14 @@ class GradioAIWrite:
             df_data = [[doc[0].split("/")[-1], doc[1]] for doc in documents] if documents else []
             return (
                 f"Documento '{os.path.basename(file.name)}' incorporado com sucesso na coleção '{collection_name}'!",
-                gr.Dataframe(value=df_data, headers=["Nome", "Coleção"], interactive=False))
+                gr.Dataframe(value=df_data, headers=["Nome", "Coleção"], interactive=False, max_height=500))
         except Exception as e:
             df_data= locals().get('df_data', [])
             return f"Erro ao incorporar documento: {str(e)}", gr.Dataframe(value=df_data,
                                                                            headers=["Nome", "Coleção"],
-                                                                           interactive=False)
+                                                                           interactive=False,
+                                                                           max_height=500
+                                                                           )
 
 
 def create_interface(db_path):
@@ -359,7 +363,7 @@ def create_interface(db_path):
                                 gr.Markdown(i18n('manuscript_preview'))
                                 manuscript_preview = gr.Markdown(
                                     label=i18n("manuscript_preview"),
-                                    show_label=True,
+                                    # show_label=True,
                                     value="",
                                     height=800,
                                     elem_classes=["markdown-preview-scroll"]
@@ -451,6 +455,7 @@ def create_interface(db_path):
                             headers=["Nome", "Coleção"],
                             value=initial_documents,
                             interactive=False,
+                            max_height=500
                         )
                         refresh_docs_btn = gr.Button("Atualizar Lista")
 
@@ -563,7 +568,8 @@ def create_interface(db_path):
         refresh_docs_btn.click(
             lambda: gr.Dataframe(value=[[doc[0].split('/')[-1], doc[1]] for doc in app.get_embedded_documents()],
                                  headers=["Nome", "Coleção"],
-                                 interactive=False
+                                 interactive=False,
+                                 max_height=500
                                  ),
             outputs=[documents_display]
         )
