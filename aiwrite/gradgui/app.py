@@ -340,7 +340,7 @@ def create_interface(db_path, logo):
             with gr.Column(scale=10):
                 with gr.Row():
                     with gr.Column(scale=0):
-                        gr.HTML('<a href="https://deeplearn.ltd"><img src="/file=logo.webp" width="200" height="200"></a>')
+                        gr.HTML('<a href="https://deeplearn.ltd"><img src="/file=./assets/logo.webp" width="200" height="200"></a>')
                     # gr.Image(logo_image, height=200, width=200, elem_id="logo")
                     with gr.Column(scale=1):
                         gr.Markdown(f'# {i18n("title")} <a href="https://github.com/Deeplearn-PeD/aiwrite"><img src="https://twenty-icons.com/github.com/32"></a>')
@@ -676,7 +676,7 @@ def main(logo:str, db_path: Optional[str] = '/data'):
                      server_port=7860,
                      share=False,
                      favicon_path="./assets/icon.png",
-                     allowed_paths=['assets/logo.webp'],
+                     allowed_paths=['./assets/logo.webp'],
                      pwa=True,
                      i18n=i18n
                      )
