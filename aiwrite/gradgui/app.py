@@ -318,6 +318,7 @@ def create_interface(db_path, logo):
     locales = {f'{fn.split('.')[0]}': json.load(open(os.path.join(i18n_path, fn), 'r', encoding='utf-8')) for fn in
                os.listdir(i18n_path) if fn.endswith('.json')}
     i18n = gr.I18n(**locales)
+    gr.set_static_paths(['assets/'])
 
     dec_logo = base64.b64decode(logo)
     logo_image = Image.open(io.BytesIO(dec_logo))
