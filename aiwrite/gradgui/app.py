@@ -676,7 +676,7 @@ def main(logo:str, db_path: Optional[str] = '/data'):
                      server_port=7860,
                      share=False,
                      favicon_path="./assets/icon.png",
-                     allowed_paths=['assets/'],
+                     allowed_paths=['assets/logo.webp'],
                      pwa=True,
                      i18n=i18n
                      )
