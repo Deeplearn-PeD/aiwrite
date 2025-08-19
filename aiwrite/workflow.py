@@ -91,8 +91,8 @@ class Workflow:
         if not os.path.exists(db_path.strip('/')):
             os.makedirs(db_path.strip('/'))
         SQLModel.metadata.create_all(self.engine)
-        self.base_prompt = ("You are a scientific writer. You should write sections of scientific articles in markdown "
-                            "format on request.")
+        self.base_prompt = ("You are a Technical writer. You should write technical documents in markdown format"
+                            "on request.")
         self.libby = LibbyDBot(model=model)
         self.dburl = dburl
         self.embedding_model = embedding_model
