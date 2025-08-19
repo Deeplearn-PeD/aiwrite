@@ -173,7 +173,7 @@ class Workflow:
             Newly created Manuscript object
         """
         title = self.libby.ask(
-            f"Please provide a title for the manuscript, based on this concept: {concept}.\n\n Only return the title, without additional text.")
+            f"Please provide a title for the document, based on this concept: {concept}.\n\n Only return the title, without additional text.")
         try:
             knowledge = self.KB.retrieve_docs(concept, num_docs=15).strip('"')
         except Exception as exc:
@@ -181,7 +181,7 @@ class Workflow:
             knowledge = ""
         self.libby.set_context(self.base_prompt + f"\n\n{concept}" + f"\n\n{knowledge}")
         abstract = self.libby.ask(
-            "Please write an abstract for a manuscript, based on the context provided. Only return the abstract text, without additional text.")
+            "Please write an abstract for a document, based on the context provided. Only return the abstract text, without additional text.")
 
         markdown_content = f"# {title}\n\n## Abstract\n{abstract}"
         manuscript = Manuscript(source=markdown_content)
