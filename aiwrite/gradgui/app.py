@@ -1,9 +1,12 @@
 import json
 import os
+import base64
+import io
 import traceback
 from typing import List, Optional, Tuple
 
 import gradio as gr
+from PIL import Image
 
 from aiwrite.workflow import Workflow, Project
 
@@ -307,7 +310,7 @@ class GradioAIWrite:
                                                                            )
 
 
-def create_interface(db_path):
+def create_interface(db_path, logo):
     app = GradioAIWrite(db_path=db_path)
 
     # Initialize I18n with locales
@@ -315,6 +318,10 @@ def create_interface(db_path):
     locales = {f'{fn.split('.')[0]}': json.load(open(os.path.join(i18n_path, fn), 'r', encoding='utf-8')) for fn in
                os.listdir(i18n_path) if fn.endswith('.json')}
     i18n = gr.I18n(**locales)
+
+    dec_logo = base64.b64decode(logo)
+    logo_image = Image.open(io.BytesIO(dec_logo))
+
 
     with gr.Blocks(title="AIWrite (Demo)",
                    theme=gr.themes.Glass(),
@@ -331,7 +338,10 @@ def create_interface(db_path):
                    ) as interface:
         with gr.Row():
             with gr.Column(scale=20):
-                gr.Markdown(f'# {i18n("title")} <a href="https://github.com/Deeplearn-PeD/aiwrite"><img src="https://twenty-icons.com/github.com/32"></a>')
+                with gr.Row():
+                    # with gr.Column(scale=1):
+                    gr.Image(logo_image, height=200, width=200, elem_id="logo")
+                    gr.Markdown(f'# {i18n("title")} <a href="https://github.com/Deeplearn-PeD/aiwrite"><img src="https://twenty-icons.com/github.com/32"></a>')
             with gr.Column(scale=1):
                 language_selector = gr.Dropdown(
                     choices=[("Português", "pt"), ("English", "en")],
@@ -658,8 +668,8 @@ def create_interface(db_path):
     return interface, i18n
 
 
-def main(db_path: Optional[str] = '/data'):
-    interface, i18n = create_interface(db_path=db_path)
+def main(logo:str, db_path: Optional[str] = '/data'):
+    interface, i18n = create_interface(db_path=db_path, logo=logo)
     interface.launch(server_name="0.0.0.0",
                      server_port=7860,
                      share=False,
