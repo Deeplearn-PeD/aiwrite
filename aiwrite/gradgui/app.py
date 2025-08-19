@@ -337,12 +337,12 @@ def create_interface(db_path, logo):
                    """
                    ) as interface:
         with gr.Row():
-            with gr.Column(scale=20):
+            with gr.Column(scale=10):
                 with gr.Row():
                     # with gr.Column(scale=1):
-                    gr.HTML('<a href="https://deeplearn.ltd"><img src="logo.webp" width="150" height="150"></a>')
+                    gr.HTML('<a href="https://deeplearn.ltd"><img src="file/logo.webp" width="200" height="200"></a>', scale=0)
                     # gr.Image(logo_image, height=200, width=200, elem_id="logo")
-                    gr.Markdown(f'# {i18n("title")} <a href="https://github.com/Deeplearn-PeD/aiwrite"><img src="https://twenty-icons.com/github.com/32"></a>')
+                    gr.Markdown(f'# {i18n("title")} <a href="https://github.com/Deeplearn-PeD/aiwrite"><img src="https://twenty-icons.com/github.com/32"></a>', scale=1)
             with gr.Column(scale=1):
                 language_selector = gr.Dropdown(
                     choices=[("Português", "pt"), ("English", "en")],
