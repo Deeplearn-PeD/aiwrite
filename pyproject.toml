@@ -19,7 +19,7 @@ dependencies = [
 aiwrite = "aiwrite.main:run"
 
 [tool.uv]
-package = true
+package = false
 
 [tool.uv.sources]
 libby = { git = "https://github.com/Deeplearn-PeD/libby", branch = "main" }
