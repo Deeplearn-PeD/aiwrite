@@ -1,6 +1,6 @@
 [project]
 name = "aiwrite"
-version = "0.3.4"
+version = "0.3.5"
 description = ""
 authors = [{ name = "Flávio Codeço Coelho", email = "fccoelho@gmail.com" }]
 requires-python = ">=3.12,<3.14"
@@ -19,6 +19,7 @@ dependencies = [
 aiwrite = "aiwrite.main:run"
 
 [tool.uv]
+package=true
 
 [tool.uv.sources]
 libby = { git = "https://github.com/Deeplearn-PeD/libby", branch = "main" }
