@@ -7,7 +7,7 @@ requires-python = ">=3.12,<3.14"
 readme = "README.md"
 dependencies = [
     "flet>=0.25.2",
-    "libby==0.5.0",
+    "libby",
     "sqlmodel>=0.0.18",
     "python-dotenv>=1.0.1,<2",
     "gradio>=5.38.2,<6",
