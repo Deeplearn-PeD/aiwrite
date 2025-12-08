@@ -466,7 +466,6 @@ def create_interface(db_path, logo):
                             label="Projetos Existentes"
                         )
                         load_project_btn = gr.Button("Carregar Projeto")
-                        project_status = gr.Textbox(label="Status do Projeto", interactive=False)
 
             # Tab 4: Base de Conhecimento
             with gr.TabItem("Base de Conhecimento"):
@@ -592,33 +591,33 @@ def create_interface(db_path, logo):
         create_project_btn.click(
             app.create_project,
             inputs=[project_name_input, project_language, project_model],
-            outputs=[project_status, projects_dropdown]
+            outputs=[status_text, projects_dropdown]
         )
 
         load_project_btn.click(
             app.load_project,
             inputs=[projects_dropdown],
-            outputs=[project_status, project_name_input, project_language, project_model]
+            outputs=[status_text, project_name_input, project_language, project_model]
         )
 
         project_model.change(
             app.update_project_model,
             inputs=[project_model],
-            outputs=[project_status]
+            outputs=[status_text]
         )
 
         # Auto-save project name changes
         project_name_input.change(
             lambda name: app.update_project_property("name", name),
             inputs=[project_name_input],
-            outputs=[project_status]
+            outputs=[status_text]
         )
 
         # Auto-save project language changes
         project_language.change(
             lambda lang: app.update_project_property("language", lang),
             inputs=[project_language],
-            outputs=[project_status]
+            outputs=[status_text]
         )
 
         embed_btn.click(
