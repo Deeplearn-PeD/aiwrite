@@ -1,28 +1,37 @@
-[tool.poetry]
+[project]
 name = "aiwrite"
 version = "0.3.4"
 description = ""
-authors = ["Flávio Codeço Coelho <fccoelho@gmail.com>"]
+authors = [{ name = "Flávio Codeço Coelho", email = "fccoelho@gmail.com" }]
+requires-python = ">=3.12,<3.14"
 readme = "README.md"
-packages = [
-    { include = "aiwrite", from = "." }
+dependencies = [
+    "flet>=0.25.2",
+    "libby",
+    "sqlmodel>=0.0.18",
+    "python-dotenv>=1.0.1,<2",
+    "gradio>=5.38.2,<6",
+    "loguru>=0.7.3,<0.8",
+    "pillow>=11.3.0,<12",
 ]
 
-[tool.poetry.scripts]
+[project.scripts]
 aiwrite = "aiwrite.main:run"
 
-[tool.poetry.dependencies]
-python = ">=3.12,<3.14"
-flet = ">=0.25.2"
-libby = {git = "https://github.com/Deeplearn-PeD/libby", branch = "main"}
-sqlmodel = ">=0.0.18"
-python-dotenv = "^1.0.1"
-gradio = "^5.38.2"
-loguru = "^0.7.3"
-pillow = "^11.3.0"
+[tool.uv]
 
+[tool.uv.sources]
+libby = { git = "https://github.com/Deeplearn-PeD/libby", branch = "main" }
 
+[tool.hatch.build.targets.sdist]
+include = ["./aiwrite"]
+
+[tool.hatch.build.targets.wheel]
+include = ["./aiwrite"]
+
+[tool.hatch.build.targets.wheel.sources]
+"./aiwrite" = "aiwrite"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

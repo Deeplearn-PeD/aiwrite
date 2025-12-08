@@ -13,7 +13,7 @@ from aiwrite.workflow import Workflow, Project
 
 class GradioAIWrite:
     def __init__(self, db_path):
-        self.workflow = Workflow(model='gemini', dburl=f'sqlite:///{db_path}/aiwrite.db', 
+        self.workflow = Workflow(model='gemini-2.5-flash', dburl=f'sqlite:///{db_path}/aiwrite.db',
                                  db_path=db_path,
                                  embedding_model="gemini-embedding-001"
                                  )
@@ -671,7 +671,7 @@ def create_interface(db_path, logo):
     return interface, i18n
 
 
-def main(logo:str, db_path: Optional[str] = '/data'):
+def main(logo:str='./assets/logo.webp', db_path: Optional[str] = '/data'):
     interface, i18n = create_interface(db_path=db_path, logo=logo)
     interface.launch(server_name="0.0.0.0",
                      server_port=7860,
