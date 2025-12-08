@@ -372,7 +372,6 @@ def create_interface(db_path, logo):
                             label=i18n("select_manuscript"),
                             interactive=True
                         )
-                        load_btn = gr.Button(i18n("load_manuscript"))
                         delete_btn = gr.Button(i18n("delete_manuscript"), variant="stop")
 
                         # status_text = gr.Textbox(label="Status", interactive=False)
@@ -521,7 +520,8 @@ def create_interface(db_path, logo):
             outputs=[status_text, manuscripts_dropdown]
         )
 
-        load_btn.click(
+        # Carregar manuscrito automaticamente ao selecionar no dropdown
+        manuscripts_dropdown.change(
             lambda manuscript_id: app.load_manuscript(manuscript_id, i18n),
             inputs=[manuscripts_dropdown],
             outputs=[status_text, manuscript_editor, sections_dropdown, review_sections_dropdown]
@@ -644,12 +644,6 @@ def create_interface(db_path, logo):
             outputs=[status_text]
         )
 
-        # Update review sections when manuscript is loaded
-        manuscripts_dropdown.change(
-            lambda x: gr.Dropdown(choices=list(app.workflow.get_manuscript_sections(x).keys()) if x else []),
-            inputs=[manuscripts_dropdown],
-            outputs=[review_sections_dropdown]
-        )
 
         # Language change handler
         language_selector.change(
