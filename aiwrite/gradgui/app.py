@@ -671,7 +671,7 @@ def create_interface(db_path, logo):
     return interface, i18n
 
 
-def main(logo:str='./assets/logo.webp', db_path: Optional[str] = '/data'):
+def main(logo:str='', db_path: Optional[str] = '/data'):
     interface, i18n = create_interface(db_path=db_path, logo=logo)
     interface.launch(server_name="0.0.0.0",
                      server_port=7860,
