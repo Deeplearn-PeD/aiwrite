@@ -10,7 +10,7 @@
   "create_manuscript": "Create Manuscript",
   "select_manuscript": "Select Manuscript",
   "load_manuscript": "Load Manuscript",
-  "delete_manuscript": "Delete Manuscript",
+  "delete_manuscript": "🗑️ Delete",
   "section_editor": "## Section Editor",
   "sections": "Sections",
   "new_section_name": "New Section Name",

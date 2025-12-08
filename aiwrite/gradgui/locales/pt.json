@@ -10,7 +10,7 @@
   "create_manuscript": "Criar Manuscrito",
   "select_manuscript": "Selecionar Manuscrito",
   "load_manuscript": "Carregar Manuscrito",
-  "delete_manuscript": "Deletar Manuscrito",
+  "delete_manuscript": "🗑️ Delete",
   "section_editor": "## Editor de Seções",
   "sections": "Seções",
   "new_section_name": "Nome da Nova Seção",
