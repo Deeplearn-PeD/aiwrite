@@ -367,12 +367,15 @@ def create_interface(db_path, logo):
                         create_btn = gr.Button(i18n("create_manuscript"))
 
                         # Load manuscript
-                        manuscripts_dropdown = gr.Dropdown(
-                            choices=app.get_manuscripts_list(),
-                            label=i18n("select_manuscript"),
-                            interactive=True
-                        )
-                        delete_btn = gr.Button(i18n("delete_manuscript"), variant="stop")
+                        with gr.Row():
+                            manuscripts_dropdown = gr.Dropdown(
+                                choices=app.get_manuscripts_list(),
+                                label=i18n("select_manuscript"),
+                                interactive=True,
+                                scale=4
+                            )
+                            delete_btn = gr.Button("🗑️", variant="stop", scale=1,
+                                                   min_width=50, tooltip=i18n("delete_manuscript"))
 
                         # status_text = gr.Textbox(label="Status", interactive=False)
 
