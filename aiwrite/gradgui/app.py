@@ -375,7 +375,7 @@ def create_interface(db_path, logo):
                                 scale=4
                             )
                             delete_btn = gr.Button("🗑️", variant="stop", scale=1,
-                                                   min_width=50, tooltip=i18n("delete_manuscript"))
+                                                   min_width=50)
 
                         # status_text = gr.Textbox(label="Status", interactive=False)
 
