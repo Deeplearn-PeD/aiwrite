@@ -7,7 +7,7 @@ requires-python = ">=3.12,<3.14"
 readme = "README.md"
 dependencies = [
     "flet>=0.25.2",
-    "libby",
+    "libby==0.5.0",
     "sqlmodel>=0.0.18",
     "python-dotenv>=1.0.1,<2",
     "gradio>=5.38.2,<6",
@@ -19,16 +19,16 @@ dependencies = [
 aiwrite = "aiwrite.main:run"
 
 [tool.uv]
-package = false
+package = true
 
 [tool.uv.sources]
 libby = { git = "https://github.com/Deeplearn-PeD/libby", branch = "main" }
 
 [tool.hatch.build.targets.sdist]
-include = ["./aiwrite"]
+include = ["aiwrite"]
 
 [tool.hatch.build.targets.wheel]
-include = ["./aiwrite"]
+include = ["aiwrite"]
 
 [tool.hatch.build.targets.wheel.sources]
 "./aiwrite" = "aiwrite"
