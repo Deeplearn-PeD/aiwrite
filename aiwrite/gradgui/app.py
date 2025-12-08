@@ -482,7 +482,6 @@ def create_interface(db_path, logo):
                             allow_custom_value=True,
                             interactive=True
                         )
-                        embed_btn = gr.Button("Incorporar Documento")
                         refresh_collections_btn = gr.Button("Atualizar Coleções")
 
                     with gr.Column(scale=2):
@@ -620,7 +619,8 @@ def create_interface(db_path, logo):
             outputs=[status_text]
         )
 
-        embed_btn.click(
+        # Incorporar documento automaticamente após upload
+        file_upload.change(
             app.embed_document,
             inputs=[file_upload, collection_name_dropdown],
             outputs=[status_text, documents_display]
