@@ -96,7 +96,7 @@ class Workflow:
         self.libby = LibbyDBot(model=model)
         self.dburl = dburl
         self.embedding_model = embedding_model
-        self.KB = DocEmbedder(col_name=collection_name, dburl=f'sqlite://{db_path}/embedding.db', embedding_model=embedding_model)
+        self.KB = DocEmbedder(col_name=collection_name, dburl=dburl, embedding_model=embedding_model)
         self.manuscript = None
         self.project_id = project_id
         self.current_project = self.get_project(project_id) if project_id else None
