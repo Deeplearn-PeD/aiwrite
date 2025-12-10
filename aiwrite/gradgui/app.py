@@ -12,8 +12,8 @@ from aiwrite.workflow import Workflow, Project
 
 
 class GradioAIWrite:
-    def __init__(self, db_path):
-        self.workflow = Workflow(model='gemini-2.5-flash', dburl=f'sqlite:///{db_path}/aiwrite.db',
+    def __init__(self, db_path, dburl):
+        self.workflow = Workflow(model='gemini-2.5-flash', dburl=dburl,#f'sqlite:///{db_path}/aiwrite.db',
                                  db_path=db_path,
                                  embedding_model="gemini-embedding-001"
                                  )
@@ -310,8 +310,8 @@ class GradioAIWrite:
                                                                            )
 
 
-def create_interface(db_path, logo):
-    app = GradioAIWrite(db_path=db_path)
+def create_interface(db_path, dburl, logo):
+    app = GradioAIWrite(db_path=db_path, dburl=dburl)
 
     # Initialize I18n with locales
     i18n_path = 'locales' if os.path.exists('locales') else os.path.join(os.path.dirname(__file__), 'locales')
@@ -667,8 +667,8 @@ def create_interface(db_path, logo):
     return interface, i18n
 
 
-def main(logo:str='', db_path: Optional[str] = '/data'):
-    interface, i18n = create_interface(db_path=db_path, logo=logo)
+def main(logo:str='', db_path: Optional[str] = '/data', dburl: Optional[str]=''):
+    interface, i18n = create_interface(db_path=db_path,dburl=dburl, logo=logo)
     interface.launch(server_name="0.0.0.0",
                      server_port=7860,
                      share=False,
